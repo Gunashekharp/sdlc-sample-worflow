@@ -2,6 +2,11 @@ name: Docs agent — update and deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      full_rebuild:
+        description: 'Document the entire codebase from scratch'
+        type: boolean
+        default: false
   schedule:
     - cron: '0 */10 * * *'
 
@@ -23,39 +28,86 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine documentation scope
+        id: scope
+        run: |
+          MARKER=".github/docs-agent-state"
+          FULL="${{ inputs.full_rebuild }}"
+          if [ "$FULL" = "true" ] || [ ! -f "$MARKER" ]; then
+            MODE="full"; CHANGED=""
+          else
+            LAST_SHA="$(tr -d '[:space:]' < "$MARKER")"
+            if [ -z "$LAST_SHA" ] || ! git cat-file -e "${LAST_SHA}^{commit}" 2>/dev/null; then
+              MODE="full"; CHANGED=""
+            else
+              CHANGED="$(git diff --name-only "$LAST_SHA" HEAD -- src server || true)"
+              if [ -z "$CHANGED" ]; then MODE="none"; else MODE="incremental"; fi
+            fi
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          {
+            echo "changed<<DOCS_EOF"
+            echo "$CHANGED"
+            echo "DOCS_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Run mode: $MODE"
+
       - name: Run the documentation agent
+        if: steps.scope.outputs.mode != 'none'
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            You maintain the documentation for this repository. The docs are
-            MkDocs Markdown files in the `docs/` folder.
+            You are the documentation agent for this repository. The docs are
+            MkDocs Markdown pages in the `docs/` folder.
 
-            Do a full review: read the repository and make sure every page in
-            `docs/` is accurate and complete. Fill gaps and fix stale content.
+            RUN MODE: ${{ steps.scope.outputs.mode }}
 
-            Rules:
-            - Keep edits factual and surgical. Never invent behaviour.
-            - If something is unclear, add a short `!!! warning "Needs review"`
-              admonition instead of guessing.
-            - If nothing in `docs/` needs to change, make no edits.
-            - Do not edit anything outside the `docs/` folder.
+            If RUN MODE is "full":
+              Do a complete, exhaustive pass. Read every source file under
+              `src/` and `server/src/`, the config files, the package.json
+              files and the tests. Produce deeply detailed documentation
+              covering every module, component, API endpoint, workflow and
+              configuration. Give each significant area its own page under
+              `docs/` (grouped in folders such as `docs/backend/` and
+              `docs/frontend/`) and add new pages to the `nav:` list in
+              `mkdocs.yml`, keeping the existing YAML indentation exactly.
 
-            Style: clear, present tense, short paragraphs. Use Material
-            admonitions (`!!! note`, `!!! warning`) for callouts.
+            If RUN MODE is "incremental":
+              Only these source files changed since the docs were last updated:
+              ---
+              ${{ steps.scope.outputs.changed }}
+              ---
+              Read those changed files, understand what changed, and update
+              ONLY the documentation pages those changes affect. Do not rewrite
+              unrelated pages. If a change introduces something with no page
+              yet, create a new page and add it to the `nav:` in `mkdocs.yml`.
+
+            In both modes:
+            - Be precise and accurate. Base every statement on the actual code.
+              Never invent behaviour. If something is genuinely ambiguous, add a
+              brief `!!! warning "Needs review"` note instead of guessing.
+            - Write clear, detailed prose with exact file paths, function names,
+              data shapes, edge cases and concrete code examples.
+            - Use Material formatting: `!!! note` / `!!! warning` admonitions,
+              tables, fenced code blocks, and `mermaid` diagrams.
+            - Only edit Markdown files in `docs/` and the `nav:` section of
+              `mkdocs.yml`. Do not modify source code or workflow files.
           claude_args: |
-            --model claude-sonnet-4-6
-            --max-turns 30
+            --model claude-opus-4-7
+            --max-turns 120
             --allowedTools "Read,Edit,Write,Grep,Glob"
 
       - name: Commit documentation updates
+        if: steps.scope.outputs.mode != 'none'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git rev-parse HEAD > .github/docs-agent-state
           git config user.name "docs-bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain docs)" ]; then
-            git add docs
+          if [ -n "$(git status --porcelain docs mkdocs.yml .github/docs-agent-state)" ]; then
+            git add docs mkdocs.yml .github/docs-agent-state
             git commit -m "docs: automated update by the documentation agent"
             git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "Push skipped; continuing to build and deploy."
           else
