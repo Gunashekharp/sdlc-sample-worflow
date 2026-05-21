@@ -1,29 +1,12 @@
 # Frontend
 
-The frontend is the Snabbit Agent Console dashboard. It lives at the repository
-root.
+!!! note "This page has moved"
+    The frontend documentation has been split into a dedicated section. Start at
+    the [Frontend overview](frontend/index.md).
 
-## Stack
-
-- Vite
-- React 19
-- TypeScript
-- Tailwind CSS v4
-
-## Layout
-
-| Folder            | Contents                          |
-| ----------------- | --------------------------------- |
-| `src/components/` | UI components and their tests     |
-| `src/lib/`        | Pure logic, the API client, hooks |
-| `src/data/`       | Local seed data and types         |
-
-## Data sources
-
-The CI/CD pipelines panel reads live data from the backend. The agent grid and
-the KPIs currently use local seed data from `src/data/`.
-
-## Tests
-
-The frontend has 37 tests using Vitest and React Testing Library. Run them with
-`npm test`.
+- [Overview](frontend/index.md) — stack, entry points, composition, layout.
+- [Components](frontend/components.md) — every UI component.
+- [Library & hooks](frontend/lib.md) — API client, `useFetch`, `usePersistentState`, `filterAgents`, `sortAgents`.
+- [Data & types](frontend/data.md) — the `Agent` / `Kpi` types and seed data.
+- [Styling & design tokens](frontend/styling.md) — the Tailwind theme.
+- [Testing](frontend/testing.md) — the Vitest + Testing Library suite.

@@ -30,8 +30,21 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Architecture: architecture.md
-  - Frontend: frontend.md
-  - Backend: backend.md
+  - Frontend:
+    - Overview: frontend/index.md
+    - Components: frontend/components.md
+    - Library & hooks: frontend/lib.md
+    - Data & types: frontend/data.md
+    - Styling & design tokens: frontend/styling.md
+    - Testing: frontend/testing.md
+  - Backend:
+    - Overview: backend/index.md
+    - Configuration: backend/configuration.md
+    - App & routes: backend/app-and-routes.md
+    - Data stores: backend/stores.md
+    - Database: backend/database.md
+    - CI/CD integration: backend/cicd-integration.md
+    - Testing: backend/testing.md
   - API reference: api-reference.md
 
 markdown_extensions:

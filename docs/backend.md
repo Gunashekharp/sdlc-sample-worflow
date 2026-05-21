@@ -1,33 +1,13 @@
 # Backend
 
-The backend is an Express API in the `server/` folder.
+!!! note "This page has moved"
+    The backend documentation has been split into a dedicated section. Start at
+    the [Backend overview](backend/index.md).
 
-## Stack
-
-- Express
-- TypeScript
-- PostgreSQL
-- A CI/CD integration adapter (live: GitHub Actions; mock data includes Jenkins entries)
-
-## Layout
-
-| Folder           | Contents                          |
-| ---------------- | --------------------------------- |
-| `server/src/`    | App, routes, stores, integrations |
-| `server/src/db/` | Database schema and seed script   |
-
-## CI/CD integration
-
-By default the CI/CD adapter returns deterministic mock data — no credentials
-are needed. To pull real GitHub Actions runs, set these environment variables:
-
-```bash
-export GITHUB_TOKEN="<a token with repo + actions:read>"
-export GITHUB_REPO="owner/repo"
-```
-
-## Tests
-
-The backend has 12 tests using Vitest and supertest. They run against the
-in-memory store, so no database is required — run them with
-`cd server && npm test`.
+- [Overview](backend/index.md) — stack, composition root, request flow.
+- [Configuration](backend/configuration.md) — environment variables.
+- [App & routes](backend/app-and-routes.md) — Express wiring and the REST routes.
+- [Data stores](backend/stores.md) — the `Store` interface and domain types.
+- [Database](backend/database.md) — schema and the `db:setup` script.
+- [CI/CD integration](backend/cicd-integration.md) — the pipelines adapter.
+- [Testing](backend/testing.md) — the supertest + Vitest suite.
