@@ -1,11 +1,9 @@
 name: Docs agent — update and deploy
 
 on:
-  workflow_dispatch:        # first run — a complete documentation pass
-  push:
-    branches: [main]        # every merge to main
+  workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'     # daily at 06:00 UTC
+    - cron: '0 */10 * * *'
 
 permissions:
   contents: write
