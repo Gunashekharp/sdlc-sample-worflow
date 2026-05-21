@@ -6,8 +6,8 @@ review, deploys, RCAs, and alert triage. It is backed by a REST API and a live
 CI/CD integration.
 
 !!! note "These docs maintain themselves"
-    On every merge to `main` — and once a day — a documentation agent reviews
-    what changed in the code and updates the affected pages here.
+    On a schedule (every 10 hours) and on manual dispatch, a documentation
+    agent reviews the code and updates the affected pages here.
 
 ## Sections
 

@@ -7,7 +7,7 @@ The backend is an Express API in the `server/` folder.
 - Express
 - TypeScript
 - PostgreSQL
-- A CI/CD integration adapter (GitHub Actions / Jenkins)
+- A CI/CD integration adapter (live: GitHub Actions; mock data includes Jenkins entries)
 
 ## Layout
 

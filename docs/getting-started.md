@@ -32,7 +32,7 @@ npm run dev          # API on http://localhost:3001
     npm test
     ```
 
-    49 tests, using Vitest and React Testing Library.
+    37 tests, using Vitest and React Testing Library.
 
 === "Backend"
 

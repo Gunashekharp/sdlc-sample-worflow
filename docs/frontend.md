@@ -25,5 +25,5 @@ the KPIs currently use local seed data from `src/data/`.
 
 ## Tests
 
-The frontend has 49 tests using Vitest and React Testing Library. Run them with
+The frontend has 37 tests using Vitest and React Testing Library. Run them with
 `npm test`.

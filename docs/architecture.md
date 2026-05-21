@@ -8,7 +8,7 @@ graph LR
   F --> B[Backend - Express API]
   B --> DB[(PostgreSQL)]
   B --> CI[CI/CD adapter]
-  CI --> GH[GitHub Actions / Jenkins]
+  CI --> GH[GitHub Actions]
 ```
 
 ## Frontend
