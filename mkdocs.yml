@@ -2,60 +2,95 @@ site_name: Snabbit Agent Console — Docs
 site_description: Documentation for the Snabbit Agent Console
 site_url: https://gunashekharp.github.io/sdlc-sample-worflow/
 
+repo_url: https://github.com/Gunashekharp/sdlc-sample-worflow
+repo_name: sdlc-sample-worflow
+edit_uri: edit/main/docs/
+
 theme:
   name: material
   icon:
     logo: material/robot-outline
+    repo: fontawesome/brands/github
+  font:
+    text: Poppins
+    code: Roboto Mono
   features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.path
+    - navigation.prune
     - navigation.top
     - navigation.footer
+    - toc.follow
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - content.footnote.tooltips
+    - content.action.edit
+    - content.action.view
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+
+extra_css:
+  - stylesheets/snabbit.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Gunashekharp/sdlc-sample-worflow
+      name: Repository on GitHub
 
 nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Architecture: architecture.md
-  - Frontend:
-    - Overview: frontend/index.md
-    - Components: frontend/components.md
-    - Library & hooks: frontend/lib.md
-    - Data & types: frontend/data.md
-    - Styling & design tokens: frontend/styling.md
-    - Testing: frontend/testing.md
-  - Backend:
-    - Overview: backend/index.md
-    - Configuration: backend/configuration.md
-    - App & routes: backend/app-and-routes.md
-    - Data stores: backend/stores.md
-    - Database: backend/database.md
-    - CI/CD integration: backend/cicd-integration.md
-    - Testing: backend/testing.md
+  - Frontend: frontend.md
+  - Backend: backend.md
   - API reference: api-reference.md
 
 markdown_extensions:
+  - abbr
   - admonition
   - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
   - tables
   - toc:
       permalink: true
   - pymdownx.details
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.keys
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -63,3 +98,8 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
