@@ -8,12 +8,13 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: '0 */10 * * *'
+    - cron: '0 */4 * * *'
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  pull-requests: read
 
 concurrency:
   group: docs
@@ -57,6 +58,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         env:
           FIGMA_API_KEY: ${{ secrets.FIGMA_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -120,21 +122,31 @@ jobs:
             - Keep Mermaid syntax valid and reasonably simple. If a diagram
               would be guesswork, add a `:::caution` note instead.
 
-            Figma designs:
-            - Read the mapping file `.github/figma-map.yml`. It gives a Figma
-              file key and, per docs page, the design frames to embed.
-            - For each design entry, call `mcp__figma__download_figma_images`
-              to export that node as a PNG into
-              `docs-site/public/figma/<image_name>.png`.
-            - Call `mcp__figma__get_figma_data` on the node when you need its
-              structure or text to describe the screen accurately.
-            - On the mapped docs page, embed the design like this:
-              ![<caption>](/sdlc-sample-worflow/figma/<image_name>.png)
-              The `/sdlc-sample-worflow` base prefix is required or the image
-              will 404. Add a short written description below the image.
-            - If a Figma call fails (for example a missing token or an
-              invalid node), add a `:::caution` note on the page instead of
-              guessing — do not invent a design.
+            Figma designs from merged pull requests:
+            - The marker file `.github/docs-agent-state` holds the commit SHA
+              the docs were last built from. Get that commit's date with:
+              `git show -s --format=%cI <SHA>`
+            - Using the GitHub CLI (`gh`, authenticated by the GH_TOKEN
+              environment variable), list pull requests merged into `main`
+              since that date:
+              `gh pr list --state merged --base main --search "merged:>=<date>" --json number --limit 100`
+              On a "full" run, list all merged PRs instead (omit the search).
+            - For each merged PR, read its description and changed files:
+              `gh pr view <number> --json number,title,body,files`
+            - Scan each PR description for Figma links — any URL containing
+              `figma.com`. For every Figma link found:
+              - Export the design with `mcp__figma__download_figma_images`
+                into `docs-site/public/figma/` as a PNG; use
+                `mcp__figma__get_figma_data` for detail to describe it.
+              - Embed it on the documentation page(s) for the SOURCE files
+                that same PR changed (files under `src/` or `server/src/`):
+                ![<short caption>](/sdlc-sample-worflow/figma/<name>.png)
+                The `/sdlc-sample-worflow` prefix is required or the image
+                404s. Add a short written description below the image.
+            - A PR with no Figma link just has its changed code documented
+              as usual — there is no design to embed.
+            - If a Figma call or a gh call fails, add a `:::caution` note
+              rather than guessing or inventing a design.
 
             Strict formatting rules for Starlight:
             - EVERY Markdown file must begin with frontmatter, exactly:
@@ -156,7 +168,7 @@ jobs:
             --model claude-sonnet-4-6
             --max-turns 200
             --mcp-config '{"mcpServers":{"figma":{"command":"npx","args":["-y","figma-developer-mcp","--stdio"]}}}'
-            --allowedTools "Read,Edit,Write,Grep,Glob,mcp__figma__get_figma_data,mcp__figma__download_figma_images"
+            --allowedTools "Read,Edit,Write,Grep,Glob,Bash,mcp__figma__get_figma_data,mcp__figma__download_figma_images"
 
       - name: Commit documentation updates
         if: steps.scope.outputs.mode != 'none'
