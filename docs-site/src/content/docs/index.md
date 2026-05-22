@@ -81,6 +81,7 @@ main region stacks four panels:
 - [Library](/sdlc-sample-worflow/frontend/lib/) — hooks and pure functions
 - [Data & types](/sdlc-sample-worflow/frontend/data/) — agent and KPI seed data
 - [Styling](/sdlc-sample-worflow/frontend/styling/) — Tailwind tokens
+- [vite-env.d.ts](/sdlc-sample-worflow/frontend/vite-env/) — `import.meta.env` type declarations
 
 ### Backend
 

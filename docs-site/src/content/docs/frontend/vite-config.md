@@ -87,6 +87,7 @@ Vite's default build configuration (no custom overrides here):
 |------|------|
 | `src/main.tsx` | Vite entry point |
 | `src/index.css` | CSS entry point processed by the Tailwind plugin |
+| `src/vite-env.d.ts` | TypeScript augmentation for `import.meta.env` |
 | `src/test/setup.ts` | Test setup module |
 | `tsconfig.app.json` | TypeScript config for `src/` |
 | `tsconfig.node.json` | TypeScript config for `vite.config.ts` itself |
