@@ -1,15 +1,18 @@
 ---
 title: Data model
+description: Domain types, Postgres schema, and the mapping between them.
 ---
 
-The backend's domain types live in `server/src/domain.ts` and mirror the shapes
-the frontend expects. They are kept structurally in sync with the frontend
-types by hand — there is no shared package.
+The backend domain types live in `server/src/domain.ts`. The Postgres schema
+is in `server/src/db/schema.ts`. The mapping between rows and types is done in
+`server/src/postgresStore.ts`.
 
-## Agent
+## Domain types
+
+### `Agent`
 
 ```ts
-type AgentStatus = 'running' | 'idle' | 'attention'
+type AgentStatus   = 'running' | 'idle' | 'attention'
 type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
 
 interface Agent {
@@ -27,7 +30,7 @@ interface Agent {
 }
 ```
 
-## Kpi
+### `Kpi`
 
 ```ts
 interface Kpi {
@@ -41,63 +44,81 @@ interface Kpi {
 }
 ```
 
-## Seed data (`seed.ts`)
+## Database schema
 
-`seed.ts` exports `SEED_AGENTS` (12 agents) and `SEED_KPIS` (4 KPIs). This
-data is:
+```mermaid
+erDiagram
+  agents {
+    TEXT id PK
+    TEXT name
+    TEXT category
+    TEXT description
+    TEXT status
+    INTEGER runs_per_week
+    INTEGER success_rate
+    TEXT avg_duration
+    TEXT last_run
+    INTEGER last_run_minutes
+    BOOLEAN popular
+  }
+  kpis {
+    TEXT id PK
+    INTEGER sort_order
+    TEXT label
+    TEXT value
+    TEXT delta
+    BOOLEAN positive
+    TEXT hint
+    JSONB trend
+  }
+```
 
-- loaded into Postgres by `npm run db:setup`, and
-- used directly by the in-memory store in tests.
+`agents` and `kpis` are independent tables — no foreign-key relationship.
 
-The values match the frontend's `src/data/` copy exactly.
+## Column mapping
 
-### Seed agents
+### agents
 
-| ID | Name | Category | Status | Runs/wk | Success |
-| ------------------- | ------------------- | ----------- | --------- | ------- | ------- |
-| `pr-reviewer` | PR Reviewer | Review | running | 342 | 96% |
-| `deploy-bot` | Deploy Bot | Deploy | idle | 57 | 99% |
-| `rca-analyst` | RCA Analyst | Reliability | attention | 14 | 88% |
-| `alert-triage` | Alert Triage | Reliability | running | 410 | 94% |
-| `changelog-author` | Changelog Author | Docs | idle | 38 | 99% |
-| `e2e-verifier` | E2E Verifier | Quality | running | 122 | 91% |
-| `flaky-test-hunter` | Flaky Test Hunter | Quality | idle | 26 | 93% |
-| `migration-reviewer`| Migration Reviewer | Review | idle | 19 | 97% |
-| `dependency-bot` | Dependency Bot | Quality | idle | 64 | 95% |
-| `oncall-digest` | On-call Digest | Reliability | idle | 7 | 100% |
-| `spec-author` | Spec Author | Docs | idle | 31 | 98% |
-| `coverage-guard` | Coverage Guard | Quality | running | 88 | 92% |
+| Domain field | Postgres column | Notes |
+|-------------|-----------------|-------|
+| `id` | `id` TEXT PK | Kebab slug |
+| `name` | `name` TEXT | — |
+| `category` | `category` TEXT | Cast `as AgentCategory` at read time |
+| `description` | `description` TEXT | — |
+| `status` | `status` TEXT | Cast `as AgentStatus` at read time |
+| `runsPerWeek` | `runs_per_week` INTEGER | — |
+| `successRate` | `success_rate` INTEGER | — |
+| `avgDuration` | `avg_duration` TEXT | — |
+| `lastRun` | `last_run` TEXT | — |
+| `lastRunMinutes` | `last_run_minutes` INTEGER | — |
+| `popular` | `popular` BOOLEAN | — |
 
-### Seed KPIs
+### kpis
 
-| ID | Label | Value | Delta | Trend (7 pts, oldest → newest) |
-| ----------------- | -------------------- | ------- | ------ | ----------------------------------------- |
-| `agent-runs` | Agent runs · 7d | 1,284 | +18% | 980, 1010, 1060, 1040, 1120, 1180, 1284 |
-| `prs-reviewed` | PRs reviewed | 342 | +9% | 290, 300, 285, 310, 320, 330, 342 |
-| `time-to-merge` | Mean time to merge | 4h 12m | −22% | 340, 330, 318, 300, 285, 270, 252 |
-| `suite-pass-rate` | Suite pass rate | 97.4% | +0.6% | 96.2, 96.5, 96.8, 96.6, 97.0, 97.1, 97.4 |
+| Domain field | Postgres column | Notes |
+|-------------|-----------------|-------|
+| `id` | `id` TEXT PK | — |
+| — | `sort_order` INTEGER | Not on domain type; ordering only |
+| `label` | `label` TEXT | — |
+| `value` | `value` TEXT | — |
+| `delta` | `delta` TEXT | — |
+| `positive` | `positive` BOOLEAN | — |
+| `hint` | `hint` TEXT | — |
+| `trend` | `trend` JSONB | JSON array; `pg` parses automatically |
 
-All four KPIs have `positive: true`. The time-to-merge delta is negative but
-still positive because a falling merge time is a good outcome — the `positive`
-flag drives color, not the sign of `delta`.
+## Relationship to the frontend
 
-## Persistence mapping
+The frontend (`src/data/agents.ts`, `src/data/kpis.ts`) defines identical
+`Agent`, `Kpi`, `AgentStatus`, and `AgentCategory` types. They are kept in sync
+by hand — there is no shared package. Any change to the domain shape must be
+mirrored in both places.
 
-The Postgres tables use `snake_case` columns; `postgresStore.ts` maps rows back
-to the camelCase domain types via `rowToAgent` and `rowToKpi` helper functions.
-The KPI `trend` array is stored as `JSONB` and parsed back automatically.
+## Seed data
 
-| Domain field (Agent) | Postgres column |
-| -------------------- | --------------- |
-| `runsPerWeek` | `runs_per_week` |
-| `successRate` | `success_rate` |
-| `avgDuration` | `avg_duration` |
-| `lastRun` | `last_run` |
-| `lastRunMinutes` | `last_run_minutes` |
+`server/src/seed.ts` exports `SEED_AGENTS` (12 agents) and `SEED_KPIS` (4 KPIs),
+used by:
+- `db/setup.ts` to populate Postgres.
+- The test suite in `createMemoryStore`.
 
-The `kpis` table has an extra `sort_order` column (not present on the domain
-type) used to preserve display order when rows are returned from
-`SELECT * FROM kpis ORDER BY sort_order ASC`.
-
-See [Stores & database](/sdlc-sample-worflow/backend/stores/) for the full
-schema and row-mapping functions.
+See [seed.ts](/sdlc-sample-worflow/backend/seed/) for the full catalogue and
+[db/schema.ts](/sdlc-sample-worflow/backend/db/schema/) for the full SQL.

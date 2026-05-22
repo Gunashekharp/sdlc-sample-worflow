@@ -1,85 +1,88 @@
 ---
 title: Library — hooks & logic
+description: API client, hooks and pure functions in src/lib/.
 ---
 
 `src/lib/` holds the frontend's non-visual logic: the typed API client, two
 React hooks, and two pure list-transformation functions. Keeping this code out
 of components makes it directly unit-testable.
 
-## API client (`api.ts`)
+## Files
 
-A typed client for the backend. The base URL defaults to
-`http://localhost:3001` and can be overridden at build time with `VITE_API_URL`:
+| File | Purpose |
+|------|---------|
+| [api.ts](/sdlc-sample-worflow/frontend/lib/api/) | Typed HTTP client for the backend |
+| [useFetch.ts](/sdlc-sample-worflow/frontend/lib/usefetch/) | Generic data-fetching hook |
+| [usePersistentState.ts](/sdlc-sample-worflow/frontend/lib/usepersistentstate/) | `useState` with `localStorage` persistence |
+| [filterAgents.ts](/sdlc-sample-worflow/frontend/lib/filteragents/) | Category + query filter (pure) |
+| [sortAgents.ts](/sdlc-sample-worflow/frontend/lib/sortagents/) | Four sort strategies (pure) |
 
-```ts
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
-```
-
-### Types
-
-- `PipelineStatus` — `'passing' | 'failing' | 'running'`.
-- `Pipeline` — `id`, `name`, `provider` (`'github-actions' | 'jenkins'`),
-  `branch`, `status`, `durationSeconds`, `triggeredBy`, `updatedAt`.
-- `PipelineSummary` — `total`, `passing`, `failing`, `running`, `passRate`.
-- `PipelinesResponse` — `provider`, `summary`, `pipelines`.
+## Quick reference
 
 ### `fetchPipelines(signal?)`
 
-Fetches `GET /api/pipelines`, throws `Error("API responded <status>")` on a
-non-OK response, and otherwise resolves to a `PipelinesResponse`. Accepts an
-optional `AbortSignal` so callers can cancel the request.
+```ts
+async function fetchPipelines(signal?: AbortSignal): Promise<PipelinesResponse>
+```
 
-## Hooks
+Fetches `GET /api/pipelines`. The base URL defaults to `http://localhost:3001`;
+override with `VITE_API_URL` at build time.
 
 ### `useFetch(fetcher)`
 
-Runs an async `fetcher` on mount and exposes `{ data, loading, error, reload }`.
+```ts
+function useFetch<T>(fetcher: (signal: AbortSignal) => Promise<T>): FetchState<T>
+```
 
-- Aborts the in-flight request on unmount via an `AbortController`, and ignores
-  results once the signal is aborted.
-- `error` is the thrown error's message, or `'Request failed'` for non-`Error`
-  throws.
-- `reload()` bumps an internal nonce to re-run the fetcher.
-
-:::caution
-The `fetcher` must be **referentially stable** (e.g. a module-level function
-like `fetchPipelines`). An inline arrow created each render would re-trigger
-the effect on every render.
-:::
+Runs `fetcher` on mount, exposes `{ data, loading, error, reload }`. Cancels
+in-flight requests on unmount. `reload()` triggers a re-fetch. The fetcher must
+be referentially stable (module-level function).
 
 ### `usePersistentState(key, initial)`
 
-A `useState` variant that mirrors its value to `localStorage` under `key` and
-restores it on the next mount. Storage failures — disabled storage, quota
-errors, malformed JSON — fall back to `initial` rather than throwing, and write
-failures are silently ignored. Persistence is best-effort.
+```ts
+function usePersistentState<T>(key: string, initial: T): [T, (value: T) => void]
+```
 
-Used by `AgentGrid` for the `category` and `sort` selections.
+Like `useState`, but mirrors value to `localStorage` under `key`. Storage
+failures fall back to `initial` silently.
 
-## Pure list logic
+### `filterAgents(agents, filter)`
 
-### `filterAgents(agents, filter)` (`filterAgents.ts`)
+```ts
+function filterAgents(agents: Agent[], filter: AgentFilter): Agent[]
+```
 
-Filters by category and a free-text query. The `AgentFilter` shape is
-`{ query, category }`.
+Filters by `filter.category` (`'All'`, `'Popular'`, or a category name) and
+`filter.query` (case-insensitive substring match on name and description). Pure.
 
-- `category` of `'All'` matches everything; `'Popular'` matches
-  `agent.popular`; any other value is matched against `agent.category`.
-- A non-empty `query` is trimmed and lowercased, then matched as a substring
-  against the agent's name **or** description.
+### `sortAgents(agents, key)`
 
-Pure and side-effect free.
+```ts
+function sortAgents(agents: Agent[], key: SortKey): Agent[]
+```
 
-### `sortAgents(agents, key)` (`sortAgents.ts`)
+Returns a new sorted array. `key` is one of `'runs'`, `'success'`, `'name'`,
+`'recent'`. Does not mutate input. Pure.
 
-Returns a **new** sorted array (does not mutate the input). The `SortKey` union
-and its menu labels (`SORT_LABELS`):
+## Data flow in AgentGrid
 
-| Key       | Label          | Order                                  |
-| --------- | -------------- | -------------------------------------- |
-| `runs`    | Most runs      | `runsPerWeek` descending               |
-| `success` | Success rate   | `successRate` descending               |
-| `name`    | Name (A–Z)     | `name` via `localeCompare`             |
-| `recent`  | Recently run   | `lastRunMinutes` ascending             |
+```mermaid
+flowchart LR
+  prop["agents prop"]
+  query["query state"]
+  cat["category state\n(persisted)"]
+  sort["sort state\n(persisted)"]
+  filter["filterAgents()"]
+  sortFn["sortAgents()"]
+  memo["visible\n(useMemo)"]
+  cards["AgentCard × N"]
 
-`AgentGrid` composes the two: `sortAgents(filterAgents(agents, …), sort)`.
+  prop --> filter
+  query --> filter
+  cat --> filter
+  filter --> sortFn
+  sort --> sortFn
+  sortFn --> memo
+  memo --> cards
+```
