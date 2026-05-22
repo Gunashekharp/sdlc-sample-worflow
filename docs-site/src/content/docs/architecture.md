@@ -11,12 +11,15 @@ and run independently.
 
 ![Snabbit 2.0 — product design](/sdlc-sample-worflow/figma/snabbit-2-0-overview.png)
 
-The design shows the full Agent Console dashboard: a collapsible left sidebar
-with navigation and recent sessions, a top bar with a global search palette and
-environment switcher, a four-tile KPI strip, a featured-agent hero card, a live
-CI/CD pipeline table, and a scrollable agent grid with category tabs, sort
-controls, and free-text filtering. A prompt bar at the bottom accepts
-natural-language tasks directed at any agent.
+The Snabbit 2.0 product design from Figma. The Agent Console dashboard comprises:
+a collapsible left sidebar (workspace switcher, navigation items, recent sessions,
+user footer); a top bar with a global ⌘K search palette and an environment
+switcher; a four-tile KPI strip showing agent runs, PRs reviewed, mean time to
+merge, and suite pass rate; a featured-agent hero card with a gradient accent
+wash and a "Run agent" call to action; a live CI/CD pipeline table with status
+indicators, branch chips, and duration; a scrollable agent grid with category
+tabs, a sort select, and free-text filtering; and a multi-line prompt bar pinned
+at the bottom with a model picker and Enter-to-send keyboard shortcut.
 
 ## System overview
 

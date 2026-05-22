@@ -132,6 +132,13 @@ browser-like DOM; `css: true` enables CSS class resolution in tests.
 
 ## Per-file reference
 
+### Entry points
+
+- [App.tsx](/sdlc-sample-worflow/frontend/app/) — root component and dashboard layout
+- [main.tsx](/sdlc-sample-worflow/frontend/main/) — React root creation and mount
+- [vite.config.ts](/sdlc-sample-worflow/frontend/vite-config/) — build and test configuration
+- [test/setup.ts](/sdlc-sample-worflow/frontend/test-setup/) — jest-dom matchers and localStorage isolation
+
 ### Components (`src/components/`)
 
 - [AgentCard](/sdlc-sample-worflow/frontend/components/agentcard/) — individual agent tile

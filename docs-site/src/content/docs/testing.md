@@ -15,9 +15,12 @@ npm run test:watch  # watch mode
 ```
 
 Tests run in a `jsdom` environment with globals enabled (`vite.config.ts`).
-The setup file `src/test/setup.ts` imports `@testing-library/jest-dom` and
-calls `localStorage.clear()` after every test so `usePersistentState` data
-cannot leak between cases.
+The setup file [`src/test/setup.ts`](/sdlc-sample-worflow/frontend/test-setup/)
+imports `@testing-library/jest-dom` and calls `localStorage.clear()` after
+every test so `usePersistentState` data cannot leak between cases.
+
+See [`vite.config.ts`](/sdlc-sample-worflow/frontend/vite-config/) for the full
+test configuration reference.
 
 ### Test files — 37 tests total
 
@@ -128,7 +131,9 @@ cd server
 npm test
 ```
 
-Tests run in a Node environment. Each test builds the app fresh using
+Tests run in a Node environment (`environment: 'node'` in
+[`server/vitest.config.ts`](/sdlc-sample-worflow/backend/vitest-config/)). Each
+test builds the app fresh using
 `createApp({ store: createMemoryStore(SEED_AGENTS, SEED_KPIS), cicd: createMockCicdProvider() })`.
 **No database and no network access are required.**
 

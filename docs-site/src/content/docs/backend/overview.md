@@ -107,3 +107,4 @@ no network. The running server injects real dependencies.
 - [db/schema.ts](/sdlc-sample-worflow/backend/db/schema/) — SQL schema
 - [db/setup.ts](/sdlc-sample-worflow/backend/db/setup/) — setup script
 - [integrations/cicd.ts](/sdlc-sample-worflow/backend/integrations/cicd/) — CI/CD adapter
+- [vitest.config.ts](/sdlc-sample-worflow/backend/vitest-config/) — backend test configuration

@@ -128,13 +128,13 @@ const TABS: string[] = ['All', 'Popular', ...AGENT_CATEGORIES]
 | `spec-author` | Spec Author | Docs | idle | 31 | 98% | No |
 | `coverage-guard` | Coverage Guard | Quality | running | 88 | 92% | No |
 
-Popular agents (6): PR Reviewer, Deploy Bot, Alert Triage, E2E Verifier,
-Dependency Bot, Coverage Guard. *(Note: `coverage-guard` has `popular: false`
-in the source; the "6" count should be verified against the actual data.)*
+Popular agents (5): PR Reviewer, Deploy Bot, Alert Triage, E2E Verifier,
+Dependency Bot.
 
-:::caution
-`coverage-guard` has `popular: false` in the source code despite having a
-high run count (88/wk). The popular flag is set manually, not derived.
+:::note
+`coverage-guard` has `popular: false` despite its high run volume (88/wk).
+The `popular` flag is set manually in the source — it is not derived from
+`runsPerWeek` or any other metric.
 :::
 
 ## Tests

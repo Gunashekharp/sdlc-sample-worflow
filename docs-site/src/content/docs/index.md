@@ -76,6 +76,7 @@ main region stacks four panels:
 ### Frontend
 
 - [Overview](/sdlc-sample-worflow/frontend/overview/) — layout, entry points, build tooling
+- [App.tsx](/sdlc-sample-worflow/frontend/app/) — root component and dashboard assembly
 - [Components](/sdlc-sample-worflow/frontend/components/) — all UI components
 - [Library](/sdlc-sample-worflow/frontend/lib/) — hooks and pure functions
 - [Data & types](/sdlc-sample-worflow/frontend/data/) — agent and KPI seed data
@@ -91,4 +92,4 @@ main region stacks four panels:
 
 ### Testing
 
-- [Testing](/sdlc-sample-worflow/testing/) — 49 tests across both packages
+- [Testing](/sdlc-sample-worflow/testing/) — 49 tests across both packages, with full per-suite breakdowns
