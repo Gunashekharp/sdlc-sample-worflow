@@ -61,6 +61,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The dispatcher starts this workflow as the github-actions bot;
+          # allow bot-initiated runs or claude-code-action refuses them.
+          allowed_bots: "*"
           prompt: |
             You maintain the documentation for this repository. The docs are a
             Starlight (Astro) site. The documentation pages are Markdown files
