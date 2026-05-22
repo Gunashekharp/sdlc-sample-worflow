@@ -96,7 +96,7 @@ jobs:
             Be accurate — base every statement on the actual code. If something
             is unclear, add a `:::caution` note rather than guessing.
           claude_args: |
-            --model claude-opus-4-7
+            --model claude-sonnet-4-6
             --max-turns 120
             --allowedTools "Read,Edit,Write,Grep,Glob"
 
