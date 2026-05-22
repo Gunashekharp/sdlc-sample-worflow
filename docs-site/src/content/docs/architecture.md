@@ -1,11 +1,22 @@
 ---
 title: Architecture
-description: How the Snabbit Agent Console fits together — with diagrams.
 ---
 
-The console is split into a React frontend and an Express backend, connected
-over a REST API, with a pluggable CI/CD integration. Both packages live in one
-repository but build, test and run independently.
+The Snabbit Agent Console is split into a React frontend (Vite SPA) and an
+Express backend API, connected over a small REST surface, with a pluggable
+CI/CD integration layer. Both packages live in one repository but build, test,
+and run independently.
+
+## Product design
+
+![Snabbit 2.0 — product design](/sdlc-sample-worflow/figma/snabbit-2-0-overview.png)
+
+The design shows the full Agent Console dashboard: a collapsible left sidebar
+with navigation and recent sessions, a top bar with a global search palette and
+environment switcher, a four-tile KPI strip, a featured-agent hero card, a live
+CI/CD pipeline table, and a scrollable agent grid with category tabs, sort
+controls, and free-text filtering. A prompt bar at the bottom accepts
+natural-language tasks directed at any agent.
 
 ## System overview
 
@@ -42,13 +53,13 @@ flowchart TD
 ```
 
 The frontend is a fully self-contained SPA. Of its four dashboard panels, only
-the **CI/CD pipelines panel** makes a network call to the backend. The KPI
+the **CI/CD pipelines panel** makes a live network call to the backend. The KPI
 strip, featured agent, and agent grid all render from static seed data bundled
 into the client at build time.
 
 ## Frontend
 
-A Vite + React 19 + TypeScript + Tailwind CSS v4 SPA at the repository root.
+A Vite 8 + React 19 + TypeScript 6 + Tailwind CSS v4 SPA at the repository root.
 
 ### Component tree
 
@@ -73,7 +84,7 @@ flowchart TD
 
   KpiStrip -->|"4× KpiCard"| KpiCard["KpiCard (internal)"]
   KpiCard --> Sparkline["Sparkline"]
-  KpiCard --> IconTrendUp["IconTrendUp / IconTrendDown"]
+  KpiCard --> IconTrend["IconTrendUp / IconTrendDown"]
   FeaturedAgent --> StatusDot["StatusDot"]
   FeaturedAgent -->|"Stat (internal)"| Stat["Stat (internal)"]
   PipelinesPanel -->|"N× PipelineRow"| PipelineRow["PipelineRow (internal)"]
@@ -106,14 +117,14 @@ flowchart LR
 
 ## Backend
 
-An Express 5 + TypeScript API run with `tsx`, in `server/`.
+An Express 5 + TypeScript API run with `tsx`, located in `server/`.
 
 ### Dependency-injection architecture
 
-The critical architectural decision: `createApp({ store, cicd })` accepts its
-dependencies by injection (`server/src/app.ts`). The running server passes a
-Postgres store and the configured CI/CD provider; tests pass an in-memory store
-and the mock provider. This means `npm test` needs no database, no network.
+`createApp({ store, cicd })` in `server/src/app.ts` accepts its dependencies by
+injection. The running server passes a Postgres store and the configured CI/CD
+provider; tests pass an in-memory store and the mock provider. This means
+`npm test` needs no database and no network.
 
 ```mermaid
 flowchart TD
@@ -133,7 +144,7 @@ flowchart TD
   index --> createApp
   createApp --> registerRoutes
 
-  tests["test suite\napi.test.ts"] -->|"test"| memoryStore
+  tests["api.test.ts"] -->|"test"| memoryStore
   tests -->|"test"| mockCicd
   tests --> createApp
 ```
@@ -201,9 +212,8 @@ erDiagram
 ```
 
 `agents` and `kpis` are independent tables with no foreign-key relationship.
-The `kpis.trend` column stores a JSON array of numbers (`JSONB`). The extra
-`sort_order` column on `kpis` preserves display order; it is not present on the
-`Kpi` domain type.
+`kpis.trend` stores a JSON array of numbers (JSONB). `kpis.sort_order` preserves
+display order; it is not part of the `Kpi` domain type.
 
 ## CI/CD provider selection
 
@@ -219,9 +229,10 @@ flowchart TD
 
 ## The data boundary
 
-The frontend (`src/data/`) and backend (`server/src/domain.ts`, `server/src/seed.ts`)
-maintain structurally identical `Agent` and `Kpi` types by hand — there is no
-shared package. The seed data is also duplicated.
+The frontend (`src/data/`) and backend (`server/src/domain.ts`,
+`server/src/seed.ts`) maintain structurally identical `Agent` and `Kpi` types
+by hand — there is no shared package. The seed data is also duplicated in both
+locations.
 
 In Postgres the columns are `snake_case`; `postgresStore.ts` maps rows back to
 the camelCase domain types. The KPI `trend` array is stored as JSONB.
@@ -230,4 +241,4 @@ the camelCase domain types. The KPI `trend` array is stored as JSONB.
 
 The API enables CORS for all origins so the Vite dev server (port 5173) can
 call it (port 3001). Both ports are configurable: the API port via `PORT`, the
-frontend's API base via `VITE_API_URL`.
+frontend's API base URL via `VITE_API_URL`.
