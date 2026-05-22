@@ -67,26 +67,20 @@ and 20px (`gap-5`) between panels.
 
 ```mermaid
 flowchart TD
-  subgraph Screen["h-screen overflow-hidden flex row"]
-    Sidebar["Sidebar\nw-60 fixed left nav"]
-    subgraph MainCol["flex-1 flex col"]
+  subgraph Screen["h-screen overflow-hidden — flex row"]
+    Sidebar["Sidebar\nw-60 shrink-0"]
+    subgraph MainCol["flex-1 min-w-0 — flex col"]
       TopBar["TopBar\nh-14 shrink-0"]
-      subgraph Main["main flex-1 overflow-y-auto"]
+      subgraph Main["main — flex-1 overflow-y-auto"]
         KpiStrip["KpiStrip\n4 KPI cards"]
         FeaturedAgent["FeaturedAgent\nHero card"]
         PipelinesPanel["PipelinesPanel\nLive from API"]
         AgentGrid["AgentGrid\nFilterable grid"]
       end
-      PromptBar["PromptBar\nshrink-0 bottom"]
+      PromptBar["PromptBar\nshrink-0"]
     end
   end
-
   Sidebar --- MainCol
-  TopBar --> Main
-  KpiStrip --> FeaturedAgent
-  FeaturedAgent --> PipelinesPanel
-  PipelinesPanel --> AgentGrid
-  Main --> PromptBar
 ```
 
 ## Source structure
