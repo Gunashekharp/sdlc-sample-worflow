@@ -29,3 +29,5 @@ export default function App() {
     </div>
   )
 }
+
+// docs-agent test: trigger a docs rebuild
