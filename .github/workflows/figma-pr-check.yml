@@ -1,0 +1,62 @@
+name: Figma link check
+
+# Gate: every pull request into main must include a Figma design link in
+# its description. This is a plain check (no AI) and runs directly on
+# pull_request events. Make it a required status check in branch
+# protection so a PR cannot be merged until the check is green.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: figma-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  figma-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a Figma link in the PR description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          MARKER="<!-- figma-link-check -->"
+
+          # Find the first figma.com link in the PR description.
+          LINK="$(printf '%s' "$BODY" | grep -oiE 'https?://[a-zA-Z0-9.-]*figma\.com/[^ )"<>]*' | head -n1)"
+
+          if [ -n "$LINK" ]; then
+            COMMENT="$(printf '%s\n' "$MARKER" \
+              "**Figma link check passed.** A Figma design link was found in the PR description:" \
+              "" "$LINK" "" \
+              "When this PR is merged, the documentation agent will pull this design into the docs page for the code changed here.")"
+          else
+            COMMENT="$(printf '%s\n' "$MARKER" \
+              "**Figma link check failed.** No Figma link was found in the PR description." \
+              "" \
+              "This repository requires every pull request to include a Figma design link. Edit the PR description to add a URL containing figma.com - this check re-runs automatically and turns green once the link is there.")"
+          fi
+
+          # Post or update a single sticky comment on the PR.
+          CID="$(gh api "repos/$REPO/issues/$PR/comments" --jq "map(select(.body | contains(\"$MARKER\"))) | .[0].id // empty" 2>/dev/null || true)"
+          if [ -n "$CID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/$PR/comments/$CID" -f body="$COMMENT" >/dev/null 2>&1 || true
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$COMMENT" >/dev/null 2>&1 || true
+          fi
+
+          if [ -z "$LINK" ]; then
+            echo "::error::No Figma link found in the PR description. Add a figma.com URL to the description."
+            exit 1
+          fi
+          echo "Figma link present: $LINK"
