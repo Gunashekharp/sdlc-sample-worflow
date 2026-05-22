@@ -7,11 +7,6 @@ on:
         description: 'Document the entire codebase from scratch'
         type: boolean
         default: false
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'server/**'
   schedule:
     - cron: '0 */4 * * *'
 
