@@ -66,11 +66,23 @@ jobs:
 
             If RUN MODE is "full":
               Read the entire repository — every source file under `src/` and
-              `server/src/`, the config files and the tests. Produce thorough,
-              detailed documentation covering every module, component, API
-              endpoint, workflow and configuration. Organise pages into
-              subfolders inside `docs-site/src/content/docs/` (for example
-              `frontend/` and `backend/`); the sidebar is generated
+              `server/src/`, the config files and the tests. Produce deep,
+              exhaustive reference documentation — not high-level summaries.
+              Give every source file its own page, and on that page:
+              - Document EVERY function, method, class, React component,
+                hook, type and exported constant in the file. Skip nothing.
+              - For each one, give the full signature, every parameter (name,
+                type, purpose), the return value, any errors thrown and any
+                side effects.
+              - Walk through the implementation in depth: explain the logic
+                block by block, and line by line wherever the code is
+                non-obvious. Quote the relevant source lines in fenced code
+                blocks as you explain them.
+              - Call out edge cases, assumptions and how each piece connects
+                to the rest of the codebase.
+              Organise pages into subfolders inside
+              `docs-site/src/content/docs/` that mirror the source tree (for
+              example `frontend/` and `backend/`); the sidebar is generated
               automatically from the folder structure.
 
             If RUN MODE is "incremental":
@@ -78,7 +90,33 @@ jobs:
               ---
               ${{ steps.scope.outputs.changed }}
               ---
-              Read them and update only the documentation pages they affect.
+              Read them and update the documentation pages they affect, to
+              the same depth as a full run: re-document every function,
+              method, class, component and type in each changed file, with
+              full signatures, parameters, return values and a line-by-line
+              walkthrough of any non-obvious logic.
+
+            Diagrams — the docs site renders Mermaid, so use it heavily:
+            - Write each diagram as a fenced code block with the language
+              set to mermaid; the site renders these automatically as
+              pictures.
+            - Add diagrams to every page where they aid understanding, and
+              prefer a diagram over long prose for anything structural.
+            - Use `sequenceDiagram` for request flows, authentication, data
+              synchronisation and any multi-step interaction between
+              components or services.
+            - Use `flowchart TD` for control flow, decision logic and
+              processes.
+            - Give the system an overall architecture diagram: a `flowchart`
+              showing the React frontend, the Express API, the PostgreSQL
+              database and any external services, with the connections
+              between them.
+            - Render the database schema as an `erDiagram` showing entities,
+              columns and relationships.
+            - Use `stateDiagram-v2` for components with distinct states and
+              `classDiagram` for important module or class relationships.
+            - Keep Mermaid syntax valid and reasonably simple. If a diagram
+              would be guesswork, add a `:::caution` note instead.
 
             Strict formatting rules for Starlight:
             - EVERY Markdown file must begin with frontmatter, exactly:
@@ -97,7 +135,7 @@ jobs:
             is unclear, add a `:::caution` note rather than guessing.
           claude_args: |
             --model claude-sonnet-4-6
-            --max-turns 120
+            --max-turns 200
             --allowedTools "Read,Edit,Write,Grep,Glob"
 
       - name: Commit documentation updates
