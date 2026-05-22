@@ -1,0 +1,36 @@
+name: Trigger docs agent on push
+
+# Event-driven companion to docs.yml.
+#
+# claude-code-action only accepts `workflow_dispatch` and `schedule`
+# events, so docs.yml cannot listen for pushes directly. This tiny
+# workflow IS allowed to listen for pushes, and all it does is fire
+# docs.yml via workflow_dispatch — which the action accepts.
+#
+# A workflow_dispatch triggered by the built-in GITHUB_TOKEN is exempt
+# from GitHub's loop-prevention rule, so no extra token is needed.
+# No infinite loop: the docs agent's own commits only touch
+# `docs-site/`, which the path filter below ignores.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'server/**'
+
+permissions:
+  actions: write
+
+concurrency:
+  group: docs-trigger
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch the documentation workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run docs.yml --repo "${{ github.repository }}" --ref main
