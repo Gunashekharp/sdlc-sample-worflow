@@ -1,0 +1,31 @@
+/* Snabbit Agent Console — Starlight theme */
+
+/* Dark theme (default) */
+:root {
+  --sl-color-accent-low: #44102a;
+  --sl-color-accent: #f70f79;
+  --sl-color-accent-high: #fbc0da;
+  --sl-color-bg: #0f0f12;
+  --sl-color-bg-nav: #141417;
+  --sl-color-bg-sidebar: #0f0f12;
+}
+
+/* Light theme */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ffd4e7;
+  --sl-color-accent: #c8005f;
+  --sl-color-accent-high: #59002c;
+  --sl-color-bg: #fcfbf8;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #fcfbf8;
+}
+
+/* Typography polish */
+:root {
+  --sl-text-h1: 2.1rem;
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2 {
+  letter-spacing: -0.01em;
+}

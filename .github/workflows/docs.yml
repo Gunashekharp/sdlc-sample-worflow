@@ -58,41 +58,43 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            You are the documentation agent for this repository. The docs are
-            MkDocs Markdown pages in the `docs/` folder.
+            You maintain the documentation for this repository. The docs are a
+            Starlight (Astro) site. The documentation pages are Markdown files
+            in `docs-site/src/content/docs/`.
 
             RUN MODE: ${{ steps.scope.outputs.mode }}
 
             If RUN MODE is "full":
-              Do a complete, exhaustive pass. Read every source file under
-              `src/` and `server/src/`, the config files, the package.json
-              files and the tests. Produce deeply detailed documentation
-              covering every module, component, API endpoint, workflow and
-              configuration. Give each significant area its own page under
-              `docs/` (grouped in folders such as `docs/backend/` and
-              `docs/frontend/`) and add new pages to the `nav:` list in
-              `mkdocs.yml`, keeping the existing YAML indentation exactly.
+              Read the entire repository — every source file under `src/` and
+              `server/src/`, the config files and the tests. Produce thorough,
+              detailed documentation covering every module, component, API
+              endpoint, workflow and configuration. Organise pages into
+              subfolders inside `docs-site/src/content/docs/` (for example
+              `frontend/` and `backend/`); the sidebar is generated
+              automatically from the folder structure.
 
             If RUN MODE is "incremental":
               Only these source files changed since the docs were last updated:
               ---
               ${{ steps.scope.outputs.changed }}
               ---
-              Read those changed files, understand what changed, and update
-              ONLY the documentation pages those changes affect. Do not rewrite
-              unrelated pages. If a change introduces something with no page
-              yet, create a new page and add it to the `nav:` in `mkdocs.yml`.
+              Read them and update only the documentation pages they affect.
 
-            In both modes:
-            - Be precise and accurate. Base every statement on the actual code.
-              Never invent behaviour. If something is genuinely ambiguous, add a
-              brief `!!! warning "Needs review"` note instead of guessing.
-            - Write clear, detailed prose with exact file paths, function names,
-              data shapes, edge cases and concrete code examples.
-            - Use Material formatting: `!!! note` / `!!! warning` admonitions,
-              tables, fenced code blocks, and `mermaid` diagrams.
-            - Only edit Markdown files in `docs/` and the `nav:` section of
-              `mkdocs.yml`. Do not modify source code or workflow files.
+            Strict formatting rules for Starlight:
+            - EVERY Markdown file must begin with frontmatter, exactly:
+              ---
+              title: <the page title>
+              ---
+            - For callouts use Starlight asides, not MkDocs syntax:
+              `:::note`, `:::tip`, `:::caution` or `:::danger`, each closed by
+              a line containing only `:::`.
+            - Use standard Markdown headings, tables and fenced code blocks.
+            - Only create or edit Markdown files inside
+              `docs-site/src/content/docs/`. Never edit source code, the
+              workflow, or any other file under `docs-site/`.
+
+            Be accurate — base every statement on the actual code. If something
+            is unclear, add a `:::caution` note rather than guessing.
           claude_args: |
             --model claude-opus-4-7
             --max-turns 120
@@ -106,23 +108,24 @@ jobs:
           git rev-parse HEAD > .github/docs-agent-state
           git config user.name "docs-bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain docs mkdocs.yml .github/docs-agent-state)" ]; then
-            git add docs mkdocs.yml .github/docs-agent-state
+          if [ -n "$(git status --porcelain docs-site/src/content/docs .github/docs-agent-state)" ]; then
+            git add docs-site/src/content/docs .github/docs-agent-state
             git commit -m "docs: automated update by the documentation agent"
             git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "Push skipped; continuing to build and deploy."
           else
             echo "No documentation changes to commit."
           fi
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.12'
+          node-version: '20'
 
       - name: Build the docs site
         run: |
-          pip install -r docs-requirements.txt
-          mkdocs build --site-dir _site
+          cd docs-site
+          npm install
+          npm run build
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -130,7 +133,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: docs-site/dist
 
   deploy:
     needs: build
