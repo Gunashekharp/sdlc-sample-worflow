@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import starlightImageZoom from 'starlight-image-zoom';
 
 export default defineConfig({
   site: 'https://gunashekharp.github.io',
@@ -15,6 +16,8 @@ export default defineConfig({
     starlight({
       title: 'Snabbit Agent Console',
       description: 'Documentation for the Snabbit Agent Console',
+      // Click-to-zoom for images, including embedded Figma designs.
+      plugins: [starlightImageZoom()],
       customCss: ['./src/styles/snabbit.css'],
       social: [
         {
