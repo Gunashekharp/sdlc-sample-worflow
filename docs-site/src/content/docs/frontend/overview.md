@@ -7,8 +7,10 @@ TypeScript + Tailwind CSS v4**. It lives at the repository root.
 
 ## Entry points
 
-- **`index.html`** — the HTML shell. Sets `class="dark"`, a pink SVG favicon,
-  and preloads the Geist / Geist Mono web fonts. Mounts the app into `#root`.
+- **`index.html`** — the HTML shell. Sets `class="dark"` and a `dark`
+  `color-scheme`, an inline pink SVG favicon, and loads the Geist / Geist Mono
+  web fonts from Google Fonts (with `preconnect` hints). Mounts the app into
+  `#root`.
 - **`src/main.tsx`** — creates the React root and renders `<App />` inside
   `<StrictMode>`.
 - **`src/index.css`** — imports Tailwind and declares the design tokens. See

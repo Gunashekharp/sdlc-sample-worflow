@@ -20,7 +20,8 @@ deliberately dark, dense and "Linear-grade", with a single brand accent.
 
 Tailwind v4 is wired in through the Vite plugin (`@tailwindcss/vite`) in
 `vite.config.ts`. `index.html` sets `class="dark"` and `color-scheme: dark` on
-the document, and preloads the **Geist** / **Geist Mono** web fonts.
+the document, and loads the **Geist** / **Geist Mono** web fonts from Google
+Fonts (with `preconnect` hints).
 
 ## Color tokens
 
