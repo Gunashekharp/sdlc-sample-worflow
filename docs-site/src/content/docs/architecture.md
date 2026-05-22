@@ -9,7 +9,7 @@ and run independently.
 
 ## Product design
 
-![Snabbit 2.0 — product design](/sdlc-sample-worflow/figma/snabbit-2-0-overview.png)
+![Snabbit 2.0 — product design](https://gunashekharp.github.io/sdlc-sample-worflow/figma/snabbit-2-0-overview.png)
 
 The Snabbit 2.0 product design from Figma. The Agent Console dashboard comprises:
 a collapsible left sidebar (workspace switcher, navigation items, recent sessions,
