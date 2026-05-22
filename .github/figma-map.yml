@@ -1,0 +1,21 @@
+# Figma -> docs mapping, read by the documentation agent.
+#
+# For each design entry the agent exports the Figma frame as a PNG into
+# docs-site/public/figma/ and embeds it on the given docs page.
+#
+# - figma_file_key: the key from a Figma file URL
+#     figma.com/design/<FILE_KEY>/...
+# - doc_page: path relative to docs-site/src/content/docs/
+# - node_id: the frame's node id. A Figma URL writes it with a hyphen
+#     (node-id=26876-18002); use the colon form here (26876:18002).
+# - image_name: output filename (no extension) under docs-site/public/figma/
+# - caption: short label shown under the embedded image
+
+figma_file_key: "7WGw3LMbxM0sYbhz0L5aM5"   # Snabbit 2.0
+
+pages:
+  - doc_page: "architecture.md"
+    designs:
+      - node_id: "26876:18002"
+        image_name: "snabbit-2-0-overview"
+        caption: "Snabbit 2.0 — product design"

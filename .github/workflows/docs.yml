@@ -55,6 +55,8 @@ jobs:
       - name: Run the documentation agent
         if: steps.scope.outputs.mode != 'none'
         uses: anthropics/claude-code-action@v1
+        env:
+          FIGMA_API_KEY: ${{ secrets.FIGMA_API_KEY }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -118,6 +120,22 @@ jobs:
             - Keep Mermaid syntax valid and reasonably simple. If a diagram
               would be guesswork, add a `:::caution` note instead.
 
+            Figma designs:
+            - Read the mapping file `.github/figma-map.yml`. It gives a Figma
+              file key and, per docs page, the design frames to embed.
+            - For each design entry, call `mcp__figma__download_figma_images`
+              to export that node as a PNG into
+              `docs-site/public/figma/<image_name>.png`.
+            - Call `mcp__figma__get_figma_data` on the node when you need its
+              structure or text to describe the screen accurately.
+            - On the mapped docs page, embed the design like this:
+              ![<caption>](/sdlc-sample-worflow/figma/<image_name>.png)
+              The `/sdlc-sample-worflow` base prefix is required or the image
+              will 404. Add a short written description below the image.
+            - If a Figma call fails (for example a missing token or an
+              invalid node), add a `:::caution` note on the page instead of
+              guessing — do not invent a design.
+
             Strict formatting rules for Starlight:
             - EVERY Markdown file must begin with frontmatter, exactly:
               ---
@@ -127,8 +145,9 @@ jobs:
               `:::note`, `:::tip`, `:::caution` or `:::danger`, each closed by
               a line containing only `:::`.
             - Use standard Markdown headings, tables and fenced code blocks.
-            - Only create or edit Markdown files inside
-              `docs-site/src/content/docs/`. Never edit source code, the
+            - Create or edit Markdown files inside
+              `docs-site/src/content/docs/`, and design images inside
+              `docs-site/public/figma/`. Never edit source code, the
               workflow, or any other file under `docs-site/`.
 
             Be accurate — base every statement on the actual code. If something
@@ -136,7 +155,8 @@ jobs:
           claude_args: |
             --model claude-sonnet-4-6
             --max-turns 200
-            --allowedTools "Read,Edit,Write,Grep,Glob"
+            --mcp-config '{"mcpServers":{"figma":{"command":"npx","args":["-y","figma-developer-mcp","--stdio"]}}}'
+            --allowedTools "Read,Edit,Write,Grep,Glob,mcp__figma__get_figma_data,mcp__figma__download_figma_images"
 
       - name: Commit documentation updates
         if: steps.scope.outputs.mode != 'none'
@@ -144,10 +164,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git rev-parse HEAD > .github/docs-agent-state
+          mkdir -p docs-site/public/figma
           git config user.name "docs-bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain docs-site/src/content/docs .github/docs-agent-state)" ]; then
-            git add docs-site/src/content/docs .github/docs-agent-state
+          if [ -n "$(git status --porcelain docs-site/src/content/docs docs-site/public/figma .github/docs-agent-state)" ]; then
+            git add docs-site/src/content/docs docs-site/public/figma .github/docs-agent-state
             git commit -m "docs: automated update by the documentation agent"
             git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "Push skipped; continuing to build and deploy."
           else
