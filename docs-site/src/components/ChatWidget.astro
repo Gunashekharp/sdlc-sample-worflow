@@ -200,6 +200,16 @@
   const msgs = $('dc-msgs');
 
   if (toggle && panel && form && input && msgs) {
+    // Starlight renders the footer inside a nested stacking context that
+    // sits below the right ("On this page") sidebar. That sidebar would
+    // otherwise overlap the floating button and swallow real clicks, even
+    // though the button is painted on top. Lift the whole widget to
+    // <body> so it floats above all page chrome and stays clickable.
+    const root = $('docs-chat');
+    if (root && root.parentElement !== document.body) {
+      document.body.appendChild(root);
+    }
+
     let history = [];
     try {
       history = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
