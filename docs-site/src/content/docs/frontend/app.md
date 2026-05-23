@@ -27,7 +27,7 @@ accepted — `App` is the composition root and owns the top-level data split.
 
 ## Design
 
-![Pre-Approval Updated Flows](/sdlc-sample-worflow/figma/app-pre-approval-updated-flows.png)
+![Pre-Approval Updated Flows](https://gunashekharp.github.io/sdlc-sample-worflow/figma/app-pre-approval-updated-flows.png)
 
 Figma section **"Pre-Approval Updated Flows"** (Snabbit 2.0, node `28445-27446`).
 The design shows the multi-step pre-approval gate flow that surfaces inside the

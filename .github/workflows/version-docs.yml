@@ -1,0 +1,92 @@
+name: Freeze docs version on release tag
+
+# When a release tag (e.g. v2.0) is pushed, freeze the current state of the
+# documentation as a numbered, archived version. The live "Latest" docs in
+# docs-site/src/content/docs/ are left untouched and keep evolving.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+# Share the docs concurrency group so a version freeze never runs at the same
+# time as a docs-agent run — both push commits to main.
+concurrency:
+  group: docs
+  cancel-in-progress: false
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          # Freeze the docs as they currently are on main, not as they were
+          # at the tagged commit.
+          ref: main
+          fetch-depth: 0
+
+      - name: Derive the version slug from the tag
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME}"        # e.g. v2.0
+          SLUG="${TAG#v}"                 # strip the leading 'v' -> 2.0
+          if [ -z "$SLUG" ] || [ "$SLUG" = "$TAG" ]; then
+            echo "Tag '$TAG' is not a v-prefixed version tag; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "Freezing documentation as version: $SLUG"
+
+      - name: Set up Node
+        if: steps.ver.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Register the new version in versions.json
+        if: steps.ver.outputs.skip != 'true'
+        run: |
+          cd docs-site
+          node --input-type=module -e '
+            import { readFileSync, writeFileSync } from "node:fs";
+            const slug = process.argv[1];
+            const file = "versions.json";
+            const versions = JSON.parse(readFileSync(file, "utf-8"));
+            if (versions.some((v) => v.slug === slug)) {
+              console.log(`Version ${slug} is already registered; nothing to do.`);
+              process.exit(0);
+            }
+            versions.unshift({ slug });
+            writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
+            console.log(`Registered version ${slug}.`);
+          ' "${{ steps.ver.outputs.slug }}"
+
+      - name: Archive the current docs into the new version
+        if: steps.ver.outputs.skip != 'true'
+        # `astro build` runs the starlight-versions plugin, which copies the
+        # current docs into docs-site/src/content/docs/<slug>/ and writes
+        # docs-site/src/content/versions/<slug>.json.
+        run: |
+          cd docs-site
+          npm install
+          npm run build
+
+      - name: Commit and push the frozen version
+        if: steps.ver.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "docs-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs-site/versions.json docs-site/src
+          if [ -n "$(git status --porcelain docs-site/versions.json docs-site/src)" ]; then
+            git commit -m "docs: freeze documentation version ${{ steps.ver.outputs.slug }}"
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          else
+            echo "No changes to commit — version ${{ steps.ver.outputs.slug }} may already be frozen."
+          fi

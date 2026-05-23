@@ -35,3 +35,5 @@ export default function App() {
 // docs-agent test: figma embed on App.tsx
 
 // docs-agent auto-trigger re-test
+
+// figma-gate test

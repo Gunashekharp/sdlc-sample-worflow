@@ -143,9 +143,11 @@ jobs:
                 `mcp__figma__get_figma_data` for detail to describe it.
               - Embed it on the documentation page(s) for the SOURCE files
                 that same PR changed (files under `src/` or `server/src/`):
-                ![<short caption>](/sdlc-sample-worflow/figma/<name>.png)
-                The `/sdlc-sample-worflow` prefix is required or the image
-                404s. Add a short written description below the image.
+                ![<short caption>](https://gunashekharp.github.io/sdlc-sample-worflow/figma/<name>.png)
+                Use that full absolute https:// URL, not a /sdlc-sample-worflow/
+                root path — the docs are versioned, and the versioning plugin
+                only handles figma images embedded with a full URL. Add a
+                short written description below the image.
             - A PR with no Figma link just has its changed code documented
               as usual — there is no design to embed.
             - If a Figma call or a gh call fails, add a `:::caution` note
@@ -164,6 +166,14 @@ jobs:
               `docs-site/src/content/docs/`, and design images inside
               `docs-site/public/figma/`. Never edit source code, the
               workflow, or any other file under `docs-site/`.
+            - The docs are versioned. Only ever write to the CURRENT
+              version: Markdown directly in `docs-site/src/content/docs/`
+              and its non-numbered subfolders (e.g. `frontend/`,
+              `backend/`). NEVER create, edit, rename or delete anything
+              inside a numbered version directory such as
+              `docs-site/src/content/docs/2.0/`, and never touch
+              `docs-site/src/content/versions/` — those are frozen
+              archives managed automatically.
 
             Be accurate — base every statement on the actual code. If something
             is unclear, add a `:::caution` note rather than guessing.
