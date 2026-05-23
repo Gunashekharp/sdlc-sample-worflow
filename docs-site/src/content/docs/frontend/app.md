@@ -154,6 +154,19 @@ flowchart TD
   Sidebar --- Col
 ```
 
+## Additional Figma designs (PRs #3 and #4)
+
+Two subsequent pull requests (#3 and #4) also changed `src/App.tsx` and
+included Figma links to the Snabbit 2.0 design file (nodes `30607-21561` and
+`19027-11601`). The designs could not be fetched at docs-build time due to a
+Figma API rate limit.
+
+:::caution
+Figma designs from PR #3 (node `30607-21561`) and PR #4 (node `19027-11601`)
+could not be exported — the Figma API returned HTTP 429 (rate limit exceeded).
+Re-run the docs agent when the rate limit resets to embed these designs.
+:::
+
 ## Tests
 
 `src/App.test.tsx` — 4 tests. `global.fetch` is stubbed to an empty pipelines

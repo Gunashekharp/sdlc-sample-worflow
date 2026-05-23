@@ -245,3 +245,31 @@ the camelCase domain types. The KPI `trend` array is stored as JSONB.
 The API enables CORS for all origins so the Vite dev server (port 5173) can
 call it (port 3001). Both ports are configurable: the API port via `PORT`, the
 frontend's API base URL via `VITE_API_URL`.
+
+## The "Ask the docs" chat worker
+
+A separate Cloudflare Worker (`chat-worker/`) provides the AI chatbot embedded
+on every page of this documentation site.
+
+```mermaid
+flowchart LR
+  buildIndex["build-index.mjs\n(build step)"]
+  docsIndex["docs-index.json\n(bundled into Worker)"]
+  widget["ChatWidget.astro\n(browser session memory)"]
+  worker["Cloudflare Worker\nchat-worker/src/index.js"]
+  ai["Workers AI\nllama-3.1-8b-instruct"]
+
+  buildIndex -->|"reads & chunks docs"| docsIndex
+  docsIndex -->|"bundled with"| worker
+  widget -->|"POST { question, history }"| worker
+  worker -->|"keyword search → context"| docsIndex
+  worker -->|"AI.run(model, messages)"| ai
+  ai -->>worker: answer
+  worker -->>widget: "{ answer, sources }"
+```
+
+The worker is stateless — conversation history is kept in the browser and sent
+with each request (last 6 turns). The search index is rebuilt by running
+`node build-index.mjs` in `chat-worker/`, then redeploying the Worker.
+
+See [Chat worker overview](/sdlc-sample-worflow/chat-worker/) for full details.

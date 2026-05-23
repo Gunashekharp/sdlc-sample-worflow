@@ -15,13 +15,16 @@ agent reviews the codebase and updates these pages.
 
 ## What's in the box
 
-The project is a single repository with two packages:
+The project is a single repository with three packages:
 
 - **Frontend** (repository root) — a Vite + React 19 + TypeScript + Tailwind
   CSS v4 single-page dashboard.
 - **Backend** (`server/`) — an Express 5 + TypeScript REST API backed by
   PostgreSQL, with a pluggable CI/CD integration (GitHub Actions / Jenkins,
   mock by default).
+- **Chat worker** (`chat-worker/`) — a stateless Cloudflare Worker that powers
+  the "Ask the docs" AI chatbot on this documentation site, backed by
+  Cloudflare Workers AI (Llama 3.1 8B).
 
 ## System overview
 
@@ -29,6 +32,7 @@ The project is a single repository with two packages:
 flowchart TD
   subgraph Browser
     SPA["React SPA\nVite :5173"]
+    ChatWidget["ChatWidget\n(docs site)"]
   end
   subgraph API["Express API :3001"]
     Routes["routes.ts"]
@@ -43,6 +47,10 @@ flowchart TD
     GH["GitHub Actions API"]
     Mock["Mock data\n(default)"]
   end
+  subgraph Cloudflare["Cloudflare Edge"]
+    Worker["chat-worker\n(Cloudflare Worker)"]
+    AI["Workers AI\nLlama 3.1 8B"]
+  end
 
   SPA -->|"GET /api/pipelines"| Routes
   Routes --> Store
@@ -51,6 +59,8 @@ flowchart TD
   Store --> kpis
   Cicd --> Mock
   Cicd -.->|"GITHUB_TOKEN set"| GH
+  ChatWidget -->|"POST question"| Worker
+  Worker -->|"AI.run"| AI
 ```
 
 ## The dashboard at a glance
@@ -90,6 +100,12 @@ main region stacks four panels:
 - [Data model](/sdlc-sample-worflow/backend/data-model/) — types + schema
 - [Stores](/sdlc-sample-worflow/backend/stores/) — memory + Postgres implementations
 - [CI/CD integration](/sdlc-sample-worflow/backend/cicd-integration/) — mock + GitHub
+
+### Chat worker
+
+- [Overview](/sdlc-sample-worflow/chat-worker/) — "Ask the docs" chatbot architecture
+- [Worker (src/index.js)](/sdlc-sample-worflow/chat-worker/worker/) — request handler, keyword search, AI call
+- [build-index.mjs](/sdlc-sample-worflow/chat-worker/build-index/) — docs indexer that produces `docs-index.json`
 
 ### Testing
 
