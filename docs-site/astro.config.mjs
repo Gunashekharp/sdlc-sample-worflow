@@ -31,8 +31,16 @@ export default defineConfig({
         // Documentation versioning: adds a version picker and freezes a
         // snapshot of the docs for each entry in versions.json. The live
         // ("Latest") docs continue to live in src/content/docs/.
-        starlightVersions({ versions }),
+        // starlight-versions rejects an empty list, so the plugin is only
+        // enabled once the first version has been frozen (versions.json
+        // non-empty). Until then the site builds with just "Latest".
+        ...(versions.length > 0 ? [starlightVersions({ versions })] : []),
       ],
+      // Override the Footer to mount the "Ask the docs" chat widget on
+      // every page (see src/components/ChatWidget.astro).
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       customCss: ['./src/styles/snabbit.css'],
       social: [
         {
