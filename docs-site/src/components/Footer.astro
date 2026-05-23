@@ -1,0 +1,12 @@
+---
+/**
+ * Footer.astro — overrides Starlight's built-in Footer so the chat widget
+ * is mounted on every documentation page. It renders the default footer
+ * unchanged, then adds the floating ChatWidget.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro';
+import ChatWidget from './ChatWidget.astro';
+---
+
+<Default><slot /></Default>
+<ChatWidget />

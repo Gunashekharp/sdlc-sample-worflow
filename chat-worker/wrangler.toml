@@ -1,0 +1,11 @@
+# Cloudflare Worker config for the docs chatbot backend.
+# Deploy with:  npm install && npm run deploy
+name = "snabbit-docs-chatbot"
+main = "src/index.js"
+compatibility_date = "2026-05-01"
+
+# Cloudflare Workers AI — the LLM that writes the answers.
+# No API key is needed: this binding uses your Cloudflare account's
+# free daily Neuron allowance. The model is set in src/index.js.
+[ai]
+binding = "AI"

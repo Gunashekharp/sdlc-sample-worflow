@@ -18,6 +18,11 @@ export default defineConfig({
       description: 'Documentation for the Snabbit Agent Console',
       // Click-to-zoom for images, including embedded Figma designs.
       plugins: [starlightImageZoom()],
+      // Override the Footer to mount the "Ask the docs" chat widget on
+      // every page (see src/components/ChatWidget.astro).
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       customCss: ['./src/styles/snabbit.css'],
       social: [
         {
