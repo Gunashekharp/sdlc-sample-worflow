@@ -4,8 +4,7 @@ name = "snabbit-docs-chatbot"
 main = "src/index.js"
 compatibility_date = "2026-05-01"
 
-# Cloudflare Workers AI — the LLM that writes the answers.
-# No API key is needed: this binding uses your Cloudflare account's
-# free daily Neuron allowance. The model is set in src/index.js.
-[ai]
-binding = "AI"
+# The Worker calls the Anthropic API (Claude Haiku 4.5) to write answers.
+# The API key is stored as an encrypted Wrangler secret, NOT in this file:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+# The model is set by MODEL in src/index.js.
