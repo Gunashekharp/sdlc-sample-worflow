@@ -2,23 +2,19 @@
  * Cloudflare Worker — the chatbot backend for the Snabbit docs site.
  *
  * Stateless: it receives a question (plus recent chat history for context),
- * keyword-searches the bundled docs index, asks the Anthropic API (Claude
- * Haiku 4.5) to answer using only the matched docs, and returns the answer +
- * source links.
+ * keyword-searches the bundled docs index, asks Cloudflare Workers AI to
+ * answer using only the matched docs, and returns the answer + source links.
  *
  * The conversation is NOT stored here — the browser keeps it (session memory)
- * and sends recent turns with each request. The Anthropic API key lives only
- * as a Wrangler secret on the Worker; it never reaches the browser.
+ * and sends recent turns with each request. The only secret-ish thing, the AI
+ * access, is the Workers AI binding, which never reaches the browser.
  *
- * Deploy:           npm install && npm run deploy
- * Set the key once: npx wrangler secret put ANTHROPIC_API_KEY
+ * Deploy:  npm install && npm run deploy
  */
 import INDEX from '../docs-index.json';
 
-// Anthropic model that writes the answers.
-const MODEL = 'claude-haiku-4-5-20251001';
-const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_VERSION = '2023-06-01';
+// Cloudflare Workers AI model — free within the daily Neuron allowance.
+const MODEL = '@cf/meta/llama-3.1-8b-instruct';
 
 // How many doc chunks to feed the model as grounding context.
 const TOP_K = 6;
@@ -103,41 +99,18 @@ export default {
       .map((c, i) => `[Doc ${i + 1}] ${c.title} — ${c.heading}\n${c.text}\n(URL: ${c.url})`)
       .join('\n\n');
 
-    // Anthropic keeps the system prompt separate from the message turns.
-    const system = `${SYSTEM_PROMPT}\n\nDOCUMENTATION EXCERPTS:\n${context}`;
-
     const messages = [
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\nDOCUMENTATION EXCERPTS:\n${context}` },
       ...history
         .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
         .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) })),
       { role: 'user', content: question },
     ];
-    // The Messages API requires the first turn to come from the user.
-    while (messages.length && messages[0].role === 'assistant') messages.shift();
-
-    if (!env.ANTHROPIC_API_KEY) {
-      return json({ error: 'Server is missing its ANTHROPIC_API_KEY secret' }, 500);
-    }
 
     let answer;
     try {
-      const resp = await fetch(ANTHROPIC_URL, {
-        method: 'POST',
-        headers: {
-          'x-api-key': env.ANTHROPIC_API_KEY,
-          'anthropic-version': ANTHROPIC_VERSION,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ model: MODEL, max_tokens: 600, system, messages }),
-      });
-      if (!resp.ok) {
-        const detail = await resp.text();
-        return json({ error: 'AI request failed', detail }, 502);
-      }
-      const result = await resp.json();
-      answer =
-        (result.content?.[0]?.text || '').trim() ||
-        "I couldn't generate an answer just now.";
+      const result = await env.AI.run(MODEL, { messages, max_tokens: 600 });
+      answer = (result.response || '').trim() || "I couldn't generate an answer just now.";
     } catch (err) {
       return json({ error: 'AI request failed', detail: String(err) }, 502);
     }
