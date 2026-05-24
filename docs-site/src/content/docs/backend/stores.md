@@ -1,15 +1,16 @@
 ---
-title: Stores & database
-description: Store interface, in-memory and Postgres implementations.
+title: Stores — memory and Postgres
 ---
 
-Data access is abstracted behind a `Store` interface with two implementations.
-See [store.ts](/sdlc-sample-worflow/backend/store/) and
-[postgresStore.ts](/sdlc-sample-worflow/backend/postgresstore/) for full details.
+Data access in the Snabbit backend is abstracted behind a `Store` interface with two concrete implementations. This page compares the two and explains when each is used.
 
-## The Store interface
+## The `Store` interface
+
+The interface is defined in `server/src/store.ts` and consists of three async methods:
 
 ```ts
+type Store = AgentStore & KpiStore
+
 interface AgentStore {
   listAgents(): Promise<Agent[]>
   getAgent(id: string): Promise<Agent | null>
@@ -18,77 +19,129 @@ interface AgentStore {
 interface KpiStore {
   listKpis(): Promise<Kpi[]>
 }
-
-type Store = AgentStore & KpiStore
 ```
 
-All methods return `Promise` so the in-memory and Postgres implementations
-share identical call sites.
+All methods return `Promise` so that call sites in `routes.ts` are identical regardless of which implementation is active. The in-memory store resolves synchronously; the Postgres store issues actual SQL queries.
+
+## Implementation overview
 
 ```mermaid
 classDiagram
-  class Store {
-    <<interface>>
-    +listAgents() Promise~Agent[]~
-    +getAgent(id) Promise~Agent|null~
-    +listKpis() Promise~Kpi[]~
-  }
-  class MemoryStore {
-    -agents Agent[]
-    -kpis Kpi[]
-  }
-  class PostgresStore {
-    -pool Pool
-  }
-  Store <|.. MemoryStore
-  Store <|.. PostgresStore
+    class Store {
+        <<interface>>
+        +listAgents() Promise~Agent[]~
+        +getAgent(id) Promise~Agent|null~
+        +listKpis() Promise~Kpi[]~
+    }
+
+    class MemoryStore {
+        -agents Agent[]
+        -kpis Kpi[]
+        +listAgents() Promise~Agent[]~
+        +getAgent(id) Promise~Agent|null~
+        +listKpis() Promise~Kpi[]~
+    }
+
+    class PostgresStore {
+        -pool Pool
+        +listAgents() Promise~Agent[]~
+        +getAgent(id) Promise~Agent|null~
+        +listKpis() Promise~Kpi[]~
+    }
+
+    Store <|.. MemoryStore : implements
+    Store <|.. PostgresStore : implements
 ```
 
-## In-memory store
+## When each is used
 
-`createMemoryStore(agents, kpis)` — used in tests. Returns shallow copies from
-arrays. `getAgent` returns `null` on miss.
+| Context | Implementation | Created by |
+|---|---|---|
+| Unit tests (`api.test.ts`) | `MemoryStore` | `createMemoryStore(SEED_AGENTS, SEED_KPIS)` |
+| Production server (`index.ts`) | `PostgresStore` | `createPostgresStore(pool)` |
+
+The choice is made at the `createApp` call site — `app.ts` and `routes.ts` have no import of either implementation.
+
+## In-memory store (`createMemoryStore`)
+
+**File:** `server/src/store.ts`
 
 ```ts
-// Used by tests:
-createApp({
+export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store {
+  return {
+    async listAgents() { return [...agents] },
+    async getAgent(id: string) { return agents.find((a) => a.id === id) ?? null },
+    async listKpis() { return [...kpis] },
+  }
+}
+```
+
+Key characteristics:
+
+- **No I/O** — all methods resolve immediately without network or disk access.
+- **Shallow copies** — `listAgents` and `listKpis` return `[...array]` so callers cannot accidentally mutate the backing store.
+- **Null on miss** — `getAgent` returns `null` (not `undefined`) to match the Postgres implementation's contract.
+- **Order** — agents and KPIs are returned in the order they appear in the input arrays. In tests, this is `SEED_AGENTS` and `SEED_KPIS` order.
+- **Isolation** — because `createApp` creates a new app instance per test, each test gets a fresh `createMemoryStore` call with its own backing arrays.
+
+**Typical usage in tests:**
+
+```ts
+import { createMemoryStore } from '../store'
+import { SEED_AGENTS, SEED_KPIS } from '../seed'
+import { createMockCicdProvider } from '../integrations/cicd'
+import { createApp } from '../app'
+
+const app = createApp({
   store: createMemoryStore(SEED_AGENTS, SEED_KPIS),
   cicd: createMockCicdProvider(),
 })
 ```
 
-## Postgres store
+## Postgres store (`createPostgresStore`)
 
-`createPostgresStore(pool)` — used by the running server. Issues parameterized
-SQL queries. Maps `snake_case` rows to camelCase domain types.
+**File:** `server/src/postgresStore.ts`
 
 ```ts
-listAgents()  → SELECT * FROM agents ORDER BY runs_per_week DESC
-getAgent(id)  → SELECT * FROM agents WHERE id = $1
-listKpis()    → SELECT * FROM kpis ORDER BY sort_order ASC
+export function createPostgresStore(pool: Pool): Store
 ```
 
-## Schema
+Key characteristics:
 
-```sql
-CREATE TABLE IF NOT EXISTS agents (
-  id TEXT PRIMARY KEY, name TEXT NOT NULL, category TEXT NOT NULL,
-  description TEXT NOT NULL, status TEXT NOT NULL,
-  runs_per_week INTEGER NOT NULL, success_rate INTEGER NOT NULL,
-  avg_duration TEXT NOT NULL, last_run TEXT NOT NULL,
-  last_run_minutes INTEGER NOT NULL, popular BOOLEAN NOT NULL
-);
+- **SQL queries** — each method issues a parameterized query via the `pg` pool.
+- **Ordered results** — `listAgents` orders by `runs_per_week DESC`; `listKpis` orders by `sort_order ASC`.
+- **SQL-injection safe** — `getAgent` uses `$1` placeholder syntax, never string interpolation.
+- **Row mapping** — `rowToAgent` and `rowToKpi` convert `snake_case` column names to camelCase domain types.
+- **JSONB parsing** — `pg` automatically deserializes `trend JSONB` into a JavaScript `number[]`.
 
-CREATE TABLE IF NOT EXISTS kpis (
-  id TEXT PRIMARY KEY, sort_order INTEGER NOT NULL,
-  label TEXT NOT NULL, value TEXT NOT NULL, delta TEXT NOT NULL,
-  positive BOOLEAN NOT NULL, hint TEXT NOT NULL, trend JSONB NOT NULL
-);
+| Method | SQL |
+|---|---|
+| `listAgents()` | `SELECT * FROM agents ORDER BY runs_per_week DESC` |
+| `getAgent(id)` | `SELECT * FROM agents WHERE id = $1` |
+| `listKpis()` | `SELECT * FROM kpis ORDER BY sort_order ASC` |
+
+**Typical usage in production:**
+
+```ts
+import { Pool } from 'pg'
+import { config } from './config'
+import { createPostgresStore } from './postgresStore'
+
+const pool = new Pool({ connectionString: config.databaseUrl })
+const store = createPostgresStore(pool)
 ```
 
-## Setup script
+## Comparison table
 
-`npm run db:setup` (from `server/`) creates the tables and upserts all seed
-data. Safe to re-run — uses `INSERT … ON CONFLICT (id) DO UPDATE`.
+| Aspect | MemoryStore | PostgresStore |
+|---|---|---|
+| I/O per call | None | One SQL query |
+| Setup required | None | Running Postgres + seeded tables |
+| Result ordering | Input array order | SQL `ORDER BY` |
+| Mutation safety | Shallow copy on return | New array from `rows.map()` |
+| Null on miss | `find(...) ?? null` | `rows[0] as AgentRow \| undefined` → null |
+| Type casting | N/A (already typed) | `as AgentCategory`, `as AgentStatus` |
 
-See [db/setup.ts](/sdlc-sample-worflow/backend/db/setup/) for the full walkthrough.
+For full implementation details, see:
+- [store.ts — Store interfaces](/backend/store/)
+- [postgresStore.ts — PostgreSQL store](/backend/postgresstore/)

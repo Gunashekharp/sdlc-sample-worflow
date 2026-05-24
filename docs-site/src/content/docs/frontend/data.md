@@ -1,81 +1,68 @@
 ---
-title: Data & types
-description: Static seed data and domain types in src/data/.
+title: Data — src/data/
 ---
 
-`src/data/` holds the frontend's local seed data and the core domain types it
-renders.
+`src/data/` holds the frontend's static seed data and the core domain types.
 
 :::note
-This is static seed data bundled into the frontend at build time. A real
-deployment would load agents and KPIs from the backend; that migration is the
-top backlog item. The backend keeps its own matching copy in `server/src/seed.ts`.
+This is static seed data bundled into the frontend at build time. A real deployment would load agents and KPIs from the backend API rather than from these files. The backend keeps a matching copy of both datasets in `server/src/seed.ts` and populates Postgres from it on startup. Migrating the frontend to load agents and KPIs from the API is the top backlog item.
 :::
 
 ## Files
 
 | File | Purpose |
-|------|---------|
-| [agents.ts](/sdlc-sample-worflow/frontend/data/agents/) | `Agent` type, 12-agent catalogue, `FEATURED_AGENT_ID`, `AGENT_CATEGORIES` |
-| [kpis.ts](/sdlc-sample-worflow/frontend/data/kpis/) | `Kpi` type, 4-KPI catalogue |
+|---|---|
+| [agents.ts](./data/agents) | `Agent` type, `AgentStatus` type, `AgentCategory` type, 12-agent `AGENTS` array, `FEATURED_AGENT_ID` constant, `AGENT_CATEGORIES` list |
+| [kpis.ts](./data/kpis) | `Kpi` type, 4-entry `KPIS` array |
 
-## Types
+## Overview
 
-### `Agent` (from `agents.ts`)
+### `agents.ts`
 
-```ts
-type AgentStatus   = 'running' | 'idle' | 'attention'
-type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
+Defines the domain types for the agent catalogue and exports:
 
-interface Agent {
-  id: string           // stable kebab slug
-  name: string
-  category: AgentCategory
-  description: string
-  status: AgentStatus
-  runsPerWeek: number  // ~7d execution count
-  successRate: number  // 0–100
-  avgDuration: string  // e.g. "2m 40s"
-  lastRun: string      // e.g. "3m ago"
-  lastRunMinutes: number  // numeric for sorting
-  popular: boolean
-}
-```
+- `AgentStatus` — `'running' | 'idle' | 'attention'`
+- `AgentCategory` — `'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'`
+- `Agent` — the full agent record interface (12 fields)
+- `AGENTS` — array of 12 static agent objects
+- `FEATURED_AGENT_ID` — `'pr-reviewer'`
+- `AGENT_CATEGORIES` — the canonical ordered category list
 
-### `Kpi` (from `kpis.ts`)
+### `kpis.ts`
 
-```ts
-interface Kpi {
-  id: string
-  label: string
-  value: string        // pre-formatted, e.g. "4h 12m"
-  delta: string        // pre-formatted, e.g. "-22%"
-  positive: boolean    // good outcome regardless of sign
-  hint: string
-  trend: number[]      // 7-point series, oldest first
-}
-```
+Defines the `Kpi` interface and exports:
 
-## Key exports
+- `Kpi` — the KPI record interface (7 fields including a 7-point trend series)
+- `KPIS` — array of 4 static KPI objects
+
+## Key exports and consumers
 
 | Export | File | Used by |
-|--------|------|---------|
-| `AGENTS` | `agents.ts` | `App.tsx`, `AgentGrid`, tests |
-| `FEATURED_AGENT_ID` | `agents.ts` | `App.tsx` |
-| `AGENT_CATEGORIES` | `agents.ts` | `AgentGrid` (builds tab list) |
-| `KPIS` | `kpis.ts` | `KpiStrip` |
+|---|---|---|
+| `AGENTS` | `agents.ts` | `App.tsx` (featured/rest split), `AgentGrid` tests |
+| `FEATURED_AGENT_ID` | `agents.ts` | `App.tsx` (lookup) |
+| `AGENT_CATEGORIES` | `agents.ts` | `AgentGrid` (builds tab bar) |
+| `KPIS` | `kpis.ts` | `KpiStrip` (renders one `KpiCard` per entry) |
 
 ## Agent catalogue summary
 
 12 agents across 5 categories:
 
 | Category | Agents |
-|----------|--------|
+|---|---|
 | Review | PR Reviewer, Migration Reviewer |
 | Deploy | Deploy Bot |
 | Reliability | RCA Analyst, Alert Triage, On-call Digest |
 | Quality | E2E Verifier, Flaky Test Hunter, Dependency Bot, Coverage Guard |
 | Docs | Changelog Author, Spec Author |
 
-Currently active (status `running`): PR Reviewer, Alert Triage, E2E Verifier,
-Coverage Guard.
+Currently active (status `'running'`): PR Reviewer, Alert Triage, E2E Verifier, Coverage Guard.
+
+## Backend mirror
+
+`server/src/seed.ts` exports:
+
+- `SEED_AGENTS` — an array that mirrors `AGENTS` from this file
+- `SEED_KPIS` — an array that mirrors `KPIS` from `kpis.ts`
+
+These are used by the backend's database seed script to populate Postgres on a fresh deployment. There is no shared package or code generation between the frontend and backend seed files — they are kept in sync by hand. If you add or modify an agent in `agents.ts`, you must also update `server/src/seed.ts`.

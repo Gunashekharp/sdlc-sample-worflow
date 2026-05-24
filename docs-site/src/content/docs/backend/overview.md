@@ -1,110 +1,100 @@
 ---
 title: Backend overview
-description: Express 5 + TypeScript API backed by PostgreSQL.
 ---
 
-The backend is an **Express 5 + TypeScript** API run with `tsx`. It serves the
-agent catalogue, KPIs and CI/CD pipelines, backed by PostgreSQL and a pluggable
-CI/CD integration. It lives in `server/`.
+The Snabbit API server is an Express application written in TypeScript. It persists agent and KPI data in PostgreSQL and exposes a thin REST layer consumed by the frontend dashboard. The server lives entirely under `server/`.
 
-## Architecture
+## Technology stack
+
+| Concern | Choice |
+|---|---|
+| Runtime | Node.js |
+| TypeScript execution | tsx (no separate compile step during development) |
+| Framework | Express 5 |
+| Language | TypeScript 6 |
+| Database | PostgreSQL via the `pg` connection pool |
+| Test runner | Vitest |
+| CI/CD integration | GitHub Actions (or built-in mock) |
+
+## Dependency-injection architecture
+
+`createApp` accepts a `deps` object that bundles two collaborators:
+
+- **`store`** — a `Store` implementation that reads agents and KPIs.
+- **`cicd`** — a `CicdProvider` implementation that lists CI/CD pipelines.
+
+Neither is imported directly inside `app.ts` or `routes.ts`. The concrete implementations (`createPostgresStore`, `createGithubActionsProvider`) are wired together only in `index.ts`.
+
+### Why dependency injection?
+
+Tests can supply a `createMemoryStore` (in-memory arrays) and `createMockCicdProvider` (eight deterministic pipelines) without any network or database connection. The same application logic is exercised regardless of which implementations are injected. `npm test` requires no running Postgres instance and no GitHub token.
+
+```
+index.ts         → injects createPostgresStore + getCicdProvider  → production
+api.test.ts      → injects createMemoryStore   + mock provider     → tests
+```
+
+## Architecture flowchart
 
 ```mermaid
 flowchart TD
-  index["index.ts\nServer bootstrap"]
-  config["config.ts\nEnvironment config"]
-  app["app.ts\ncreateApp(deps)"]
-  routes["routes.ts\nREST routes"]
-  store["store.ts\nStore interface"]
-  memory["createMemoryStore()\n(tests)"]
-  postgres["createPostgresStore()\n(production)"]
-  cicd["integrations/cicd.ts\nCicdProvider"]
-  mock["createMockCicdProvider()\n(default)"]
-  github["createGithubActionsProvider()\n(with credentials)"]
-  domain["domain.ts\nAgent, Kpi types"]
-  seed["seed.ts\nSeed data"]
-  schema["db/schema.ts\nCREATE TABLE SQL"]
-  setup["db/setup.ts\nnpm run db:setup"]
-
-  index --> config
-  index --> postgres
-  index --> cicd
-  index --> app
-  app --> routes
-  routes --> store
-  routes --> cicd
-  store --> memory
-  store --> postgres
-  cicd --> mock
-  cicd --> github
-  postgres --> domain
-  memory --> domain
-  setup --> schema
-  setup --> seed
-  setup --> postgres
+    A[index.ts] --> B["new Pool(databaseUrl)"]
+    B --> C["createPostgresStore(pool)"]
+    A --> D["getCicdProvider(githubToken, githubRepo)"]
+    D --> E{credentials set?}
+    E -->|yes| F["createGithubActionsProvider()"]
+    E -->|no| G["createMockCicdProvider()"]
+    A --> H["createApp({ store, cicd })"]
+    C --> H
+    F --> H
+    G --> H
+    H --> I["registerRoutes(app, deps)"]
+    I --> J["GET /api/health"]
+    I --> K["GET /api/agents"]
+    I --> L["GET /api/agents/:id"]
+    I --> M["GET /api/kpis"]
+    I --> N["GET /api/pipelines"]
 ```
 
-## App factory and dependency injection
-
-The central architectural decision: `createApp({ store, cicd })` takes both
-dependencies by injection:
-
-```ts
-export interface AppDeps {
-  store: Store       // createMemoryStore (tests) | createPostgresStore (prod)
-  cicd: CicdProvider // createMockCicdProvider (default) | createGithubActionsProvider
-}
-
-export function createApp(deps: AppDeps) {
-  const app = express()
-  app.use(cors())
-  app.use(express.json())
-  registerRoutes(app, deps)
-  app.use(/* catch-all error handler */)
-  return app
-}
-```
-
-Tests inject the in-memory store + mock provider → `npm test` needs no database,
-no network. The running server injects real dependencies.
-
-## Source structure
+## Source file map
 
 | File | Purpose |
-|------|---------|
-| `src/index.ts` | Server bootstrap, wires real dependencies |
-| `src/app.ts` | `createApp` factory + error handler |
+|---|---|
+| `src/index.ts` | Server entry point — wires real dependencies and starts listening |
+| `src/app.ts` | `createApp` factory — middleware stack and error handler |
+| `src/config.ts` | Environment variable configuration with local defaults |
+| `src/domain.ts` | `Agent`, `Kpi`, `AgentStatus`, `AgentCategory` types |
 | `src/routes.ts` | REST route registration |
-| `src/config.ts` | Environment configuration |
-| `src/domain.ts` | `Agent` / `Kpi` domain types |
-| `src/store.ts` | Store interfaces + in-memory implementation |
-| `src/postgresStore.ts` | Postgres-backed store |
-| `src/seed.ts` | Seed agents and KPIs |
-| `src/db/schema.ts` | `CREATE TABLE` SQL |
-| `src/db/setup.ts` | `db:setup` script |
-| `src/integrations/cicd.ts` | CI/CD adapter (mock + GitHub Actions) |
-| `src/__tests__/` | Vitest test suites |
+| `src/store.ts` | `Store` interface + in-memory implementation |
+| `src/postgresStore.ts` | PostgreSQL-backed `Store` implementation |
+| `src/seed.ts` | Seed data — 12 agents + 4 KPIs |
+| `src/db/schema.ts` | `SCHEMA_SQL` — `CREATE TABLE` statements |
+| `src/db/setup.ts` | One-shot database setup script |
+| `src/integrations/cicd.ts` | `CicdProvider` interface, mock and GitHub Actions implementations |
+| `vitest.config.ts` | Vitest configuration for the backend test suite |
 
-## Configuration
+## Package scripts
+
+| Script | Command | Purpose |
+|---|---|---|
+| `dev` | `tsx watch src/index.ts` | Start with live reload on file changes |
+| `build` | `tsc` | Compile TypeScript to `dist/` |
+| `start` | `node dist/index.js` | Run compiled production output |
+| `db:setup` | `tsx src/db/setup.ts` | Create tables and upsert seed data |
+| `test` | `vitest run` | Execute all unit tests once (CI mode) |
+| `test:watch` | `vitest` | Run tests in watch mode |
+
+## Configuration summary
+
+All runtime configuration is read from environment variables. Every field has a local-friendly default so `npm run dev` works with no setup.
 
 | Field | Env var | Default |
-|-------|---------|---------|
+|---|---|---|
 | `port` | `PORT` | `3001` |
 | `databaseUrl` | `DATABASE_URL` | `postgres://localhost:5432/snabbit_dash` |
-| `githubToken` | `GITHUB_TOKEN` | `''` |
-| `githubRepo` | `GITHUB_REPO` | `''` |
+| `githubToken` | `GITHUB_TOKEN` | `''` (empty — selects mock provider) |
+| `githubRepo` | `GITHUB_REPO` | `''` (empty — selects mock provider) |
 
-## Per-file reference
-
-- [index.ts](/sdlc-sample-worflow/backend/index-ts/) — server entry point
-- [app.ts](/sdlc-sample-worflow/backend/app/) — Express factory
-- [config.ts](/sdlc-sample-worflow/backend/config/) — runtime configuration
-- [domain.ts](/sdlc-sample-worflow/backend/domain/) — domain types
-- [routes.ts](/sdlc-sample-worflow/backend/routes/) — REST routes
-- [store.ts](/sdlc-sample-worflow/backend/store/) — Store interface + in-memory store
-- [postgresStore.ts](/sdlc-sample-worflow/backend/postgresstore/) — Postgres store
-- [seed.ts](/sdlc-sample-worflow/backend/seed/) — seed data
-- [db/schema.ts](/sdlc-sample-worflow/backend/db/schema/) — SQL schema
-- [db/setup.ts](/sdlc-sample-worflow/backend/db/setup/) — setup script
-- [integrations/cicd.ts](/sdlc-sample-worflow/backend/integrations/cicd/) — CI/CD adapter
-- [vitest.config.ts](/sdlc-sample-worflow/backend/vitest-config/) — backend test configuration
+:::tip
+For zero-config local development, start a Postgres instance named `snabbit_dash` on port 5432, run `npm run db:setup` once, then `npm run dev`. No environment variables required.
+:::

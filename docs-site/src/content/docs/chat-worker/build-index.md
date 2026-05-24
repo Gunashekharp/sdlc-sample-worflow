@@ -1,51 +1,130 @@
 ---
-title: build-index.mjs
+title: Index builder — build-index.mjs
 ---
 
 **File:** `chat-worker/build-index.mjs`
 
-A Node.js script that reads every Markdown page in the docs site, splits each
-into heading-level chunks, and writes `docs-index.json` — the search index the
-chat Worker bundles and uses to answer questions.
+A Node.js ESM script that reads every Markdown and MDX page in the docs site,
+splits each page into heading-level chunks, cleans the text for keyword
+indexing, and writes a flat JSON array to `chat-worker/docs-index.json`. This
+file is committed alongside the Worker source and bundled into the deployed
+Cloudflare Worker by Wrangler so the chatbot has an offline search index at
+request time.
 
-## Running it
+## Running the script
 
 ```bash
 cd chat-worker
-node build-index.mjs   # or: npm run index
+node build-index.mjs   # direct invocation
+# — or —
+npm run index          # via the npm script alias
 ```
 
-On completion it prints:
+On success the script prints a summary line and exits:
 
 ```
-Indexed 47 pages -> 183 chunks -> /path/to/chat-worker/docs-index.json
+Indexed 47 pages -> 183 chunks -> /home/runner/work/.../chat-worker/docs-index.json
 ```
 
-Run this script whenever the documentation changes, then redeploy the Worker
-so the new index is bundled:
+:::tip
+Run this script **before every deployment** whenever the documentation content
+has changed. The index is bundled at deploy time; the Worker cannot pick up new
+content without a rebuild and redeploy.
+:::
+
+Typical workflow:
 
 ```bash
 node build-index.mjs
 npm run deploy
 ```
 
+## Imports
+
+```js
+import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+```
+
+The script uses only Node.js built-in modules — no external dependencies are
+required beyond Node.js itself (v18+ recommended for native ESM support).
+
 ## Constants
+
+### `here`
+
+```js
+const here = fileURLToPath(new URL('.', import.meta.url));
+```
+
+The directory containing the script file itself, resolved to an absolute path.
+`import.meta.url` is the `file://` URL of `build-index.mjs`; `new URL('.')`
+strips the filename to get the directory; `fileURLToPath` converts the URL to
+an OS path string. All other paths are derived from `here` so the script works
+correctly regardless of the working directory from which it is invoked.
+
+### `DOCS_DIR`
 
 ```js
 const DOCS_DIR = join(here, '..', 'docs-site', 'src', 'content', 'docs');
-const OUT      = join(here, 'docs-index.json');
+```
+
+Absolute path to the Starlight content directory. This is where all Markdown
+and MDX source files live. The `..` navigates from `chat-worker/` up one level
+to the repository root, then descends into the docs site.
+
+:::caution
+If the docs site is moved or renamed, update `DOCS_DIR` to match. The script
+will throw an `ENOENT` error at the `walk()` call if the path does not exist.
+:::
+
+### `OUT`
+
+```js
+const OUT = join(here, 'docs-index.json');
+```
+
+Output path for the generated JSON index — `chat-worker/docs-index.json`.
+Wrangler bundles all files in the `chat-worker/` directory into the Worker, so
+placing the index here makes it available to `src/index.js` as a static import:
+
+```js
+import INDEX from '../docs-index.json';
+```
+
+### `SITE_BASE`
+
+```js
 const SITE_BASE = '/sdlc-sample-worflow';
+```
+
+The base path configured in `docs-site/astro.config.mjs` (the `base` option).
+`pageUrl()` prepends this value to every generated URL so that source links in
+chatbot answers (`sources[].url`) resolve correctly on the deployed site.
+
+:::danger
+`SITE_BASE` must be kept in sync with the `base` option in `astro.config.mjs`.
+A mismatch means every source link the chatbot returns will be a 404.
+:::
+
+### `MAX_CHUNK`
+
+```js
 const MAX_CHUNK = 1500;
 ```
 
-| Constant | Purpose |
-|----------|---------|
-| `DOCS_DIR` | Absolute path to the Markdown source directory. Computed relative to the script's own location via `import.meta.url`. |
-| `OUT` | Output path for the JSON index. Written to the same `chat-worker/` directory, where Wrangler bundles it into the Worker. |
-| `SITE_BASE` | The `base` path configured in `docs-site/astro.config.mjs`. Used to prefix all on-site URLs so source links in chatbot answers are correct. Must be kept in sync with the Astro config. |
-| `MAX_CHUNK` | Maximum characters per index chunk. If a heading section's text exceeds this, it is split into multiple consecutive chunks. |
+Maximum number of characters per index chunk. Heading sections longer than
+1 500 characters are split into consecutive chunks that all share the same
+`title`, `heading`, and `url`. This prevents any single chunk from consuming
+too much of the model's context window.
 
-## `walk(dir)`
+Six chunks at `MAX_CHUNK` characters each add at most ~9 000 characters of
+grounding context to each request — well within the Claude Haiku context limit.
+
+## Functions
+
+### `walk(dir)`
 
 ```js
 function walk(dir) {
@@ -53,7 +132,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) {
-      if (/^\d/.test(name)) continue;   // skip numbered version archives
+      if (/^\d/.test(name)) continue; // skip numbered version archives
       out.push(...walk(p));
     } else if (/\.mdx?$/.test(name)) {
       out.push(p);
@@ -63,18 +142,33 @@ function walk(dir) {
 }
 ```
 
-**Parameters:** `dir` — absolute path to a directory.
+**Parameters**
 
-**Returns:** A flat array of absolute paths to every `.md` and `.mdx` file
+| Name | Type | Description |
+|------|------|-------------|
+| `dir` | `string` | Absolute path to the directory to scan. |
+
+**Returns:** A flat `string[]` of absolute paths to every `.md` and `.mdx` file
 found recursively under `dir`.
 
-**Version archive exclusion:** Directories whose names start with a digit (e.g.
-`2.0/`) are skipped. These are frozen version archives managed automatically by
-the `starlight-versions` plugin. Only the current (latest) docs are indexed.
+**Algorithm**
 
-**File filter:** The regex `/\.mdx?$/` matches both `.md` and `.mdx` files.
+For each entry in `dir`:
 
-## `pageUrl(file)`
+- If the entry is a directory:
+  - Skip it if its name starts with a digit (`/^\d/`). Starlight's versioning
+    plugin creates frozen archives like `2.0/`, `3.0/` under the content
+    directory. These contain older copies of the docs and should not be indexed
+    — the chatbot should only answer from the current (latest) documentation.
+  - Otherwise recurse into the directory.
+- If the entry is a file matching `/\.mdx?$/`, add its absolute path to the
+  output array.
+- Other files (images, JSON files, etc.) are silently ignored.
+
+The function is synchronous (`readdirSync`, `statSync`) because it runs at
+build time, not in the Cloudflare Worker.
+
+### `pageUrl(file)`
 
 ```js
 function pageUrl(file) {
@@ -84,27 +178,38 @@ function pageUrl(file) {
 }
 ```
 
-**Parameters:** `file` — absolute path to a Markdown file.
+**Parameters**
 
-**Returns:** The on-site URL for that page, with a trailing slash.
+| Name | Type | Description |
+|------|------|-------------|
+| `file` | `string` | Absolute path to a Markdown/MDX file returned by `walk()`. |
 
-**Steps:**
+**Returns:** The canonical on-site URL for the page, with a trailing slash and
+`SITE_BASE` prepended.
 
-1. Compute the path relative to `DOCS_DIR`, normalize path separators to `/`,
-   and strip the `.md`/`.mdx` extension.
-2. Collapse `index` segments: `some/path/index` → `some/path/`, and
-   `index` → `/`.
-3. Prepend `SITE_BASE` and ensure no double slashes.
+**Steps**
 
-**Examples:**
+1. `relative(DOCS_DIR, file)` — compute the path relative to `DOCS_DIR`.
+2. `.split(sep).join('/')` — normalise Windows backslash separators to forward
+   slashes.
+3. `.replace(/\.mdx?$/, '')` — strip the file extension.
+4. Collapse `index` segments:
+   - `index` (root index) → `''` (becomes `SITE_BASE + '/' + '' + '/'`)
+   - `some/path/index` → `some/path`
+5. Concatenate `SITE_BASE + '/' + rel + '/'` and replace any double slashes
+   with a single slash via `.replace(/\/{2,}/g, '/')`.
 
-| File path (relative to DOCS_DIR) | URL |
-|-----------------------------------|-----|
+**URL examples**
+
+| File path (relative to DOCS_DIR) | Generated URL |
+|----------------------------------|---------------|
 | `index.md` | `/sdlc-sample-worflow/` |
 | `getting-started.md` | `/sdlc-sample-worflow/getting-started/` |
 | `frontend/components/agentcard.md` | `/sdlc-sample-worflow/frontend/components/agentcard/` |
+| `chat-worker/index.md` | `/sdlc-sample-worflow/chat-worker/` |
+| `chat-worker/worker.md` | `/sdlc-sample-worflow/chat-worker/worker/` |
 
-## `frontmatter(src)`
+### `frontmatter(src)`
 
 ```js
 function frontmatter(src) {
@@ -116,54 +221,84 @@ function frontmatter(src) {
 }
 ```
 
-**Parameters:** `src` — raw Markdown file content as a string.
+**Parameters**
 
-**Returns:** `{ title: string | null, body: string }` where `title` is the
-value of the `title:` frontmatter key (stripped of wrapping quotes), and `body`
-is the file content with the frontmatter block removed.
+| Name | Type | Description |
+|------|------|-------------|
+| `src` | `string` | Raw file content read with `readFileSync`. |
 
-**Regex breakdown:**
+**Returns:** `{ title: string | null, body: string }`
 
-- `/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/` — matches the entire frontmatter block
-  including the delimiters. The `\r?\n` handles both LF and CRLF line endings.
-  The `[\s\S]*?` is a non-greedy match of the frontmatter body.
-- `/^title:\s*(.+)$/m` — extracts the value of the `title:` key. The `m` flag
-  makes `^` / `$` match line boundaries.
+- `title` — the value of the `title:` YAML key, stripped of leading/trailing
+  single or double quotes. `null` if no frontmatter block or no `title` key.
+- `body` — the file content after the closing `---` delimiter (or the full
+  `src` if no frontmatter was found).
 
-If no frontmatter is present (no `---` delimiters), `title` is `null` and the
-entire `src` is returned as `body`.
+**Regex breakdown**
 
-If a frontmatter block is found but has no `title` key, `title` is also `null`.
-In that case the page's URL is used as the chunk title in the index.
+`/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/`
 
-## `clean(text)`
+| Part | Meaning |
+|------|---------|
+| `^---` | Opening delimiter at start of string |
+| `\r?\n` | CRLF or LF line ending after `---` |
+| `([\s\S]*?)` | Non-greedy capture of the frontmatter body (group 1) |
+| `\r?\n---` | Closing delimiter on its own line |
+| `\r?\n?` | Optional trailing newline after the closing `---` |
+
+`/^title:\s*(.+)$/m`
+
+| Part | Meaning |
+|------|---------|
+| `^title:` | `title:` key at start of a line (`m` flag makes `^` match line start) |
+| `\s*` | Optional spaces between `:` and the value |
+| `(.+)` | Capture group: the title value (may contain spaces) |
+| `$` | End of the line |
+
+**Edge cases**
+
+| Situation | Result |
+|-----------|--------|
+| No `---` delimiters at all | `{ title: null, body: src }` — whole file is treated as body |
+| Frontmatter present, no `title:` key | `{ title: null, body: <post-frontmatter> }` |
+| `title` value wrapped in quotes, e.g. `title: "My Page"` | Quotes stripped by `.replace(/^['"]|['"]$/g, '')` |
+
+When `title` is `null`, the caller (`main loop`) substitutes the page URL as
+the chunk title so that every chunk always has a non-empty `title` field.
+
+### `clean(text)`
 
 ```js
 function clean(text) {
   return text
-    .replace(/```mermaid[\s\S]*?```/g, ' ')   // drop Mermaid diagram source
-    .replace(/\r/g, '')                         // normalize line endings
-    .replace(/[ \t]+/g, ' ')                   // collapse whitespace
-    .replace(/\n{3,}/g, '\n\n')                // collapse blank lines
+    .replace(/```mermaid[\s\S]*?```/g, ' ')
+    .replace(/\r/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 ```
 
-**Parameters:** `text` — a chunk's raw Markdown body.
+**Parameters**
 
-**Returns:** Cleaned text suitable for keyword indexing.
+| Name | Type | Description |
+|------|------|-------------|
+| `text` | `string` | Raw Markdown body text for a chunk section. |
 
-**Why strip Mermaid?** Mermaid diagram source (```mermaid ... ```) contains
-keywords like `flowchart`, `sequenceDiagram`, node labels, and edge text. This
-content is noise for a chatbot — the diagram's meaning is conveyed by the
-surrounding prose, not the raw syntax. Stripping it prevents the index from
-matching questions about completely unrelated topics that happen to share a
-diagram keyword.
+**Returns:** Cleaned text suitable for keyword indexing and inclusion in a
+model prompt.
 
-The replacement is a single space (not empty string) to avoid adjacent words
-merging: `fooLR` instead of `foo` + `LR`.
+**Transformations applied in order**
 
-## `chunkPage(title, url, body)`
+| Step | Regex | Replacement | Reason |
+|------|-------|-------------|--------|
+| Strip Mermaid blocks | `` /```mermaid[\s\S]*?```/g `` | `' '` (single space) | Mermaid syntax (`flowchart TD`, `sequenceDiagram`, node labels) is noise for keyword search and the model. Replaced with a space rather than empty string to prevent adjacent words from merging. |
+| Normalise line endings | `/\r/g` | `''` | Removes Windows carriage-return characters so subsequent `\n`-based operations work uniformly. |
+| Collapse inline whitespace | `/[ \t]+/g` | `' '` | Collapses runs of spaces and tabs to a single space. |
+| Collapse blank lines | `/\n{3,}/g` | `'\n\n'` | Three or more consecutive newlines become two, reducing vertical whitespace without losing paragraph structure. |
+| Trim | — | — | Removes leading/trailing whitespace from the entire chunk. |
+
+### `chunkPage(title, url, body)`
 
 ```js
 function chunkPage(title, url, body) {
@@ -184,52 +319,55 @@ function chunkPage(title, url, body) {
 }
 ```
 
-**Parameters:**
+**Parameters**
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `title` | `string` | Page title (from frontmatter, or URL as fallback) |
-| `url` | `string` | On-site URL for source linking |
-| `body` | `string` | Page body (frontmatter already stripped) |
+| Name | Type | Description |
+|------|------|-------------|
+| `title` | `string` | Page title from frontmatter, or the page URL as fallback. |
+| `url` | `string` | On-site URL with trailing slash, from `pageUrl()`. |
+| `body` | `string` | Page body with frontmatter already stripped (from `frontmatter()`). |
 
-**Returns:** An array of chunk objects `{ title, heading, url, text }`.
+**Returns:** `Array<{ title: string, heading: string, url: string, text: string }>`
 
-**Splitting strategy:**
+**Splitting strategy**
 
 ```js
 body.split(/\n(?=## )/)
 ```
 
-Splits the page at every `##` (h2) heading. `\n(?=## )` uses a lookahead so
-the `##` itself is kept at the start of each part. This means each chunk covers
-one heading section from the page.
+The body is split on newlines immediately followed by `##` (h2 headings). The
+lookahead `(?=## )` means the `##` itself is kept at the start of each `part`,
+so heading text can be extracted from each part. This divides the page into one
+part per h2 section, plus a leading part for any content before the first h2.
 
-The first part (before any `##`) gets the page title as its `heading`.
+Only `##` (h2) headings are used as split points. `###` (h3) and deeper headings
+remain inside the same chunk as their parent h2 section.
 
-**Heading extraction:**
+**Heading extraction**
 
 ```js
 const hm = part.match(/^##\s+(.+)/);
 const heading = hm ? hm[1].trim() : title;
 ```
 
-Extracts the heading text from the `##` line. If the part has no heading (the
-intro section), the page title is used.
+If the part begins with `##`, the heading text is extracted. If not (the
+intro section before the first `##`), the page title is used as the heading.
 
-**Body extraction:**
+**Body text extraction**
 
 ```js
 const nl = part.indexOf('\n');
 let text = clean(hm ? (nl === -1 ? '' : part.slice(nl + 1)) : part);
 ```
 
-If the part has a `##` heading, the text is everything after the first newline
-(i.e., the heading line is excluded from the chunk text). If not, the entire
-part is used.
+- If the part has a `##` heading line, `text` is everything after the first
+  newline (the heading line itself is not included in the chunk text — it is
+  already captured in `heading`).
+- If the part has no heading (intro), the entire `part` is used as text.
+- `clean()` is applied before the length check.
+- If `clean()` returns an empty string, the part is skipped (`if (!text) continue`).
 
-`clean()` is applied before length-checking.
-
-**Large-section splitting:**
+**Large-section splitting**
 
 ```js
 while (text.length > MAX_CHUNK) {
@@ -239,22 +377,29 @@ while (text.length > MAX_CHUNK) {
 chunks.push({ title, heading, url, text });
 ```
 
-If a section exceeds `MAX_CHUNK` (1500 characters), it is split into consecutive
-chunks of up to 1500 characters each. All sub-chunks share the same `title`,
-`heading`, and `url`.
+If the cleaned text of a section exceeds `MAX_CHUNK` (1 500) characters, it is
+split into as many 1 500-character slices as needed. All sub-chunks for the same
+section share the same `title`, `heading`, and `url`. The split is by character
+position — it does not attempt to split on word or sentence boundaries.
 
-## Chunk object shape
+## Index entry shape
+
+Each element of `docs-index.json` (and therefore each element of the `INDEX`
+array imported by the Worker) has the following shape:
 
 ```ts
 {
-  title: string,    // page title (frontmatter or URL)
-  heading: string,  // h2 section heading (or page title for intro)
-  url: string,      // on-site URL with trailing slash
-  text: string,     // cleaned, max 1500 chars per chunk
+  title:   string,  // page title from frontmatter, or URL if no title
+  heading: string,  // h2 section heading, or page title for intro section
+  url:     string,  // on-site URL with SITE_BASE prefix and trailing slash
+  text:    string,  // cleaned section text, at most MAX_CHUNK characters
 }
 ```
 
-This is also the shape stored in `docs-index.json` and read by the Worker.
+The `title` and `heading` fields together form the "title text" that the
+Worker's `search()` function weights 4× higher than body text. Pages with
+descriptive titles and section headings rank more strongly for questions that
+match those names directly.
 
 ## Main loop
 
@@ -271,37 +416,61 @@ writeFileSync(OUT, JSON.stringify(index));
 console.log(`Indexed ${files.length} pages -> ${index.length} chunks -> ${OUT}`);
 ```
 
-Processes all discovered Markdown files in `DOCS_DIR` (including subdirectories)
-and writes the flat chunk array as JSON.
+The main execution:
 
-`title || url` falls back to the URL when a page has no `title` frontmatter
-field (e.g. the index page if its frontmatter only has `description:`).
+1. Calls `walk(DOCS_DIR)` to obtain the full list of Markdown files.
+2. For each file:
+   a. Reads the file content synchronously.
+   b. Calls `frontmatter()` to extract the title and strip the frontmatter block.
+   c. Calls `pageUrl()` to compute the on-site URL.
+   d. Calls `chunkPage()` with `title || url` as the fallback title — if a page
+      has no `title` frontmatter key, its URL is used as the display title in
+      the chatbot's source list.
+   e. Spreads the returned chunk array into the global `index` array.
+3. Serialises the complete `index` array to JSON with `writeFileSync`.
+4. Logs the counts to stdout.
+
+The output is a single JSON array with no pretty-printing (compact format), to
+minimise the Worker bundle size.
 
 ## Full processing pipeline
 
 ```mermaid
 flowchart TD
-  walk["walk(DOCS_DIR)\ndiscover .md files"]
-  skip["skip dirs starting\nwith digit (version archives)"]
-  each["for each file"]
-  fm["frontmatter(src)\nextract title + body"]
-  url["pageUrl(file)\nbuild on-site URL"]
-  chunk["chunkPage(title, url, body)\nsplit by ## headings"]
-  clean["clean(text)\ndrop Mermaid, normalize"]
-  size{"text > 1500 chars?"}
-  split["split into multiple\n1500-char chunks"]
-  push["push { title, heading, url, text }"]
-  write["writeFileSync docs-index.json"]
+  start(["node build-index.mjs"])
+  walk["walk(DOCS_DIR)\nrecursive directory scan"]
+  skip["skip dirs starting with digit\n(Starlight version archives)"]
+  files["flat list of .md / .mdx paths"]
+  loop["for each file"]
+  read["readFileSync → raw src"]
+  fm["frontmatter(src)\n→ { title, body }"]
+  url["pageUrl(file)\n→ on-site URL string"]
+  chunk["chunkPage(title||url, url, body)\nsplit on h2 boundaries"]
+  clean["clean(text)\nstrip Mermaid, normalise whitespace"]
+  size{"text.length > MAX_CHUNK?"}
+  split["slice into 1500-char sub-chunks\n(same title/heading/url)"]
+  push["push { title, heading, url, text }\nto index array"]
+  more{"more files?"}
+  write["writeFileSync docs-index.json\nJSON.stringify(index)"]
+  done(["Indexed N pages -> M chunks"])
 
-  walk -->|"skips"| skip
-  walk --> each
-  each --> fm
-  each --> url
+  start --> walk
+  walk --> skip
+  walk --> files
+  files --> loop
+  loop --> read --> fm
+  loop --> url
   fm --> chunk
   url --> chunk
-  chunk --> clean
-  clean --> size
+  chunk --> clean --> size
   size -->|"Yes"| split --> push
   size -->|"No"| push
-  push -->|"all files done"| write
+  push --> more
+  more -->|"Yes"| loop
+  more -->|"No"| write --> done
 ```
+
+## See also
+
+- [Chat worker overview](/sdlc-sample-worflow/chat-worker/) — architecture, deployment workflow, configuration table
+- [Worker — src/index.js](/sdlc-sample-worflow/chat-worker/worker/) — how `docs-index.json` is consumed at request time

@@ -1,17 +1,40 @@
 ---
-title: app.ts
-description: Express application factory with dependency injection.
+title: "app.ts — Express application factory"
 ---
 
 **File:** `server/src/app.ts`
 
-The Express application factory. Takes injected dependencies and returns a
-fully configured Express app. The separation of app creation from server
-bootstrap enables clean dependency injection in tests.
+The Express application factory. Takes injected dependencies and returns a fully configured Express app. Separating app creation from server bootstrap enables clean dependency injection and isolated test instances.
 
-## Types
+## Full source
 
-### `AppDeps`
+```ts
+import express from 'express'
+import type { NextFunction, Request, Response } from 'express'
+import cors from 'cors'
+import type { Store } from './store'
+import type { CicdProvider } from './integrations/cicd'
+import { registerRoutes } from './routes'
+
+export interface AppDeps {
+  store: Store
+  cicd: CicdProvider
+}
+
+export function createApp(deps: AppDeps) {
+  const app = express()
+  app.use(cors())
+  app.use(express.json())
+  registerRoutes(app, deps)
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('Unhandled API error:', err)
+    res.status(500).json({ error: 'Internal server error' })
+  })
+  return app
+}
+```
+
+## `AppDeps` interface
 
 ```ts
 export interface AppDeps {
@@ -21,58 +44,55 @@ export interface AppDeps {
 ```
 
 | Field | Type | Purpose |
-|-------|------|---------|
-| `store` | `Store` | Data access — agents and KPIs. Injected as either `createMemoryStore` (tests) or `createPostgresStore` (production). |
-| `cicd` | `CicdProvider` | CI/CD pipeline provider. Injected as either `createMockCicdProvider` (default) or `createGithubActionsProvider` (when credentials set). |
+|---|---|---|
+| `store` | `Store` | Data access for agents and KPIs. In production: `createPostgresStore(pool)`. In tests: `createMemoryStore(agents, kpis)`. |
+| `cicd` | `CicdProvider` | CI/CD pipeline data source. In production: result of `getCicdProvider(env)`. In tests: `createMockCicdProvider()`. |
 
-## `createApp`
+Both fields are interfaces, not concrete classes. `app.ts` has no import of any implementation — it only imports the types.
+
+## `createApp(deps)`
 
 ```ts
 export function createApp(deps: AppDeps): express.Application
 ```
 
-**Parameters:** `deps: AppDeps` — the two injected dependencies.
+**Parameters:** `deps: AppDeps` — the two injected collaborators.
 
-**Returns:** A configured Express `Application` instance, not yet listening.
+**Returns:** A configured `express.Application`. The app has all middleware and routes registered but is not yet bound to any port.
 
-**Side effects:** None at creation time. Registers middleware and routes on the
-app instance.
+**Side effects at call time:** None — no network calls, no database queries, no file I/O.
 
-## Implementation walkthrough
+## Middleware stack
+
+The following middleware are registered in order on every incoming request:
+
+### 1. `cors()`
 
 ```ts
-export function createApp(deps: AppDeps) {
-  const app = express()
-  app.use(cors())
-  app.use(express.json())
-
-  registerRoutes(app, deps)
-
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled API error:', err)
-    res.status(500).json({ error: 'Internal server error' })
-  })
-
-  return app
-}
+app.use(cors())
 ```
 
-### Middleware stack
+Adds `Access-Control-Allow-Origin: *` (and related CORS headers) to every response. This is required because the Vite dev server runs on port 5173 while the API runs on port 3001 — without CORS headers, browsers would block cross-origin requests.
 
-Three middleware are applied in order:
+The default `cors()` configuration allows all origins and all standard headers. For a production deployment, this can be tightened with `cors({ origin: 'https://your-domain.com' })`.
 
-1. **`cors()`** — enables Cross-Origin Resource Sharing for all origins. This
-   allows the Vite dev server (port 5173) to call the API (port 3001). The
-   default `cors()` configuration sends `Access-Control-Allow-Origin: *`.
+### 2. `express.json()`
 
-2. **`express.json()`** — parses request bodies with `Content-Type: application/json`
-   into `req.body`. No routes currently use request bodies, but it is included
-   for future write endpoints.
+```ts
+app.use(express.json())
+```
 
-3. **`registerRoutes(app, deps)`** — adds all API routes. Routes receive the
-   injected `deps` so they can read from the store and CI/CD provider.
+Parses request bodies with `Content-Type: application/json` and populates `req.body`. All current routes are read-only (GET), so `req.body` is never used today. The middleware is included to support future write endpoints without requiring a middleware change.
 
-### Catch-all error handler
+### 3. `registerRoutes(app, deps)`
+
+```ts
+registerRoutes(app, deps)
+```
+
+Registers all five REST routes, passing `deps` so handlers can call `deps.store` and `deps.cicd`. See [routes.ts](/backend/routes/) for the full route list.
+
+### 4. Catch-all error handler
 
 ```ts
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
@@ -81,48 +101,44 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 })
 ```
 
-Express identifies a 4-argument middleware as an error handler. Any error
-thrown by a route handler that is not caught there reaches this handler.
-It logs the error and responds with a JSON error object so the client receives
-structured JSON rather than an HTML crash page.
+Express identifies a four-argument middleware function as an error handler. Any unhandled error thrown (or rejected promise) inside a route handler propagates here.
 
-The `_req` and `_next` parameters are prefixed with `_` to silence unused-
-variable linter warnings. Express requires the 4-argument signature regardless
-of whether all parameters are used.
+The handler:
+1. Logs the full error to `stderr` with `console.error`.
+2. Responds with HTTP 500 and a JSON body `{ "error": "Internal server error" }`.
+
+This ensures the client always receives structured JSON rather than an Express HTML crash page, even in unexpected failure scenarios.
+
+The `_req` and `_next` parameters use a leading underscore to signal intentional non-use and suppress TypeScript/ESLint unused-variable warnings. Express requires the four-argument signature regardless — omitting any parameter would cause Express not to recognize it as an error handler.
 
 :::caution
-Async Express 5 route handlers propagate rejections automatically — no
-explicit `next(err)` call needed. In Express 4, async errors would have
-required explicit rejection forwarding.
+Express 5 automatically propagates async route-handler rejections to the next error handler. In Express 4, async errors required explicit `next(err)` calls. If you downgrade to Express 4, add `try/catch` or a wrapper in each async route.
 :::
 
-## Dependency injection pattern
+## Factory pattern benefits
+
+Creating a new `express.Application` on every `createApp()` call means:
+
+- Each test file can spin up its own isolated app instance with fresh middleware and a fresh in-memory store.
+- Tests do not share state — one test's mutations to the store do not bleed into another test's store.
+- No singleton Express instance exists that tests could accidentally contaminate.
 
 ```mermaid
 flowchart LR
-  tests["api.test.ts"]
-  server["index.ts\n(production)"]
-  memStore["createMemoryStore()"]
-  pgStore["createPostgresStore()"]
-  mockCicd["createMockCicdProvider()"]
-  liveCicd["createGithubActionsProvider()"]
-  createApp["createApp(deps)"]
+    T1["Test A\ncreateApp(memStore1, mock)"]
+    T2["Test B\ncreateApp(memStore2, mock)"]
+    T3["Test C\ncreateApp(memStore3, mock)"]
+    P["Production\ncreateApp(pgStore, githubProvider)"]
 
-  tests -->|"inject memory store"| memStore
-  tests -->|"inject mock CI/CD"| mockCicd
-  server -->|"inject Postgres store"| pgStore
-  server -->|"inject configured provider"| liveCicd
-
-  memStore --> createApp
-  mockCicd --> createApp
-  pgStore --> createApp
-  liveCicd --> createApp
+    T1 --> A1["app instance 1"]
+    T2 --> A2["app instance 2"]
+    T3 --> A3["app instance 3"]
+    P --> A4["app instance 4"]
 ```
 
-This pattern means `npm test` never touches Postgres or the GitHub API — tests
-are fast, hermetic, and repeatable.
+Each instance has its own middleware chain, its own route handlers, and its own reference to the injected store. Changing one does not affect the others.
 
 ## Used by
 
-- `server/src/index.ts` — production entry point, injects real dependencies.
-- `server/src/__tests__/api.test.ts` — injects in-memory store + mock CI/CD.
+- **`server/src/index.ts`** — production entry point, injects `createPostgresStore(pool)` and the result of `getCicdProvider(env)`.
+- **`server/src/__tests__/api.test.ts`** — injects `createMemoryStore(SEED_AGENTS, SEED_KPIS)` and `createMockCicdProvider()`.

@@ -1,15 +1,12 @@
 ---
-title: usePersistentState
-description: localStorage-backed useState hook.
+title: usePersistentState hook
 ---
 
 **File:** `src/lib/usePersistentState.ts`
 
-A drop-in replacement for `useState` that mirrors its value to `localStorage`
-and restores it on the next mount. Storage failures are silently swallowed —
-persistence is best-effort.
+A drop-in replacement for `useState` that persists its value to `localStorage` and restores it on the next mount. Storage failures at both read and write time are silently swallowed — persistence is best-effort.
 
-## Hook
+## Hook signature
 
 ```ts
 export function usePersistentState<T>(
@@ -18,22 +15,47 @@ export function usePersistentState<T>(
 ): [T, (value: T) => void]
 ```
 
-**Type parameter:** `T` — the state value type. Must be JSON-serializable.
+### Type parameter
 
-**Parameters:**
+`T` — the state value type. Must be JSON-serializable (i.e. round-trips correctly through `JSON.stringify` / `JSON.parse`). `string` and `number` work perfectly. `Date`, `undefined` values inside objects, and `function` values do not round-trip.
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `key` | `string` | `localStorage` key. Should be unique per usage to prevent cross-component collisions. The convention in this codebase is `'snabbit.<component>.<field>'`. |
-| `initial` | `T` | Default value used when no stored value exists or when the stored value cannot be parsed. |
+### Parameters
 
-**Returns:** A tuple `[value, setValue]` identical in shape to `useState`'s
-return. The setter does not accept a function updater — it only accepts a new
-value directly.
+| Parameter | Type | Purpose |
+|---|---|---|
+| `key` | `string` | The `localStorage` key under which the value is stored. Should be globally unique across the application to prevent collisions. The convention in this codebase is `'snabbit.<component>.<field>'`. |
+| `initial` | `T` | The default value used when no stored value is found, when the stored value cannot be parsed, or when storage is unavailable. |
 
-## Implementation
+### Returns
 
-### Initial value (lazy initializer)
+A tuple `[value, setValue]` with the same shape as `useState`'s return value. The setter takes a new value directly — it does not accept a function updater.
+
+## Full implementation
+
+```ts
+export function usePersistentState<T>(key: string, initial: T): [T, (value: T) => void] {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key)
+      return raw !== null ? (JSON.parse(raw) as T) : initial
+    } catch {
+      return initial
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+    } catch {
+      // Ignore write failures — persistence is best-effort.
+    }
+  }, [key, value])
+
+  return [value, setValue]
+}
+```
+
+## Lazy initializer (read from `localStorage` on first render)
 
 ```ts
 const [value, setValue] = useState<T>(() => {
@@ -46,17 +68,19 @@ const [value, setValue] = useState<T>(() => {
 })
 ```
 
-The state is initialized with a **lazy initializer function** passed to
-`useState`. React calls this function only on the first render, not on
-subsequent renders — this matters because `localStorage.getItem` is a
-synchronous DOM operation that should not run on every render.
+The initializer is passed as a **function** to `useState`. React calls this function exactly once — on the first render — and ignores it on subsequent renders. This matters because `localStorage.getItem` is a synchronous DOM operation; running it on every render would be wasteful.
 
-Two failure modes are caught and fall back to `initial`:
-- `localStorage` is not available (private browsing, storage quota exceeded,
-  or disabled) — the `getItem` throws.
-- The stored value is malformed JSON — `JSON.parse` throws.
+### Read failure modes caught by `try/catch`
 
-### Sync effect
+| Scenario | Why it throws | Result |
+|---|---|---|
+| `localStorage` is disabled | Private browsing modes in some browsers throw `SecurityError` on `localStorage` access | Falls back to `initial` |
+| Storage quota exceeded | Some browsers throw when the storage is full, even on read (rare) | Falls back to `initial` |
+| Malformed JSON | A previous write produced a non-JSON string (bug, manual editing) — `JSON.parse` throws `SyntaxError` | Falls back to `initial` |
+
+The `raw !== null` check before `JSON.parse` handles the case where the key has never been written (returns `null` from `getItem`) — in that case `initial` is returned without attempting a parse.
+
+## Sync effect (write to `localStorage` on value change)
 
 ```ts
 useEffect(() => {
@@ -68,45 +92,60 @@ useEffect(() => {
 }, [key, value])
 ```
 
-Runs after every render where `key` or `value` changed. Serializes `value` to
-JSON and writes it. Write failures are silently ignored (e.g. storage quota
-exceeded, private browsing that allows reads but not writes).
+Runs after every render where `key` or `value` has changed. `JSON.stringify(value)` serializes the current state and writes it to `localStorage` under `key`.
 
-:::caution
-The effect depends on `key`. If `key` changes between renders, the new key
-will be written but the old key will not be deleted. In practice `key` is
-always a string literal at the call site, so this cannot happen.
-:::
+### Write failure modes silently ignored
 
-## Serialization contract
+| Scenario | Why it throws | Behavior |
+|---|---|---|
+| Storage quota exceeded | Browser's `localStorage` is full | Write is silently skipped; in-memory state is unaffected |
+| Private browsing (write-blocked) | Some browsers allow `getItem` but throw on `setItem` in private mode | Write is silently skipped |
+| `localStorage` disabled | `SecurityError` on access | Write is silently skipped |
 
-`T` must be JSON-serializable. The hook uses `JSON.stringify` to write and
-`JSON.parse` to read. Types with `undefined` values, `Date` objects, or
-functions will not round-trip correctly — but `string` (used for `category` and
-`sort`) serializes perfectly.
+The comment in the source — `// Ignore write failures — persistence is best-effort.` — is intentional documentation: callers should not assume the value was successfully persisted.
 
-## Used by
+### Dependency on `key`
 
-`AgentGrid` with two keys:
+The effect depends on both `key` and `value`. If `key` changes between renders (which cannot happen in practice because all call sites use string literals), the new key is written but the old key is not deleted. This is not a concern given current usage.
+
+## `localStorage` keys used by the application
+
+| Key | `T` | Default | Used in |
+|---|---|---|---|
+| `snabbit.agentGrid.category` | `string` | `'All'` | `AgentGrid` — the active category tab |
+| `snabbit.agentGrid.sort` | `SortKey` | `'runs'` | `AgentGrid` — the active sort order |
+
+## AgentGrid usage
 
 ```ts
+// AgentGrid.tsx
 const [category, setCategory] = usePersistentState<string>(
-  'snabbit.agentGrid.category', 'All',
+  'snabbit.agentGrid.category',
+  'All',
 )
 const [sort, setSort] = usePersistentState<SortKey>(
-  'snabbit.agentGrid.sort', 'runs',
+  'snabbit.agentGrid.sort',
+  'runs',
 )
 ```
 
-## Tests
+When a user clicks a category tab or changes the sort select, `setCategory` / `setSort` updates the in-memory state (triggering a re-render immediately) and the `useEffect` writes the new value to `localStorage`. On the next page load, the lazy initializer reads the stored value and the grid starts in the user's last-used state.
 
-The test setup (`src/test/setup.ts`) calls `localStorage.clear()` after each
-test case to prevent state leakage between tests. `AgentGrid.test.tsx` has a
-test that explicitly verifies persistence:
+## Test isolation
 
+`src/test/setup.ts` calls `localStorage.clear()` in an `afterEach` hook to prevent state leakage between test cases. Without this, a test that writes `'Deploy'` to `'snabbit.agentGrid.category'` would cause the next test's `AgentGrid` to mount in the `'Deploy'` category instead of `'All'`, producing flaky, order-dependent failures.
+
+`AgentGrid.test.tsx` explicitly tests persistence:
+
+```ts
+it('remembers the selected category across remounts', async () => {
+  await user.click(screen.getByRole('button', { name: 'Deploy' }))
+  first.unmount()
+  render(<AgentGrid agents={AGENTS} />)
+  expect(
+    screen.getByRole('button', { name: 'Deploy' })
+  ).toHaveAttribute('aria-pressed', 'true')
+})
 ```
-it('remembers the selected category across remounts')
-```
 
-The test mounts the grid, clicks the "Deploy" tab, unmounts, remounts, and
-asserts that the "Deploy" tab still has `aria-pressed="true"`.
+This test mounts the grid, clicks "Deploy", unmounts, remounts, and asserts the "Deploy" tab is still selected — verifying that `usePersistentState` correctly restored the stored value.

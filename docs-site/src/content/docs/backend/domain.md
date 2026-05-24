@@ -1,13 +1,28 @@
 ---
-title: domain.ts
-description: Backend domain types — Agent and Kpi.
+title: "domain.ts — core types"
 ---
 
 **File:** `server/src/domain.ts`
 
-The backend's core domain types. Mirrors the shapes the frontend expects.
-There is no shared type package — the frontend (`src/data/agents.ts`) and
-backend maintain structurally identical types by convention.
+The backend's core domain types. Defines the shapes for agents and KPIs that flow from the database through the store and routes to the frontend. No business logic lives here — only type definitions.
+
+## Full source
+
+```ts
+export type AgentStatus = 'running' | 'idle' | 'attention'
+export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
+
+export interface Agent {
+  id: string; name: string; category: AgentCategory; description: string;
+  status: AgentStatus; runsPerWeek: number; successRate: number;
+  avgDuration: string; lastRun: string; lastRunMinutes: number; popular: boolean;
+}
+
+export interface Kpi {
+  id: string; label: string; value: string; delta: string;
+  positive: boolean; hint: string; trend: number[];
+}
+```
 
 ## `AgentStatus`
 
@@ -15,7 +30,15 @@ backend maintain structurally identical types by convention.
 export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
-The three operational states of an agent.
+The three operational states an agent can be in:
+
+| Value | Meaning |
+|---|---|
+| `'running'` | The agent is actively executing a job right now |
+| `'idle'` | The agent is healthy but not currently running |
+| `'attention'` | The agent requires operator review (e.g., elevated error rate) |
+
+Stored as `TEXT` in the `agents` Postgres table. Cast from `string` to `AgentStatus` inside `rowToAgent()` in `postgresStore.ts`.
 
 ## `AgentCategory`
 
@@ -23,9 +46,19 @@ The three operational states of an agent.
 export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
 ```
 
-The five agent categories.
+The five agent categories, used to group agents in the dashboard:
 
-## `Agent`
+| Value | Description |
+|---|---|
+| `'Review'` | Code review and migration review agents |
+| `'Deploy'` | Deployment automation agents |
+| `'Reliability'` | On-call, RCA, and alert triage agents |
+| `'Quality'` | End-to-end testing, coverage, and flaky-test agents |
+| `'Docs'` | Changelog and specification authoring agents |
+
+Stored as `TEXT` in Postgres. Cast in `rowToAgent()`.
+
+## `Agent` interface
 
 ```ts
 export interface Agent {
@@ -43,21 +76,21 @@ export interface Agent {
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Stable kebab-case slug, primary key in Postgres |
-| `name` | `string` | Display name |
-| `category` | `AgentCategory` | Stored as `TEXT` in Postgres, cast to `AgentCategory` by `rowToAgent` |
-| `description` | `string` | One-sentence summary |
-| `status` | `AgentStatus` | Stored as `TEXT`, cast to `AgentStatus` by `rowToAgent` |
-| `runsPerWeek` | `number` | Maps to `runs_per_week INTEGER` in Postgres |
-| `successRate` | `number` | Maps to `success_rate INTEGER` (0–100) |
-| `avgDuration` | `string` | Maps to `avg_duration TEXT`, human-readable |
-| `lastRun` | `string` | Maps to `last_run TEXT`, human-readable |
-| `lastRunMinutes` | `number` | Maps to `last_run_minutes INTEGER`, for sorting |
-| `popular` | `boolean` | Maps to `popular BOOLEAN` |
+| Field | Type | DB column | Notes |
+|---|---|---|---|
+| `id` | `string` | `id TEXT PRIMARY KEY` | Stable kebab-case slug (e.g. `'pr-reviewer'`) |
+| `name` | `string` | `name TEXT` | Human-readable display name |
+| `category` | `AgentCategory` | `category TEXT` | One of the five category values |
+| `description` | `string` | `description TEXT` | One-sentence summary of what the agent does |
+| `status` | `AgentStatus` | `status TEXT` | Current operational state |
+| `runsPerWeek` | `number` | `runs_per_week INTEGER` | Weekly execution count |
+| `successRate` | `number` | `success_rate INTEGER` | Percentage 0–100; percentage of runs that succeed |
+| `avgDuration` | `string` | `avg_duration TEXT` | Human-readable average run time (e.g. `'2m 40s'`) |
+| `lastRun` | `string` | `last_run TEXT` | Human-readable recency label (e.g. `'3m ago'`) |
+| `lastRunMinutes` | `number` | `last_run_minutes INTEGER` | Numeric minutes since last run, used for sorting |
+| `popular` | `boolean` | `popular BOOLEAN` | Whether this agent appears in the "popular" filter tab |
 
-## `Kpi`
+## `Kpi` interface
 
 ```ts
 export interface Kpi {
@@ -71,30 +104,31 @@ export interface Kpi {
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Stable identifier, primary key in Postgres |
-| `label` | `string` | Metric name |
-| `value` | `string` | Pre-formatted display value |
-| `delta` | `string` | Pre-formatted period change |
-| `positive` | `boolean` | Whether the delta is a good outcome |
-| `hint` | `string` | Sub-label for the sparkline |
-| `trend` | `number[]` | 7-point series, stored as JSONB in Postgres |
+| Field | Type | DB column | Notes |
+|---|---|---|---|
+| `id` | `string` | `id TEXT PRIMARY KEY` | Stable identifier (e.g. `'agent-runs'`) |
+| `label` | `string` | `label TEXT` | Metric display name (e.g. `'Agent runs · 7d'`) |
+| `value` | `string` | `value TEXT` | Pre-formatted current value (e.g. `'1,284'`) |
+| `delta` | `string` | `delta TEXT` | Pre-formatted period change (e.g. `'+18%'`) |
+| `positive` | `boolean` | `positive BOOLEAN` | `true` when the delta is a favorable change |
+| `hint` | `string` | `hint TEXT` | Sub-label shown beneath the sparkline |
+| `trend` | `number[]` | `trend JSONB` | Seven-point numeric series for the sparkline |
 
-The `Kpi` type does not include `sort_order` — that is a Postgres-only
-ordering column, read by the store but not exposed in the domain type.
+:::note
+The `Kpi` type does not include `sort_order`. That column exists only in the Postgres schema to preserve display order when rows are fetched. It is used in `ORDER BY sort_order ASC` and then discarded — it is never surfaced in the domain type or the API response.
+:::
 
-## Relationship to the frontend types
+## Relationship to the frontend
 
-Both the frontend (`src/data/agents.ts`) and backend (`server/src/domain.ts`)
-define `AgentStatus`, `AgentCategory`, `Agent`, and `Kpi`. The two sets are
-kept structurally identical by hand. Any change to one must be mirrored in the
-other.
+The frontend (`src/data/agents.ts` and `src/data/kpis.ts`) defines `AgentStatus`, `AgentCategory`, `Agent`, and `Kpi` with structurally identical shapes. There is no shared type package — the two sets are kept in sync by hand.
+
+:::caution
+Any change to a field name, type, or the list of union values in `domain.ts` must be mirrored in the corresponding frontend type files. A mismatch will cause TypeScript errors on the frontend when it processes API responses.
+:::
 
 ## Used by
 
-- `server/src/store.ts` — defines `AgentStore`, `KpiStore`, `Store` in terms
-  of `Agent` and `Kpi`.
-- `server/src/postgresStore.ts` — maps Postgres rows to these types.
-- `server/src/seed.ts` — typed seed data arrays.
-- `server/src/routes.ts` — implicit through `Store` usage.
+- **`server/src/store.ts`** — `AgentStore`, `KpiStore`, and `Store` are parameterized by `Agent` and `Kpi`.
+- **`server/src/postgresStore.ts`** — `rowToAgent()` and `rowToKpi()` map Postgres rows to these types.
+- **`server/src/seed.ts`** — `SEED_AGENTS: Agent[]` and `SEED_KPIS: Kpi[]` are typed arrays.
+- **`server/src/routes.ts`** — indirectly, through the `Store` methods.

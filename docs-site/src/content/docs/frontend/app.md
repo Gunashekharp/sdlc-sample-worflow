@@ -1,17 +1,18 @@
 ---
-title: App.tsx
-description: Root component and dashboard layout for the Snabbit Agent Console.
+title: App.tsx — root component
 ---
 
 **File:** `src/App.tsx`
 
-The root React component. Splits the agent catalogue into the featured agent
-and the remainder, then assembles the full dashboard layout from seven child
-components.
+The root React component. Splits the agent catalogue into the featured agent and the remainder, then assembles the full dashboard layout from seven child components.
+
+:::caution
+Figma designs from PRs #1–#4 (which changed App.tsx) could not be exported — the Figma API token has expired. Update this page after refreshing the token.
+:::
 
 ## Imports
 
-```ts
+```tsx
 import { AGENTS, FEATURED_AGENT_ID } from './data/agents'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
@@ -22,20 +23,9 @@ import AgentGrid from './components/AgentGrid'
 import PromptBar from './components/PromptBar'
 ```
 
-All agent data is imported from the static local catalogue. No props are
-accepted — `App` is the composition root and owns the top-level data split.
+All agent data comes from the static local catalogue in `src/data/agents.ts`. `App` accepts no props — it is the composition root and owns the top-level featured/rest split.
 
-## Design
-
-![Pre-Approval Updated Flows](https://gunashekharp.github.io/sdlc-sample-worflow/figma/app-pre-approval-updated-flows.png)
-
-Figma section **"Pre-Approval Updated Flows"** (Snabbit 2.0, node `28445-27446`).
-The design shows the multi-step pre-approval gate flow that surfaces inside the
-dashboard — a bottom-sheet pattern where a user image, a "Pre-approve" action
-chip, and an approval confirmation screen are presented in sequence before an
-agent pipeline is authorised to proceed.
-
-## Component
+## The `App` function
 
 ```ts
 export default function App()
@@ -43,53 +33,23 @@ export default function App()
 
 **Parameters:** None.
 
-**Returns:** A `<div>` forming the full viewport layout.
+**Returns:** A `<div>` forming the full viewport layout shell.
 
-**Side effects:** None at render time. `PipelinesPanel` (a child) makes a
-network call to `GET /api/pipelines` on its own mount.
+**Side effects at render time:** None. `PipelinesPanel` (a child) issues a `GET /api/pipelines` request on its own mount, not inside `App` itself.
 
-## Implementation walkthrough
-
-```tsx
-export default function App() {
-  const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-  const rest = AGENTS.filter((a) => a.id !== featured.id)
-
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5">
-            <KpiStrip />
-            <FeaturedAgent agent={featured} />
-            <PipelinesPanel />
-            <AgentGrid agents={rest} />
-          </div>
-        </main>
-        <PromptBar />
-      </div>
-    </div>
-  )
-}
-```
-
-### Featured agent split
+## Featured / rest split
 
 ```ts
 const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
 const rest = AGENTS.filter((a) => a.id !== featured.id)
 ```
 
-`FEATURED_AGENT_ID` is currently `'pr-reviewer'`. `AGENTS.find` returns
-`undefined` if the constant is ever changed to a non-existent ID; the
-nullish-coalescing fallback `?? AGENTS[0]` ensures `featured` is always
-a valid `Agent`, preventing a crash.
+`FEATURED_AGENT_ID` is currently `'pr-reviewer'`. Two things happen here:
 
-`rest` is every agent whose `id` differs from `featured.id`. Since both
-`FEATURED_AGENT_ID` and `featured.id` come from the same lookup, the
-featured agent never appears in the grid.
+1. `AGENTS.find` locates the featured agent by its stable `id`. If `FEATURED_AGENT_ID` is ever changed to an ID that does not exist in `AGENTS`, `find` returns `undefined`; the `?? AGENTS[0]` fallback ensures `featured` is always a valid `Agent` and prevents a render crash.
+2. `rest` is every agent whose `id` is not `featured.id`. Because both values come from the same lookup, the featured agent never appears in the agent grid beneath it.
+
+## Layout structure
 
 ### Outer flex row
 
@@ -97,9 +57,16 @@ featured agent never appears in the grid.
 <div className="flex h-screen overflow-hidden">
 ```
 
-`h-screen` makes the outer container exactly the viewport height. `overflow-hidden`
-prevents the body from scrolling — all scrolling is confined to the inner
-`<main>` region, keeping `Sidebar`, `TopBar`, and `PromptBar` fixed in place.
+- `h-screen` — the outer container is exactly viewport height.
+- `overflow-hidden` — prevents the `<body>` from scrolling. All scrolling is confined to the inner `<main>` region, keeping `Sidebar`, `TopBar`, and `PromptBar` pinned at all times.
+
+### Sidebar
+
+```tsx
+<Sidebar />
+```
+
+Rendered first in source order (leftmost in the flex row). The sidebar is a fixed-width (`w-60`, 240 px) column containing the workspace logo, nav items, recent agent sessions, and a user footer. It does not shrink.
 
 ### Main column
 
@@ -107,10 +74,17 @@ prevents the body from scrolling — all scrolling is confined to the inner
 <div className="flex min-w-0 flex-1 flex-col">
 ```
 
-`flex-1` causes this column to fill the remaining width after the
-240px `Sidebar`. `min-w-0` overrides the default flex minimum-content
-sizing so the column can shrink below its content width (important for
-the `truncate` utility on agent names inside the column).
+- `flex-1` — fills all remaining horizontal space after the 240 px sidebar.
+- `min-w-0` — overrides the default flexbox minimum-content sizing (`auto`), which would otherwise prevent this column from shrinking below its content width. Without `min-w-0`, long agent names inside the column could push the layout past the viewport edge.
+- `flex-col` — stacks `TopBar`, `<main>`, and `PromptBar` vertically.
+
+### TopBar
+
+```tsx
+<TopBar />
+```
+
+A fixed-height header (`h-14`, 56 px) that does not grow or shrink. Contains the breadcrumb, global search input, and environment switcher.
 
 ### Scrollable content area
 
@@ -119,20 +93,27 @@ the `truncate` utility on agent names inside the column).
   <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5">
 ```
 
-`flex-1 overflow-y-auto` makes `<main>` fill the space between `TopBar`
-and `PromptBar`, with vertical scroll when content overflows.
-
-The inner `<div>` centers content at `max-w-6xl` (72rem / 1152px) with
-`px-5 py-5` (20px) padding and `gap-5` (20px) between the four panels.
+- `flex-1 overflow-y-auto` on `<main>` — fills the vertical space between `TopBar` and `PromptBar`; scrolls vertically when the content overflows.
+- `mx-auto max-w-6xl` on the inner `<div>` — centers content horizontally, capped at 72 rem (1152 px). On very wide screens the content column does not stretch further.
+- `flex flex-col gap-5` — stacks the four panels with 20 px (`gap-5`) gaps between them.
+- `px-5 py-5` — 20 px padding on all four sides of the content column.
 
 ### Panel order
 
-| Order | Component | Data source |
-|-------|-----------|-------------|
-| 1 | `KpiStrip` | Static (`KPIS` from `kpis.ts`) |
-| 2 | `FeaturedAgent` | `featured` (from `AGENTS`) |
-| 3 | `PipelinesPanel` | Live (`GET /api/pipelines`) |
-| 4 | `AgentGrid` | `rest` (from `AGENTS`, minus featured) |
+| Order | Component | Data source | Rationale |
+|---|---|---|---|
+| 1 | `KpiStrip` | Static (`KPIS`) | High-level metrics; first thing users scan |
+| 2 | `FeaturedAgent` | `featured` (from `AGENTS`) | Hero spotlight for the most important agent |
+| 3 | `PipelinesPanel` | Live (`GET /api/pipelines`) | Real-time CI/CD health follows the featured agent |
+| 4 | `AgentGrid` | `rest` (remaining `AGENTS`) | Filterable catalogue is the most detailed, placed last |
+
+### PromptBar
+
+```tsx
+<PromptBar />
+```
+
+Pinned to the bottom of the main column. Contains the model picker, the multi-line prompt textarea, and the send button. It does not grow.
 
 ## Layout diagram
 
@@ -143,10 +124,10 @@ flowchart TD
     subgraph Col["flex-1 min-w-0 — flex col"]
       TopBar["TopBar\nh-14 shrink-0"]
       subgraph Main["main — flex-1 overflow-y-auto"]
-        KpiStrip
-        FeaturedAgent
-        PipelinesPanel
-        AgentGrid
+        KpiStrip["KpiStrip"]
+        FeaturedAgent["FeaturedAgent"]
+        PipelinesPanel["PipelinesPanel"]
+        AgentGrid["AgentGrid"]
       end
       PromptBar["PromptBar\nshrink-0"]
     end
@@ -154,34 +135,37 @@ flowchart TD
   Sidebar --- Col
 ```
 
-## Additional Figma designs (PRs #3 and #4)
+## Dependency diagram
 
-Two subsequent pull requests (#3 and #4) also changed `src/App.tsx` and
-included Figma links to the Snabbit 2.0 design file (nodes `30607-21561` and
-`19027-11601`). The designs could not be fetched at docs-build time due to a
-Figma API rate limit.
+```mermaid
+flowchart LR
+  App["App.tsx"]
+  agents["data/agents.ts\nAGENTS, FEATURED_AGENT_ID"]
+  Sidebar["Sidebar"]
+  TopBar["TopBar"]
+  KpiStrip["KpiStrip"]
+  FeaturedAgent["FeaturedAgent\nprop: agent"]
+  PipelinesPanel["PipelinesPanel"]
+  AgentGrid["AgentGrid\nprop: agents"]
+  PromptBar["PromptBar"]
 
-:::caution
-Figma designs from PR #3 (node `30607-21561`) and PR #4 (node `19027-11601`)
-could not be exported — the Figma API returned HTTP 429 (rate limit exceeded).
-Re-run the docs agent when the rate limit resets to embed these designs.
-:::
+  App --> agents
+  App --> Sidebar
+  App --> TopBar
+  App --> KpiStrip
+  App --> FeaturedAgent
+  App --> PipelinesPanel
+  App --> AgentGrid
+  App --> PromptBar
+```
 
-## Tests
+## The `max-w-6xl` content container
 
-`src/App.test.tsx` — 4 tests. `global.fetch` is stubbed to an empty pipelines
-response so `PipelinesPanel` never makes a real network call:
-
-| Test | Asserts |
-|------|---------|
-| renders the featured agent | "Featured agent" eyebrow + "PR Reviewer" name in the document |
-| renders the KPI strip | `region` with accessible name `/key metrics/i` present |
-| renders agents in the grid | "Deploy Bot" and "Alert Triage" visible |
-| renders the prompt input | Element with `aria-label="Prompt input"` |
+The `max-w-6xl` constraint (72 rem / 1152 px) keeps the four panels at a comfortable reading width on large monitors. Without it, `KpiStrip` cards would stretch to an impractical width on ultrawide displays. The `mx-auto` centers the column when the viewport exceeds 1152 px.
 
 ## Used by
 
-`src/main.tsx` — the only consumer:
+`src/main.tsx` is the only consumer:
 
 ```tsx
 createRoot(document.getElementById('root')!).render(
@@ -190,3 +174,14 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 ```
+
+## Tests
+
+`src/App.test.tsx` — 4 tests. `global.fetch` is stubbed to an empty pipelines response so `PipelinesPanel` does not make a real network call:
+
+| Test | Asserts |
+|---|---|
+| renders the featured agent | "Featured agent" eyebrow + "PR Reviewer" name in the document |
+| renders the KPI strip | `region` with accessible name `/key metrics/i` present |
+| renders agents in the grid | "Deploy Bot" and "Alert Triage" visible in the document |
+| renders the prompt input | Element with `aria-label="Prompt input"` |

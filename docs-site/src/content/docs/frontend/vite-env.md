@@ -1,12 +1,10 @@
 ---
 title: vite-env.d.ts
-description: TypeScript environment-variable declarations for Vite's import.meta.env.
 ---
 
 **File:** `src/vite-env.d.ts`
 
-Augments the global `ImportMeta` interface so TypeScript knows about the Vite
-client types and the one custom environment variable exposed to the frontend.
+Augments the global `ImportMeta` interface so TypeScript understands Vite's built-in environment types and the one project-specific environment variable exposed to the frontend bundle.
 
 ## Full source
 
@@ -14,7 +12,6 @@ client types and the one custom environment variable exposed to the frontend.
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Base URL of the Snabbit API. Defaults to http://localhost:3001. */
   readonly VITE_API_URL?: string
 }
 
@@ -23,18 +20,22 @@ interface ImportMeta {
 }
 ```
 
-## Triple-slash directive
+## The `/// <reference types="vite/client" />` directive
 
 ```ts
 /// <reference types="vite/client" />
 ```
 
-Pulls in Vite's built-in type declarations (`vite/client`). Those declarations
-add `ImportMetaEnv` with all the built-in Vite variables (`MODE`, `BASE_URL`,
-`PROD`, `DEV`, etc.) and type `import.meta.hot`. The two interface declarations
-below then **merge** into the types Vite already declared.
+This triple-slash directive pulls in Vite's built-in type declarations from the `vite/client` package. Those declarations provide:
 
-## `ImportMetaEnv`
+- A base `ImportMetaEnv` interface with the built-in Vite variables: `MODE`, `BASE_URL`, `PROD`, `DEV`, `SSR`.
+- Types for `import.meta.hot` (the HMR API).
+- Types for `import.meta.glob` (Vite's glob imports).
+- Asset module declarations (e.g. importing `.png`, `.svg`, `.json` files).
+
+The two interface declarations below this directive use TypeScript **declaration merging** — they extend the types that `vite/client` already declared rather than replacing them.
+
+## `ImportMetaEnv` interface
 
 ```ts
 interface ImportMetaEnv {
@@ -42,19 +43,21 @@ interface ImportMetaEnv {
 }
 ```
 
-Adds the one project-specific variable to `ImportMetaEnv`. Because TypeScript
-interfaces merge by declaration, this extends Vite's built-in `ImportMetaEnv`
-rather than replacing it.
+Adds the one project-specific environment variable to `ImportMetaEnv`. Because both this declaration and the one from `vite/client` are global interfaces with the same name, TypeScript merges them: the resulting `ImportMetaEnv` has all of Vite's built-in fields plus `VITE_API_URL`.
 
-| Variable | Type | Purpose |
-|----------|------|---------|
-| `VITE_API_URL` | `string?` | Base URL for the backend REST API. Optional — defaults to `'http://localhost:3001'` in `src/lib/api.ts` when absent at build time. |
+| Variable | Type | Default | Purpose |
+|---|---|---|---|
+| `VITE_API_URL` | `string \| undefined` | `http://localhost:3001` (applied in `api.ts`) | Base URL for the Snabbit backend REST API. Set via `.env.local` to override for a specific environment. |
 
-`readonly` prevents accidental mutation; Vite replaces all `import.meta.env.*`
-references with literals at build time, so they are never truly mutable at
-runtime anyway.
+`readonly` prevents accidental mutation in application code. At build time, Vite replaces all `import.meta.env.*` references with their literal values (or `undefined`), so they are never truly mutable at runtime.
 
-## `ImportMeta`
+The field is `optional` (`?`) because it may not be set — the consuming code in `api.ts` provides a fallback with the nullish coalescing operator:
+
+```ts
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+```
+
+## `ImportMeta` interface
 
 ```ts
 interface ImportMeta {
@@ -62,47 +65,48 @@ interface ImportMeta {
 }
 ```
 
-Narrows `import.meta.env` to the custom `ImportMetaEnv` type so TypeScript
-resolves `import.meta.env.VITE_API_URL` to `string | undefined` rather than
-the unsafe `any`.
+Narrows the type of `import.meta.env` from the default `any` (in environments without `vite/client`) to the fully-typed `ImportMetaEnv`. This makes every access of `import.meta.env.VITE_API_URL` type-safe: TypeScript knows the type is `string | undefined`, not `any`, and will warn if you try to call string methods on it without a null check.
 
 ## How `VITE_API_URL` is consumed
 
-`src/lib/api.ts` reads the variable at module scope:
+`src/lib/api.ts` reads the variable at module scope, before any function is called:
 
 ```ts
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 ```
 
-Vite replaces `import.meta.env.VITE_API_URL` with the literal value at build
-time, or with `undefined` if the variable is not set. The nullish coalescing
-fallback `?? 'http://localhost:3001'` applies when the variable is absent.
+**At build time:** Vite replaces `import.meta.env.VITE_API_URL` with the literal string value if the variable is set, or with `undefined` if it is not. The `?? 'http://localhost:3001'` fallback collapses the undefined case to the local dev default.
 
-To override in development, set `VITE_API_URL` in a `.env.local` file at the
-repository root:
+**At development time:** Vite reads variables from `.env`, `.env.local`, `.env.development`, etc. in order of precedence. Variables without the `VITE_` prefix are never exposed to the browser bundle — this is a Vite security convention that prevents accidentally leaking backend secrets.
 
+### Overriding for different environments
+
+```bash
+# .env.local (git-ignored)
+VITE_API_URL=http://my-staging-server:3001
 ```
-VITE_API_URL=http://my-server:3001
-```
 
-Only variables prefixed `VITE_` are exposed to the client bundle; the prefix
-is a Vite security convention that prevents accidental exposure of server-only
-secrets.
+```bash
+# .env.production
+VITE_API_URL=https://api.snabbit.example.com
+```
 
 ## Module graph
 
 ```mermaid
 flowchart LR
-  viteEnv["vite-env.d.ts\n(types only)"]
-  apiTs["src/lib/api.ts\nimport.meta.env.VITE_API_URL"]
   viteClient["vite/client\n(built-in Vite types)"]
+  viteEnv["vite-env.d.ts\n(type augmentation)"]
+  apiTs["src/lib/api.ts\nimport.meta.env.VITE_API_URL"]
 
-  viteClient -->|"/// reference"| viteEnv
-  viteEnv -->|"type augmentation"| apiTs
+  viteClient -->|"/// <reference>"| viteEnv
+  viteEnv -->|"extends ImportMetaEnv"| apiTs
 ```
 
-## Used by
+## Files that use `import.meta.env`
 
-- `src/lib/api.ts` — the only file that reads `import.meta.env.VITE_API_URL`.
-- Implicitly, any future code that references `import.meta.env.*` will have the
-  full merged type available.
+| File | Variable accessed |
+|---|---|
+| `src/lib/api.ts` | `VITE_API_URL` |
+
+All other files that access `import.meta.env` use Vite's built-in variables (`MODE`, `PROD`, `DEV`) which are typed by `vite/client` and do not require additions to this file.

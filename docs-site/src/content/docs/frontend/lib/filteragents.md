@@ -1,17 +1,12 @@
 ---
-title: filterAgents
-description: Pure function for filtering the agent list by category and search query.
+title: filterAgents.ts
 ---
 
 **File:** `src/lib/filterAgents.ts`
 
-A pure, side-effect-free function that filters an array of `Agent` objects by
-category and free-text query. Kept in `src/lib/` (not inside a component) so
-it can be unit-tested directly.
+A pure, side-effect-free function that filters an array of `Agent` objects by category tab and free-text search query. Lives in `src/lib/` (not inside a component) so it can be unit-tested independently of any UI.
 
-## Types
-
-### `AgentFilter`
+## `AgentFilter` interface
 
 ```ts
 export interface AgentFilter {
@@ -21,31 +16,32 @@ export interface AgentFilter {
 ```
 
 | Field | Type | Purpose |
-|-------|------|---------|
-| `query` | `string` | Free-text search string. Matched against agent name and description. Leading/trailing whitespace is ignored. Empty string matches everything. |
-| `category` | `string` | One of: `'All'` (no filter), `'Popular'` (matches `agent.popular === true`), or an `AgentCategory` value (`'Review'`, `'Deploy'`, etc.) matched against `agent.category`. |
+|---|---|---|
+| `query` | `string` | Free-text search string. Matched (after trimming and lowercasing) against both `agent.name` and `agent.description`. An empty or whitespace-only string matches all agents. |
+| `category` | `string` | The active tab selection. One of: `'All'` (no category filter), `'Popular'` (matches agents where `popular === true`), or any `AgentCategory` value (`'Review'`, `'Deploy'`, `'Reliability'`, `'Quality'`, `'Docs'`) matched against `agent.category`. |
 
-## `filterAgents`
+## `filterAgents` function
 
 ```ts
 export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[]
 ```
 
-**Parameters:**
+### Parameters
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `agents` | `Agent[]` | The source array to filter. Not mutated. |
-| `filter` | `AgentFilter` | Category and query to apply. |
+| Parameter | Type | Purpose |
+|---|---|---|
+| `agents` | `Agent[]` | The source array to filter. Never mutated. |
+| `filter` | `AgentFilter` | Category and query to apply. Both fields are always read. |
 
-**Returns:** A new array containing only the agents that pass both the category
-filter and the query filter.
+### Returns
 
-**Side effects:** None — pure function.
+A new `Agent[]` containing only the agents that pass **both** the category filter and the query filter. The original array is not modified.
 
-**Mutations:** None — does not modify the input `agents` array.
+### Side effects
 
-## Implementation walkthrough
+None. The function is pure — given the same inputs it always returns the same output and has no observable side effects.
+
+## Full implementation
 
 ```ts
 export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] {
@@ -69,17 +65,21 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] {
 }
 ```
 
-### Step 1: Normalize the query
+## Implementation walkthrough
+
+### Step 1 — Normalize the query (outside the loop)
 
 ```ts
 const query = filter.query.trim().toLowerCase()
 ```
 
-Trimming removes leading/trailing whitespace (so `'  bot  '` matches `'deploy-bot'`).
-Lowercasing enables case-insensitive matching without calling `toLowerCase()`
-on each agent's name and description inside the loop.
+The query is trimmed and lowercased **once**, before the `filter` iteration begins. This avoids calling `.trim()` and `.toLowerCase()` inside the loop for every agent. After normalization:
 
-### Step 2: Category filter
+- `'  Bot  '` becomes `'bot'`
+- `'REVIEWER'` becomes `'reviewer'`
+- `'   '` becomes `''` (empty string, handled in step 4)
+
+### Step 2 — Three-way category logic
 
 ```ts
 const matchesCategory =
@@ -90,29 +90,32 @@ const matchesCategory =
 ```
 
 Three branches:
-- `'All'` → always passes.
-- `'Popular'` → passes when `agent.popular === true`.
-- Any other value → exact match against `agent.category`.
 
-### Step 3: Early return on category mismatch
+| `filter.category` | Passes when |
+|---|---|
+| `'All'` | Always — every agent passes |
+| `'Popular'` | `agent.popular === true` |
+| Any other value | `agent.category === filter.category` (exact match) |
+
+The `'Popular'` tab is not an `AgentCategory` value — it is a virtual tab that cross-cuts categories. The exact-match branch handles all five `AgentCategory` values (`'Review'`, `'Deploy'`, etc.).
+
+### Step 3 — Early return on category mismatch
 
 ```ts
 if (!matchesCategory) return false
 ```
 
-Category check comes first. If the agent fails the category filter, the query
-check is skipped entirely (short-circuit).
+If the agent fails the category check, the query check is skipped entirely. This is a short-circuit optimization — the query check involves `.toLowerCase()` and `.includes()` on two strings, so skipping it for filtered-out agents is worthwhile when the catalogue grows.
 
-### Step 4: Early return when query is empty
+### Step 4 — Early return for empty query
 
 ```ts
 if (!query) return true
 ```
 
-An empty (or whitespace-only) query string matches all agents that passed the
-category filter.
+An empty normalized query string (originally empty or whitespace-only input) matches all agents that passed the category filter. The agent is included without inspecting its name or description.
 
-### Step 5: Query match
+### Step 5 — Query substring match
 
 ```ts
 return (
@@ -121,22 +124,23 @@ return (
 )
 ```
 
-Substring match against name **or** description. Both are lowercased at match
-time; the `query` was already lowercased in step 1.
+Performs a case-insensitive substring search across both `agent.name` and `agent.description`. The `query` was already lowercased in step 1; `agent.name` and `agent.description` are lowercased here at match time.
+
+A match on **either** field causes the agent to be included. This means searching `'reliability'` would match both an agent named "Reliability Monitor" and one whose description contains the word "reliability."
 
 ## Filter decision flowchart
 
 ```mermaid
 flowchart TD
-  A[Agent]
+  A[Agent candidate]
   B{"category === 'All'?"}
   C{"category === 'Popular'?"}
   D{"agent.popular?"}
-  E{"agent.category === category?"}
+  E{"agent.category\n=== category?"}
   F{"query empty?"}
   G{"name or description\ncontains query?"}
-  INCLUDE[Include agent]
-  EXCLUDE[Exclude agent]
+  INCLUDE[Include]
+  EXCLUDE[Exclude]
 
   A --> B
   B -->|Yes| F
@@ -155,24 +159,24 @@ flowchart TD
 
 ## Tests
 
-`src/lib/filterAgents.test.ts` — 10 tests covering:
+`src/lib/filterAgents.test.ts` — 10 tests:
 
-| Test | Asserts |
-|------|---------|
-| `'All'` + empty query | All 3 agents returned |
-| Exact category | `'Review'` → only PR Reviewer |
-| `'Popular'` | The 2 popular agents |
-| Name match | `'deploy'` → Deploy Bot only |
-| Description match | `'root cause'` → RCA Analyst only |
-| Case-insensitive | `'REVIEWER'` → PR Reviewer |
-| Whitespace trimming | `'  bot  '` → Deploy Bot |
-| Category + query combined | `'Popular'` + `'reviewer'` → PR Reviewer only |
-| No match | `'nonexistent'` → `[]` |
-| Input not mutated | Source array unchanged |
+| Test | Input | Expected |
+|---|---|---|
+| `'All'` + empty query | All 3 agents | All 3 returned |
+| Exact category | `category: 'Review'` | PR Reviewer only |
+| `'Popular'` tab | `category: 'Popular'` | The 2 popular agents |
+| Name match | `query: 'deploy'` | Deploy Bot only |
+| Description match | `query: 'root cause'` | RCA Analyst only |
+| Case-insensitive match | `query: 'REVIEWER'` | PR Reviewer |
+| Whitespace trimming | `query: '  bot  '` | Deploy Bot |
+| Category + query combined | `Popular` + `'reviewer'` | PR Reviewer only |
+| No match | `query: 'nonexistent'` | `[]` |
+| Input not mutated | Any input | Source array unchanged after call |
 
 ## Used by
 
-`AgentGrid` — composed with `sortAgents` inside a `useMemo`:
+`AgentGrid` composes `filterAgents` with `sortAgents` inside `useMemo`:
 
 ```ts
 const visible = useMemo(
@@ -180,3 +184,5 @@ const visible = useMemo(
   [agents, query, category, sort],
 )
 ```
+
+Filter is applied first, then sort. The `useMemo` ensures the pipeline only recomputes when one of the four dependencies changes.

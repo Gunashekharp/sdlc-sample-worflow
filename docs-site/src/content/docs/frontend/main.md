@@ -1,12 +1,10 @@
 ---
-title: main.tsx
-description: React root creation and application mount.
+title: main.tsx — application entry
 ---
 
 **File:** `src/main.tsx`
 
-The browser-side entry point. Creates the React root and renders the application
-tree inside React's `StrictMode`.
+The browser-side entry point. Creates the React root and renders the entire application tree inside React's `StrictMode`.
 
 ## Full source
 
@@ -25,15 +23,23 @@ createRoot(document.getElementById('root')!).render(
 
 ## Line-by-line walkthrough
 
-### CSS import
+### React imports
+
+```ts
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+```
+
+- `StrictMode` — a React component that enables development-time safety checks (see below).
+- `createRoot` — the React 18+ concurrent-mode API for mounting a React tree into a DOM node. Replaces the legacy `ReactDOM.render`.
+
+### CSS side-effect import
 
 ```ts
 import './index.css'
 ```
 
-Vite processes this as a CSS module side-effect. `index.css` is the sole
-CSS entry point — it declares the Tailwind v4 import and all design tokens.
-Importing it here ensures styles are bundled and applied before first render.
+Vite processes this as a CSS side-effect import. `index.css` is the sole CSS entry point for the application — it declares the Tailwind v4 `@import` and all design tokens via `@theme`. Importing it here ensures styles are bundled and applied to the page before the first React render.
 
 ### Root creation
 
@@ -41,53 +47,83 @@ Importing it here ensures styles are bundled and applied before first render.
 createRoot(document.getElementById('root')!)
 ```
 
-`createRoot` is the React 18+ API for concurrent-mode rendering. The non-null
-assertion `!` is safe because `index.html` always contains `<div id="root"></div>`.
-If for any reason the element were missing, `createRoot` would throw at startup
-rather than silently producing a blank page.
+`document.getElementById('root')` queries the `<div id="root"></div>` element declared in `index.html`. The non-null assertion (`!`) is safe: `index.html` always provides this element, and the module script that loads `main.tsx` is placed at the bottom of `<body>`, guaranteeing the element exists in the DOM when this line runs.
+
+If the element were somehow absent, `createRoot` would throw a clear error at startup rather than silently producing a blank page — making the failure immediately visible during development.
+
+`createRoot` returns a `Root` object whose `.render()` method is called immediately in the same expression.
 
 ### StrictMode
 
 ```tsx
-<StrictMode>
-  <App />
-</StrictMode>
+.render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
 ```
 
-`StrictMode` activates React's development-time safety checks:
+`StrictMode` wraps the entire component tree. Its effects are development-only — it is compiled out in production builds and adds zero runtime overhead in production.
 
-- **Double-invocation** of function components, state initializers, and effects
-  in development to surface side-effect bugs (e.g., effects that should be
-  idempotent but are not).
-- **Deprecation warnings** for unsafe lifecycle methods and legacy APIs.
+In development, `StrictMode` activates:
 
-`StrictMode` has no runtime effect in production builds — it is compiled out.
-The double-invocation is why `useFetch`'s abort-controller guard
-(`if (controller.signal.aborted) return`) is important: in development, the
-effect runs twice, the first controller is immediately aborted, and the guard
-prevents the aborted result from overwriting state.
+- **Double-invocation** of function component bodies, state initializer functions, and `useEffect` / `useLayoutEffect` / `useMemo` / `useReducer` callbacks. React runs each twice (discarding the first result) to surface side-effect bugs — for example, effects that produce incorrect results when not properly idempotent.
+- **Deprecation warnings** for unsafe lifecycle methods and legacy React APIs (e.g. `findDOMNode`, legacy context).
+- **State preservation warnings** — React warns if you accidentally rely on state that should have been reset.
 
-## Module graph
+#### StrictMode and `useFetch`
 
-```mermaid
-flowchart LR
-  main["main.tsx"]
-  css["index.css\n(design tokens)"]
-  app["App.tsx\n(root component)"]
-  react["react-dom/client\ncreateRoot"]
+The double-invocation is why the `AbortController` guard in `useFetch` matters:
 
-  main --> css
-  main --> app
-  main --> react
+```ts
+useEffect(() => {
+  const controller = new AbortController()
+  // ...
+  fetcher(controller.signal).then((result) => {
+    if (controller.signal.aborted) return   // <- this guard
+    setData(result)
+    setLoading(false)
+  })
+  return () => controller.abort()
+}, [fetcher, nonce])
 ```
 
-## Used by
+In development (with `StrictMode`), React mounts the component, runs the effect, immediately unmounts it (triggering the cleanup which calls `controller.abort()`), then remounts and runs the effect again. The `signal.aborted` guard ensures that the result from the first (aborted) fetch is discarded rather than setting state after unmount.
 
-`index.html` loads this file as the Vite entry point:
+## The DOM anchor — `index.html`
+
+`index.html` provides the mount point:
+
+```html
+<div id="root"></div>
+```
+
+And loads this file as the Vite entry point:
 
 ```html
 <script type="module" src="/src/main.tsx"></script>
 ```
 
-At build time (`npm run build`), Vite bundles `main.tsx` and all its transitive
-imports into the output `dist/` directory.
+At build time (`npm run build`), Vite replaces this script tag with the hashed, minified bundle and inlines critical CSS into the output `dist/index.html`.
+
+## Module graph
+
+```mermaid
+flowchart LR
+  html["index.html\n#root div"]
+  main["main.tsx\n(entry point)"]
+  css["index.css\n(design tokens)"]
+  app["App.tsx\n(root component)"]
+  reactDom["react-dom/client\ncreateRoot"]
+  react["react\nStrictMode"]
+
+  html -->|"<script type=module>"| main
+  main --> css
+  main --> app
+  main --> reactDom
+  main --> react
+```
+
+## Used by
+
+`index.html` — the only file that references `main.tsx`. No other source file imports it.

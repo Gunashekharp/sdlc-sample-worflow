@@ -1,15 +1,12 @@
 ---
 title: Sparkline
-description: Tiny axis-free trend-line component for KPI cards.
 ---
+
+`Sparkline` renders a minimal SVG trend line from an array of numbers. It uses a fixed 100×28 logical viewport with 3-unit padding, maps data points to polyline coordinates, and stretches to fill whatever CSS size is applied. It is used exclusively inside `KpiCard` (within `KpiStrip`) to visualise each KPI's historical trend.
 
 **File:** `src/components/Sparkline.tsx`
 
-A minimal SVG sparkline that renders a series of numbers as a trend line.
-Used exclusively inside `KpiCard` (within `KpiStrip`) to visualize each KPI's
-7-point history.
-
-## Interface
+## Props interface
 
 ```ts
 interface SparklineProps {
@@ -19,84 +16,157 @@ interface SparklineProps {
 }
 ```
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `points` | `number[]` | Data series, **oldest first**. Must have at least two values to render. |
-| `positive` | `boolean` | Controls stroke color. `true` → `--color-ok` (green), `false` → `--color-err` (red). |
-| `className` | `string?` | Optional CSS class applied to the `<svg>`. Defaults to `'h-7 w-full'`. |
+| Prop | Type | Required | Purpose |
+|------|------|----------|---------|
+| `points` | `number[]` | Yes | Data series, **oldest first, newest last**. Must contain at least 2 values; returns `null` for 0 or 1 points. |
+| `positive` | `boolean` | Yes | Controls stroke colour. `true` → `var(--color-ok)` (green); `false` → `var(--color-err)` (red). |
+| `className` | `string` | No | CSS class applied to the `<svg>` element. Defaults to `'h-7 w-full'` when `undefined`. |
 
-## Component
+## Component signature
 
 ```ts
-export default function Sparkline({ points, positive, className }: SparklineProps)
+export default function Sparkline({ points, positive, className }: SparklineProps): JSX.Element | null
 ```
 
-**Returns:** An `<svg>` element containing a `<polyline>`, or `null` if
-`points.length < 2`.
+**Returns:** An `<svg>` element containing a `<polyline>`, or `null` if `points.length < 2`.
 
-**Side effects:** None. Pure rendering.
+**Side effects:** None. Pure rendering with no state or effects.
 
-## Implementation walkthrough
-
-### Early return guard
+## Early return guard
 
 ```ts
 if (points.length < 2) return null
 ```
 
-A single point cannot form a line. Returning `null` avoids a degenerate SVG
-with no visual output and prevents division-by-zero in the normalization step.
+A single point cannot form a line segment. Returning `null`:
+- Avoids a degenerate `<polyline points="">` with no visual output.
+- Prevents division-by-zero at `i / (points.length - 1)` where `points.length - 1` would be `0`.
 
-### Coordinate system
+## Coordinate system constants
 
 ```ts
-const width = 100
+const width  = 100
 const height = 28
-const pad = 3
+const pad    = 3
 ```
 
-The SVG uses a fixed logical coordinate space of 100 × 28 units.
-A 3-unit padding on all sides prevents the line from being clipped at the
-edges of the viewport. The `preserveAspectRatio="none"` attribute on the `<svg>`
-stretches these logical units to fill whatever CSS size is applied.
+The SVG uses a **fixed logical coordinate space** of 100 × 28 units. These numbers are the viewBox dimensions and have no relationship to CSS pixels. The `preserveAspectRatio="none"` attribute on the `<svg>` scales this logical space to fill whatever CSS size is applied (e.g. `h-7 w-full` from `KpiCard`).
 
-### Normalization
+The `pad = 3` value reserves 3 units of margin on all four edges. Without padding, the polyline endpoints would sit exactly on the SVG boundary and the `strokeWidth="1.5"` stroke would be visually clipped in half. With `pad = 3`, the drawable area is:
+
+- X: from `3` to `97` (100 − 3 − 3 = 94 units wide)
+- Y: from `3` to `25` (28 − 3 − 3 + 28 = 22 units tall, noting the Y formula below)
+
+## Normalization
 
 ```ts
-const min = Math.min(...points)
-const max = Math.max(...points)
+const min   = Math.min(...points)
+const max   = Math.max(...points)
 const range = max - min || 1
 ```
 
-`range` is clamped to 1 when all values are identical (a flat series), which
-would otherwise produce division by zero.
+- `min` and `max` are the extremes of the data series.
+- `range = max - min` is the total span of values.
+- `|| 1` is a division-by-zero guard: when all values are identical (`max === min`), `range` would be `0`, causing `NaN` in the Y formula. Clamping to `1` instead produces a flat horizontal line at the vertical midpoint.
 
-### Coordinate mapping
+## Coordinate mapping
 
 ```ts
-const coords = points
-  .map((value, i) => {
-    const x = pad + (i / (points.length - 1)) * (width - pad * 2)
-    const y = height - pad - ((value - min) / range) * (height - pad * 2)
-    return `${x.toFixed(2)},${y.toFixed(2)}`
-  })
-  .join(' ')
+const coords = points.map((value, i) => {
+  const x = pad + (i / (points.length - 1)) * (width - pad * 2)
+  const y = height - pad - ((value - min) / range) * (height - pad * 2)
+  return `${x.toFixed(2)},${y.toFixed(2)}`
+}).join(' ')
 ```
 
-**X axis** — evenly distributes points across `[pad, width - pad]`. The first
-point maps to `x = pad` (3); the last maps to `x = width - pad` (97).
+### X axis calculation
 
-**Y axis** — normalized `(value - min) / range` produces 0.0 (min) to 1.0
-(max). This is then scaled and **inverted** because SVG Y increases downward:
-`height - pad - normalised * (height - pad * 2)` maps 0.0 to `height - pad`
-(bottom) and 1.0 to `pad` (top), so higher values are visually higher.
+```
+x = pad + (i / (points.length - 1)) * (width - pad * 2)
+  = 3   + (i / (N - 1))             * 94
+```
 
-`toFixed(2)` keeps the SVG attribute string compact without sacrificing visual
-quality.
+| `i` | `N` | `x` |
+|-----|-----|-----|
+| 0 (first point) | any | `3.00` (left edge + padding) |
+| `N−1` (last point) | any | `97.00` (right edge − padding) |
+| middle | e.g. `7` | evenly interpolated between 3 and 97 |
 
-### Polyline element
+Points are evenly distributed across the drawable horizontal span regardless of the actual index values or time intervals between them. The chart is a shape chart, not a time-scaled chart.
 
-```ts
+### Y axis calculation
+
+```
+y = height - pad - ((value - min) / range) * (height - pad * 2)
+  = 28     - 3   - normalised              * 22
+  = 25            - normalised             * 22
+```
+
+| Normalised value | `y` | Position |
+|-----------------|-----|----------|
+| `0.0` (minimum) | `25.00` | Near bottom (25 out of 28 units down) |
+| `1.0` (maximum) | `3.00` | Near top (3 units down — the padding amount) |
+| `0.5` (midpoint) | `14.00` | Vertical centre |
+
+**SVG Y-axis inversion:** In SVG, Y=0 is at the top and increases downward. A higher data value should appear visually higher (lower Y coordinate). The formula achieves this by starting from `height - pad` (the bottom of the drawable area) and subtracting the normalised value scaled to the drawable height. Higher normalised values subtract more, producing a lower Y (higher visual position).
+
+### `toFixed(2)`
+
+Rounds coordinates to 2 decimal places. This keeps the `points` attribute string compact (an 8-point series produces ≈ 80 characters) without any visible precision loss at display sizes of roughly 200–400px wide.
+
+## Full worked example
+
+For `points = [10, 20, 15]` with the 100×28 viewport and `pad = 3`:
+
+```
+min = 10, max = 20, range = 10
+drawable width  = 94 (= 100 - 3*2)
+drawable height = 22 (= 28  - 3*2)
+```
+
+| `i` | `value` | x calculation | y calculation | Output |
+|-----|---------|--------------|--------------|--------|
+| 0 | 10 | 3 + (0/2) × 94 = 3.00 | 25 − (0/10 × 22) = 25.00 | `"3.00,25.00"` |
+| 1 | 20 | 3 + (1/2) × 94 = 50.00 | 25 − (10/10 × 22) = 3.00 | `"50.00,3.00"` |
+| 2 | 15 | 3 + (2/2) × 94 = 97.00 | 25 − (5/10 × 22) = 14.00 | `"97.00,14.00"` |
+
+Result: `points="3.00,25.00 50.00,3.00 97.00,14.00"`
+
+```mermaid
+flowchart LR
+  A["points[]\noldest → newest"]
+  B["compute min, max, range\n(with zero-range guard)"]
+  C["map each value to x\n(evenly spaced, padded)"]
+  D["map each value to y\n(normalised, inverted, padded)"]
+  E["join as 'x,y x,y …'\npolyline points string"]
+  A --> B
+  B --> C
+  B --> D
+  C --> E
+  D --> E
+```
+
+## `<svg>` element
+
+```tsx
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  className={className ?? 'h-7 w-full'}
+>
+```
+
+| Attribute | Value | Purpose |
+|-----------|-------|---------|
+| `viewBox` | `"0 0 100 28"` | Declares the logical coordinate space |
+| `preserveAspectRatio` | `"none"` | Stretches the 100×28 space to fill the CSS bounding box without maintaining aspect ratio — allows a wide/narrow layout to stretch the chart horizontally |
+| `aria-hidden` | `"true"` | Excludes the SVG from the accessibility tree; the `KpiCard`'s hint text conveys the same information in text form |
+| `className` | `className ?? 'h-7 w-full'` | Uses the passed class if provided, otherwise defaults to `h-7 w-full` |
+
+## `<polyline>` element
+
+```tsx
 <polyline
   points={coords}
   fill="none"
@@ -108,60 +178,42 @@ quality.
 />
 ```
 
-`fill="none"` prevents the area under the line from being filled.
+| Attribute | Value | Purpose |
+|-----------|-------|---------|
+| `points` | computed `coords` string | The polyline vertex coordinates |
+| `fill` | `"none"` | Prevents the area under the line from being filled |
+| `stroke` | `var(--color-ok)` or `var(--color-err)` | Green for positive metrics, red for negative; uses CSS custom properties so it respects the active theme |
+| `strokeWidth` | `"1.5"` | Line thickness in SVG user units — but see `vectorEffect` |
+| `strokeLinecap` | `"round"` | Rounded ends at each point, avoids sharp caps |
+| `strokeLinejoin` | `"round"` | Rounded joins between line segments |
+| `vectorEffect` | `"non-scaling-stroke"` | **Critical:** because `preserveAspectRatio="none"` stretches the SVG, the stroke would normally scale with the viewport. `non-scaling-stroke` keeps the stroke visually 1.5px wide regardless of the element's rendered size. Without this, a narrow card would show a very thin line and a very wide card would show a thick line. |
 
-`vectorEffect="non-scaling-stroke"` is the key detail: because
-`preserveAspectRatio="none"` stretches the SVG to fill its container, the
-stroke width would normally scale with the viewport and look thick or thin
-depending on the container size. `non-scaling-stroke` keeps the visual stroke
-width at a constant 1.5px regardless of the element's rendered dimensions.
+## Colour tokens
 
-`aria-hidden="true"` on the outer `<svg>` excludes the element from the
-accessibility tree — the KpiCard provides a text `hint` beneath the sparkline
-that conveys the same information.
+| `positive` | CSS variable | Expected colour |
+|-----------|-------------|-----------------|
+| `true` | `var(--color-ok)` | `#3fb950` (green) |
+| `false` | `var(--color-err)` | `#f85149` (red) |
 
-## Coordinate calculation example
+These are CSS custom properties, not Tailwind classes, because `stroke` is an SVG attribute that does not accept Tailwind utility values.
 
-For `points = [10, 20, 15]` with the default 100×28 viewport (pad=3):
+## Accessibility
 
-| i | value | x | y |
-|---|-------|---|---|
-| 0 | 10 | 3.00 | 25.00 |
-| 1 | 20 | 50.00 | 3.00 |
-| 2 | 15 | 97.00 | 14.00 |
+`aria-hidden="true"` on the `<svg>` element removes the chart from the accessibility tree entirely. This is the correct approach here because:
+1. The `KpiCard` component renders a textual `hint` beneath the sparkline (e.g. `"vs previous 7 days"`).
+2. A screen reader cannot meaningfully interpret a trend shape from a `<polyline>` element.
 
-```mermaid
-flowchart LR
-  A["points[]\noldest → newest"]
-  B["normalize x\nevenly spaced"]
-  C["normalize y\ninverted: high value = low y"]
-  D["polyline points string\n'3.00,25.00 50.00,3.00 ...'"]
-  A --> B
-  A --> C
-  B --> D
-  C --> D
-```
+If a textual description of the trend is required, it should be added as visible text or an `aria-label` on a wrapping element in `KpiCard`, not within `Sparkline` itself.
 
 ## Edge cases
 
-| Scenario | Behavior |
-|----------|----------|
-| `points.length === 0` | Returns `null` (guard fires) |
-| `points.length === 1` | Returns `null` (guard fires) |
-| All values equal | `range` is clamped to 1; produces a flat horizontal line at vertical center |
-| `positive` is `false` | Stroke becomes `var(--color-err)` (red); tested in `Sparkline.test.tsx` |
-
-## Tests
-
-`src/components/Sparkline.test.tsx` covers three cases:
-
-| Test | Asserts |
-|------|---------|
-| renders a polyline with one coordinate per value | 4-point series → `<polyline>` with 4 whitespace-separated coordinates |
-| renders nothing when given fewer than two points | Single-point series → no `<polyline>` in the DOM |
-| uses the error color when not positive | `positive={false}` → stroke attribute contains `color-err` |
-
-## Used by
-
-- `KpiCard` (internal subcomponent of `KpiStrip`) — passes `kpi.trend` as
-  `points` and `kpi.positive` as `positive`.
+| Scenario | Behaviour |
+|----------|-----------|
+| `points.length === 0` | Returns `null` (guard: `< 2`) |
+| `points.length === 1` | Returns `null` (guard: `< 2`) |
+| `points.length === 2` | Renders a single line segment (valid `<polyline>`) |
+| All values equal (flat) | `range = 0 || 1 = 1`; all Y coords compute to `25 - 0 = 25`; renders a horizontal line at the bottom of the drawable area |
+| Single outlier value | Polyline scales to fit all values; the outlier maps to y=3 (top), normal values map close to y=25 (bottom). The sparkline may appear flat for the non-outlier region. |
+| `points` contains `NaN` | `Math.min`/`Math.max` propagate `NaN`; all coordinates become `NaN`; the `<polyline>` renders nothing visible. Data validation is the responsibility of the data layer. |
+| `points` contains `Infinity` | Same `NaN` propagation risk. |
+| `className` is `""` (empty string) | `"" ?? 'h-7 w-full'` evaluates to `'h-7 w-full'` because `""` is falsy. An empty string class name would be intentionally replaced with the default. |

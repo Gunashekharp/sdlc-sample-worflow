@@ -1,162 +1,164 @@
 ---
 title: Frontend overview
-description: Vite + React 19 + TypeScript + Tailwind CSS v4 SPA.
 ---
 
-The frontend is a single-page dashboard built with **Vite + React 19 +
-TypeScript + Tailwind CSS v4**. It lives at the repository root.
+The frontend is a single-page application (SPA) built with **Vite 8**, **React 19**, **TypeScript 6**, and **Tailwind CSS v4**. It runs entirely in the browser and communicates with the backend over a single REST endpoint (`GET /api/pipelines`). All other data is static seed data bundled at build time.
+
+## Technology stack
+
+| Layer | Technology | Version |
+|---|---|---|
+| Bundler / dev server | Vite | 8 |
+| UI framework | React | 19 |
+| Language | TypeScript | 6 |
+| Styling | Tailwind CSS | v4 |
+| Unit testing | Vitest + React Testing Library | — |
+| Test DOM environment | jsdom | — |
 
 ## Entry points
 
-### `index.html`
+The application boots through a three-file chain:
 
-The HTML shell. Sets `class="dark"` and `color-scheme: dark`, embeds an inline
-pink SVG favicon, and loads the Geist / Geist Mono web fonts from Google Fonts
-with `preconnect` hints. Mounts the app into `#root`.
-
-### `src/main.tsx`
-
-Creates the React root and renders `<App />` inside `<StrictMode>`:
-
-```tsx
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+```
+index.html
+  └── <script type="module" src="/src/main.tsx">
+        └── main.tsx   (createRoot + StrictMode)
+              └── App.tsx  (root component — full-page layout)
 ```
 
-`StrictMode` enables double-invocation of effects in development to surface
-side-effect issues. The non-null assertion on `getElementById('root')` is safe
-because `index.html` always provides the element.
+1. **`index.html`** — The HTML shell served by Vite. Contains the `<div id="root">` mount point, the module-script tag that loads `main.tsx`, a pink SVG favicon, and `<link rel="preconnect">` hints for loading the Geist and Geist Mono fonts from Google Fonts. Sets `class="dark"` and `color-scheme: dark` on `<html>`.
+2. **`src/main.tsx`** — Bootstraps React with `createRoot` wrapped in `<StrictMode>`. See [main.tsx](./main).
+3. **`src/App.tsx`** — Composes the full page layout from seven child components. Splits the agent catalogue into the featured agent and the grid. See [App.tsx](./app).
 
-### `src/App.tsx`
-
-The root component. Splits `AGENTS` into the featured agent and the remainder,
-then composes the dashboard layout:
-
-```tsx
-export default function App() {
-  const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-  const rest = AGENTS.filter((a) => a.id !== featured.id)
-
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5">
-            <KpiStrip />
-            <FeaturedAgent agent={featured} />
-            <PipelinesPanel />
-            <AgentGrid agents={rest} />
-          </div>
-        </main>
-        <PromptBar />
-      </div>
-    </div>
-  )
-}
-```
-
-A 60rem (`max-w-6xl`) centered content column with 20px (`px-5 py-5`) padding
-and 20px (`gap-5`) between panels.
-
-## Layout diagram
+## Component tree
 
 ```mermaid
 flowchart TD
-  subgraph Screen["h-screen overflow-hidden — flex row"]
-    Sidebar["Sidebar\nw-60 shrink-0"]
-    subgraph MainCol["flex-1 min-w-0 — flex col"]
-      TopBar["TopBar\nh-14 shrink-0"]
-      subgraph Main["main — flex-1 overflow-y-auto"]
-        KpiStrip["KpiStrip\n4 KPI cards"]
-        FeaturedAgent["FeaturedAgent\nHero card"]
-        PipelinesPanel["PipelinesPanel\nLive from API"]
-        AgentGrid["AgentGrid\nFilterable grid"]
-      end
-      PromptBar["PromptBar\nshrink-0"]
-    end
-  end
-  Sidebar --- MainCol
+    App --> Sidebar
+    App --> TopBar
+    App --> KpiStrip
+    App --> FeaturedAgent
+    App --> PipelinesPanel
+    App --> AgentGrid
+    App --> PromptBar
 ```
 
-## Source structure
+All components live under `src/components/`. See [Components overview](./components) for a full table and per-component reference links.
 
-| Path | Contents |
-|------|---------|
-| `src/App.tsx` | Root component, dashboard layout |
-| `src/main.tsx` | React root creation |
-| `src/index.css` | Tailwind import + design tokens |
-| `src/components/` | UI components (presentational) |
-| `src/lib/` | API client, hooks, pure logic |
-| `src/data/` | Static seed data and domain types |
-| `src/test/` | Vitest setup (`setup.ts`) |
+## Build tooling
 
-## Data flow summary
+Vite is configured in `vite.config.ts` with two plugins:
 
-| Panel | Data source | Backend call? |
-|-------|------------|---------------|
+- **`@vitejs/plugin-react`** — Babel-based Fast Refresh and JSX transform. No need to `import React` in every file.
+- **`@tailwindcss/vite`** — Processes `@import "tailwindcss"` and the `@theme` block at build time. No separate PostCSS config is required.
+
+TypeScript compilation uses project references (`tsconfig.json` references both `tsconfig.app.json` and `tsconfig.node.json`). Application source is checked under the browser lib set; `vite.config.ts` itself is checked under the Node lib set. The `build` script runs `tsc -b` before `vite build` so that a type error fails the build before any output files are written.
+
+## Development server
+
+Start with:
+
+```bash
+npm run dev
+```
+
+Vite starts on **`http://localhost:5173`** by default with Hot Module Replacement (HMR) enabled. The backend must be running on `:3001` (or `VITE_API_URL`) for the Pipelines panel to load data.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `VITE_API_URL` | `http://localhost:3001` | Base URL for the backend REST API |
+
+Variables must be prefixed `VITE_` to be included in the browser bundle. Variables without the prefix are stripped by Vite as a security measure. Set overrides in `.env.local` at the repository root.
+
+## npm scripts
+
+| Script | Command | Purpose |
+|---|---|---|
+| `dev` | `vite` | Start dev server with HMR on :5173 |
+| `build` | `tsc -b && vite build` | Type-check then produce optimised `dist/` |
+| `preview` | `vite preview` | Serve `dist/` locally to validate the production build |
+| `lint` | `eslint .` | Lint all source files |
+| `test` | `vitest` | Run unit tests in watch mode |
+| `test:run` | `vitest run` | Single-pass test run (for CI) |
+| `test:ui` | `vitest --ui` | Open the Vitest browser UI |
+
+:::note
+`tsc -b` in the `build` script runs a full TypeScript project-references build. A type error in any source file will abort the build before Vite writes any output, so `dist/` is never produced from a type-unsafe codebase.
+:::
+
+## Data flow
+
+| Panel | Data source | Makes a network call? |
+|---|---|---|
 | KpiStrip | `src/data/kpis.ts` | No |
 | FeaturedAgent | `src/data/agents.ts` | No |
 | PipelinesPanel | `GET /api/pipelines` via `useFetch` | **Yes** |
 | AgentGrid | `src/data/agents.ts` | No |
 
-## Build tooling
+## Directory structure
 
-`vite.config.ts` configures Vite for both development and testing:
-
-```ts
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: './src/test/setup.ts',
-    css: true,
-  },
-})
 ```
-
-`@tailwindcss/vite` integrates Tailwind v4's CSS engine directly into Vite,
-eliminating a separate PostCSS step. `environment: 'jsdom'` gives tests a
-browser-like DOM; `css: true` enables CSS class resolution in tests.
+src/
+├── components/              # All React UI components
+│   ├── AgentCard.tsx
+│   ├── AgentGrid.tsx
+│   ├── FeaturedAgent.tsx
+│   ├── icons.tsx
+│   ├── KpiCard.tsx
+│   ├── KpiStrip.tsx
+│   ├── PipelinesPanel.tsx
+│   ├── PromptBar.tsx
+│   ├── Sidebar.tsx
+│   ├── Sparkline.tsx
+│   ├── StatusDot.tsx
+│   └── TopBar.tsx
+├── data/
+│   ├── agents.ts            # Static agent catalogue + domain types
+│   └── kpis.ts              # KPI seed data + domain types
+├── lib/
+│   ├── api.ts               # fetchPipelines REST client
+│   ├── filterAgents.ts      # Pure category + query filter
+│   ├── sortAgents.ts        # Pure four-strategy sort
+│   ├── useFetch.ts          # Generic data-fetching hook
+│   └── usePersistentState.ts  # localStorage-backed useState
+├── test/
+│   └── setup.ts             # Vitest global setup (jest-dom + localStorage clear)
+├── App.tsx                  # Root layout component
+├── index.css                # Design tokens + Tailwind v4 base
+├── main.tsx                 # React bootstrap (createRoot + StrictMode)
+└── vite-env.d.ts            # ImportMeta type augmentation for VITE_API_URL
+```
 
 ## Per-file reference
 
 ### Entry points
 
-- [App.tsx](/sdlc-sample-worflow/frontend/app/) — root component and dashboard layout
-- [main.tsx](/sdlc-sample-worflow/frontend/main/) — React root creation and mount
-- [vite.config.ts](/sdlc-sample-worflow/frontend/vite-config/) — build and test configuration
-- [vite-env.d.ts](/sdlc-sample-worflow/frontend/vite-env/) — TypeScript declarations for `import.meta.env`
-- [test/setup.ts](/sdlc-sample-worflow/frontend/test-setup/) — jest-dom matchers and localStorage isolation
+- [App.tsx](./app) — root component and dashboard layout
+- [main.tsx](./main) — React root creation and mount
+- [Styling — design tokens](./styling) — `index.css`, Tailwind v4 `@theme`, color and font tokens
+- [vite.config.ts](./vite-config) — build and Vitest configuration
+- [vite-env.d.ts](./vite-env) — TypeScript declarations for `import.meta.env`
+- [test/setup.ts](./test-setup) — jest-dom matchers and localStorage isolation
 
 ### Components (`src/components/`)
 
-- [AgentCard](/sdlc-sample-worflow/frontend/components/agentcard/) — individual agent tile
-- [AgentGrid](/sdlc-sample-worflow/frontend/components/agentgrid/) — filterable, sortable catalogue
-- [FeaturedAgent](/sdlc-sample-worflow/frontend/components/featuredagent/) — hero card
-- [KpiStrip](/sdlc-sample-worflow/frontend/components/kpistrip/) — metric cards
-- [PipelinesPanel](/sdlc-sample-worflow/frontend/components/pipelinespanel/) — live CI/CD panel
-- [PromptBar](/sdlc-sample-worflow/frontend/components/promptbar/) — bottom prompt input
-- [Sidebar](/sdlc-sample-worflow/frontend/components/sidebar/) — left navigation
-- [Sparkline](/sdlc-sample-worflow/frontend/components/sparkline/) — trend line SVG
-- [StatusDot](/sdlc-sample-worflow/frontend/components/statusdot/) — colored status indicator
-- [TopBar](/sdlc-sample-worflow/frontend/components/topbar/) — header bar
-- [icons](/sdlc-sample-worflow/frontend/components/icons/) — inline SVG icon set
+See [Components overview](./components) for the full table and dependency diagram.
 
 ### Library (`src/lib/`)
 
-- [api.ts](/sdlc-sample-worflow/frontend/lib/api/) — typed HTTP client
-- [filterAgents](/sdlc-sample-worflow/frontend/lib/filteragents/) — category + query filter
-- [sortAgents](/sdlc-sample-worflow/frontend/lib/sortagents/) — four sort strategies
-- [useFetch](/sdlc-sample-worflow/frontend/lib/usefetch/) — data-fetching hook
-- [usePersistentState](/sdlc-sample-worflow/frontend/lib/usepersistentstate/) — localStorage-backed state
+See [Library overview](./lib) for a quick-reference table, or navigate directly:
+
+- [api.ts](./lib/api) — typed HTTP client
+- [filterAgents.ts](./lib/filteragents) — category + query filter
+- [sortAgents.ts](./lib/sortagents) — four sort strategies
+- [useFetch](./lib/usefetch) — data-fetching hook with abort and reload
+- [usePersistentState](./lib/usepersistentstate) — localStorage-backed state hook
 
 ### Data (`src/data/`)
 
-- [agents.ts](/sdlc-sample-worflow/frontend/data/agents/) — 12-agent catalogue + types
-- [kpis.ts](/sdlc-sample-worflow/frontend/data/kpis/) — 4-KPI catalogue + types
+See [Data overview](./data), or navigate directly:
+
+- [agents.ts](./data/agents) — 12-agent catalogue, types, and constants
+- [kpis.ts](./data/kpis) — 4-KPI catalogue and types
