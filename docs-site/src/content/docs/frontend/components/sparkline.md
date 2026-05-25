@@ -180,15 +180,15 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 <!-- fill:file:diagrams -->
 ```mermaid
 flowchart TD
-  A[points: number[]] --> B{points.length < 2?}
-  B -- yes --> C[return null]
-  B -- no --> D[compute min, max, range]
-  D --> E[map each value to x,y in padded viewBox]
-  E --> F[join into coords string]
+  A["points: number[]"] --> B{"points.length &lt; 2?"}
+  B -- yes --> C["return null"]
+  B -- no --> D["compute min, max, range"]
+  D --> E["map each value to x,y in padded viewBox"]
+  E --> F["join into coords string"]
   F --> G{positive?}
-  G -- true --> H[stroke = --color-ok]
-  G -- false --> I[stroke = --color-err]
-  H --> J[render svg + polyline]
+  G -- true --> H["stroke = --color-ok"]
+  G -- false --> I["stroke = --color-err"]
+  H --> J["render svg + polyline"]
   I --> J
 ```
 <!-- /fill:file:diagrams -->
