@@ -3,6 +3,8 @@ title: useFetch
 description: Reference for `src/lib/useFetch.ts`
 ---
 
+<!-- structure:aaf1c65c6b62 -->
+
 **File:** `src/lib/useFetch.ts` · **Lines:** 47
 
 <!-- fill:file:summary -->
@@ -45,7 +47,7 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | The async function that performs the request; receives an abort signal and must be referentially stable. |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
 
 **Returns:** `FetchState<T>`
 
@@ -183,10 +185,10 @@ export interface FetchState<T> { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | The resolved result, or `null` until the first successful fetch. |
-| loading | `boolean` | `true` while a request is in flight, `false` once it settles. |
-| error | `string` | The failure message, or `null` when there is no error. |
-| reload | `() => void` | Stable callback that re-runs the fetcher. |
+| data | `T` | <FILL: data> |
+| loading | `boolean` | <FILL: loading> |
+| error | `string` | <FILL: error> |
+| reload | `() => void` | <FILL: reload> |
 
 ## Diagrams
 

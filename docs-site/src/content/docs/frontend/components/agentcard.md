@@ -3,6 +3,8 @@ title: AgentCard
 description: Reference for `src/components/AgentCard.tsx`
 ---
 
+<!-- structure:a5d720c7583a -->
+
 **File:** `src/components/AgentCard.tsx` · **Lines:** 38
 
 <!-- fill:file:summary -->
@@ -43,9 +45,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to display; supplies every piece of text and metric on the card. |
-| selected | `boolean` | yes | Whether this card is the active selection; toggles the accent border/ring and `aria-pressed`. |
-| onSelect | `(id: string) => void` | yes | Callback fired with `agent.id` when the card is clicked, reporting the selection to the parent. |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
+| selected | `boolean` | yes | <FILL: what does selected control?> |
+| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
 
 ### Line-by-line walkthrough
 

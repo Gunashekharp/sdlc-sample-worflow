@@ -3,6 +3,8 @@ title: PipelinesPanel
 description: Reference for `src/components/PipelinesPanel.tsx`
 ---
 
+<!-- structure:4d1c27003e01 -->
+
 **File:** `src/components/PipelinesPanel.tsx` · **Lines:** 93
 
 <!-- fill:file:summary -->
@@ -126,8 +128,8 @@ On mount it shows "Loading pipelines…", then either lists the pipelines return
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | With `fetch` stubbed to resolve, both pipeline names ("CI · build & test", "E2E suite") appear in the document. |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | With `fetch` stubbed to reject, the "could not reach the API" message is rendered. |
+| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
 
 ## Diagrams
 

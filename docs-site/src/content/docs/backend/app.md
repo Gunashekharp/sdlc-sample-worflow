@@ -3,6 +3,8 @@ title: app
 description: Reference for `server/src/app.ts`
 ---
 
+<!-- structure:1c3466c3ddf6 -->
+
 **File:** `server/src/app.ts` · **Lines:** 33
 
 <!-- fill:file:summary -->
@@ -48,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | The injected collaborators (`store` and `cicd`) the routes read from; chosen by the caller (Postgres + real provider in production, in-memory + mock in tests). |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `any`
 
@@ -168,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | Data-access implementation for agents and KPIs (memory or Postgres). |
-| cicd | `CicdProvider` | Pipeline-data provider for the `/api/pipelines` route (mock or GitHub Actions). |
+| store | `Store` | <FILL: store> |
+| cicd | `CicdProvider` | <FILL: cicd> |
 
 ### Used by
 

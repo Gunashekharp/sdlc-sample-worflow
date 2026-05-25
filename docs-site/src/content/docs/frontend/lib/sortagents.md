@@ -3,6 +3,8 @@ title: sortAgents
 description: Reference for `src/lib/sortAgents.ts`
 ---
 
+<!-- structure:6ec161de999b -->
+
 **File:** `src/lib/sortAgents.ts` · **Lines:** 30
 
 <!-- fill:file:summary -->
@@ -43,8 +45,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The list to sort; shallow-copied first, so it is left unmodified. |
-| key | `SortKey` | — | yes | Which order to apply: runs, success, name, or recent. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| key | `SortKey` | — | yes | <FILL: purpose of key> |
 
 **Returns:** `Agent[]`
 
@@ -137,11 +139,11 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | Highest `runsPerWeek` comes first. |
-| sortAgents | sorts by success rate, descending | Highest `successRate` comes first. |
-| sortAgents | sorts by name, ascending | Alphabetical order via `localeCompare`. |
-| sortAgents | sorts by most recent run first | Smallest `lastRunMinutes` comes first. |
-| sortAgents | does not mutate the input array | The original `agents` array order is preserved. |
+| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
+| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
+| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
+| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
+| sortAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 

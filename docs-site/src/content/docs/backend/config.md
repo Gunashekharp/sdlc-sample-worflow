@@ -3,6 +3,8 @@ title: config
 description: Reference for `server/src/config.ts`
 ---
 
+<!-- structure:c036d84c7653 -->
+
 **File:** `server/src/config.ts` · **Lines:** 14
 
 <!-- fill:file:summary -->

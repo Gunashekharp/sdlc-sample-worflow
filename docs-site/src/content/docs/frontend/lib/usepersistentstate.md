@@ -3,6 +3,8 @@ title: usePersistentState
 description: Reference for `src/lib/usePersistentState.ts`
 ---
 
+<!-- structure:acbc64a702c2 -->
+
 **File:** `src/lib/usePersistentState.ts` · **Lines:** 31
 
 <!-- fill:file:summary -->
@@ -45,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | The `localStorage` key under which the value is stored and restored. |
-| initial | `T` | — | yes | The default used when nothing is stored or reading from storage fails. |
+| key | `string` | — | yes | <FILL: purpose of key> |
+| initial | `T` | — | yes | <FILL: purpose of initial> |
 
 **Returns:** `[T, (value: T) => void]`
 

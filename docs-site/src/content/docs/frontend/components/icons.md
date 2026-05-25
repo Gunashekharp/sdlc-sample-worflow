@@ -3,6 +3,8 @@ title: icons
 description: Reference for `src/components/icons.tsx`
 ---
 
+<!-- structure:7821024011fd -->
+
 **File:** `src/components/icons.tsx` · **Lines:** 118
 
 <!-- fill:file:summary -->
@@ -54,7 +56,7 @@ Renders a dashboard glyph: four small rounded squares arranged in a 2×2 grid (`
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -90,7 +92,7 @@ Renders a speech/chat-bubble glyph (a single `<path>` outlining a rounded rectan
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -126,7 +128,7 @@ Renders a 3D cube/box glyph (an outer hexagonal `<path>` plus an inner path for 
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -162,7 +164,7 @@ Renders a heartbeat/activity-pulse glyph (a single `<path>` baseline with a tall
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -198,7 +200,7 @@ Renders a power-plug glyph (a single `<path>` with two prongs on top, a body, an
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -234,7 +236,7 @@ Renders a sliders/controls glyph: two horizontal track lines (`<path>`) each cro
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -270,7 +272,7 @@ Renders a magnifying-glass glyph (a `<circle>` lens with a short diagonal `<path
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -307,7 +309,7 @@ Renders a plus/add glyph (one `<path>` with a vertical and a horizontal stroke c
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -343,7 +345,7 @@ Renders an upward arrow glyph (a `<path>` with a vertical shaft and a chevron he
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -380,7 +382,7 @@ Renders a four-point sparkle/star glyph. Unlike the other stroke-based icons, it
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -417,7 +419,7 @@ Renders a downward chevron glyph (one `<path>` forming a "v"), the standard disc
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -455,7 +457,7 @@ Renders an upward-trend glyph: a zig-zag line that ends climbing to the upper-ri
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -491,7 +493,7 @@ Renders a downward-trend glyph: the mirror of `IconTrendUp`, with a zig-zag line
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`) spread onto the underlying `<svg>`, so callers can size and color the icon. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 

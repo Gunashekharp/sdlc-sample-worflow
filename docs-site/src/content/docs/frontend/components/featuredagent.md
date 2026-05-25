@@ -3,6 +3,8 @@ title: FeaturedAgent
 description: Reference for `src/components/FeaturedAgent.tsx`
 ---
 
+<!-- structure:5de0f4a8d9ec -->
+
 **File:** `src/components/FeaturedAgent.tsx` · **Lines:** 58
 
 <!-- fill:file:summary -->
@@ -44,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to feature; supplies the name, status pill, description, and all four stats. |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
 
 ### Line-by-line walkthrough
 

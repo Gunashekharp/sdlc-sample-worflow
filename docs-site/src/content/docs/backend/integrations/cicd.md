@@ -3,6 +3,8 @@ title: cicd
 description: Reference for `server/src/integrations/cicd.ts`
 ---
 
+<!-- structure:4b8c689ccc8e -->
+
 **File:** `server/src/integrations/cicd.ts` · **Lines:** 162
 
 <!-- fill:file:summary -->
@@ -38,7 +40,7 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pipelines | `Pipeline[]` | — | yes | The pipeline runs to aggregate; read-only, not mutated. |
+| pipelines | `Pipeline[]` | — | yes | <FILL: purpose of pipelines> |
 
 **Returns:** `PipelineSummary`
 
@@ -199,8 +201,8 @@ Builds a live `CicdProvider` named `'github-actions'` that fetches the 20 most r
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| token | `string` | — | yes | GitHub personal-access/bearer token sent in the `Authorization` header to authenticate the API call. |
-| repo | `string` | — | yes | The `owner/repo` slug whose workflow runs are fetched (e.g. `snabbit/changelog-automation`). |
+| token | `string` | — | yes | <FILL: purpose of token> |
+| repo | `string` | — | yes | <FILL: purpose of repo> |
 
 **Returns:** `CicdProvider`
 
@@ -272,7 +274,7 @@ export function getCicdProvider(env: {
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | The credentials that decide which provider to build; both must be non-empty to select the live GitHub Actions provider. |
+| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | <FILL: purpose of env> |
 
 **Returns:** `CicdProvider`
 
@@ -358,14 +360,14 @@ The normalized shape of a single CI/CD run as exposed by the API, independent of
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Unique run identifier (the GitHub run id stringified, or a mock id). |
-| name | `string` | Human-readable workflow/run name. |
-| provider | `"github-actions" \| "jenkins"` | Which CI system the run came from. |
-| branch | `string` | Git branch the run executed against. |
-| status | `PipelineStatus` | Normalized lifecycle state: passing, failing, or running. |
-| durationSeconds | `number` | Elapsed run time in seconds (start to last update). |
-| triggeredBy | `string` | Login of the actor that triggered the run, or "unknown". |
-| updatedAt | `string` | ISO-8601 timestamp of the run's last update. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
+| branch | `string` | <FILL: branch> |
+| status | `PipelineStatus` | <FILL: status> |
+| durationSeconds | `number` | <FILL: durationSeconds> |
+| triggeredBy | `string` | <FILL: triggeredBy> |
+| updatedAt | `string` | <FILL: updatedAt> |
 
 ### Used by
 
@@ -387,10 +389,10 @@ The aggregate produced by `summarizePipelines`: a count of total pipelines, per-
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | Count of all pipelines in the input. |
-| passing | `number` | Number of runs with `passing` status. |
-| failing | `number` | Number of runs with `failing` status. |
-| running | `number` | Number of runs still in progress. |
+| total | `number` | <FILL: total> |
+| passing | `number` | <FILL: passing> |
+| failing | `number` | <FILL: failing> |
+| running | `number` | <FILL: running> |
 | passRate | `number` | Pass rate over finished (passing + failing) pipelines, 0–100. |
 
 ## CicdProvider
@@ -409,7 +411,7 @@ The provider contract that decouples the rest of the app from any specific CI sy
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | `string` | Identifier of the active provider (e.g. "mock" or "github-actions"), echoed in the API response. |
+| name | `string` | <FILL: name> |
 
 ### Used by
 

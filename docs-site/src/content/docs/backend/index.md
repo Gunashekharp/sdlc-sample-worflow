@@ -3,6 +3,8 @@ title: index
 description: Reference for `server/src/index.ts`
 ---
 
+<!-- structure:fa4bb07cd950 -->
+
 **File:** `server/src/index.ts` · **Lines:** 21
 
 <!-- fill:file:summary -->

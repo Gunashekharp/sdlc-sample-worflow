@@ -3,6 +3,8 @@ title: setup
 description: Reference for `server/src/db/setup.ts`
 ---
 
+<!-- structure:24b49f3cd6c0 -->
+
 **File:** `server/src/db/setup.ts` · **Lines:** 68
 
 <!-- fill:file:summary -->

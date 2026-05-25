@@ -3,6 +3,8 @@ title: index
 description: Reference for `chat-worker/src/index.js`
 ---
 
+<!-- structure:32b399eee518 -->
+
 **File:** `chat-worker/src/index.js` · **Lines:** 157
 
 > Cloudflare Worker — the chatbot backend for the Snabbit docs site.
@@ -66,7 +68,3 @@ sequenceDiagram
   end
 ```
 <!-- /fill:file:diagrams -->
-
-:::caution
-The bundled source (`chat-worker/src/index.js`) calls the **Anthropic Messages API (Claude Haiku 4.5)**, which requires an `ANTHROPIC_API_KEY` Wrangler secret. Note that a later revert commit describes switching the chatbot to free Cloudflare Workers AI; if that change lands, this page should be regenerated to match.
-:::
