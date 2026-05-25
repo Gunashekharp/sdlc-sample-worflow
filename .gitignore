@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Docs-agent toolchain output (Phase-1 review artifact)
+_docs-out/
