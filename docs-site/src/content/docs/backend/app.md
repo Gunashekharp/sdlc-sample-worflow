@@ -5,7 +5,9 @@ description: Reference for `server/src/app.ts`
 
 **File:** `server/src/app.ts` · **Lines:** 33
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `app.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -50,7 +52,9 @@ export function createApp(deps: AppDeps) { ... }
 
 **Returns:** `any`
 
+<!-- fill:sym:createApp:return -->
 <FILL: describe the return value of createApp — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:createApp:return -->
 
 ### Line-by-line walkthrough
 
@@ -62,7 +66,9 @@ Each top-level statement of `createApp`, in execution order. The line numbers re
 const app = express()
 ```
 
+<!-- fill:sym:createApp:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:0 -->
 
 **Line 20 — `ExpressionStatement`**
 
@@ -70,7 +76,9 @@ const app = express()
 app.use(cors())
 ```
 
+<!-- fill:sym:createApp:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:1 -->
 
 **Line 21 — `ExpressionStatement`**
 
@@ -78,7 +86,9 @@ app.use(cors())
 app.use(express.json())
 ```
 
+<!-- fill:sym:createApp:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:2 -->
 
 **Line 23 — `ExpressionStatement`**
 
@@ -86,7 +96,9 @@ app.use(express.json())
 registerRoutes(app, deps)
 ```
 
+<!-- fill:sym:createApp:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:3 -->
 
 **Line 26 — `ExpressionStatement`**
 
@@ -97,7 +109,9 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   })
 ```
 
+<!-- fill:sym:createApp:walk:4 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:4 -->
 
 **Line 31 — `ReturnStatement`**
 
@@ -105,11 +119,15 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 return app
 ```
 
+<!-- fill:sym:createApp:walk:5 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createApp:walk:5 -->
 
 ### Examples
 
+<!-- fill:sym:createApp:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:createApp:example -->
 
 ### Used by
 
@@ -124,7 +142,9 @@ return app
 export interface AppDeps { ... }
 ```
 
+<!-- fill:sym:AppDeps:summary -->
 <FILL: 2-4 sentences explaining what AppDeps does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AppDeps:summary -->
 
 ### Shape
 
@@ -139,7 +159,9 @@ export interface AppDeps { ... }
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

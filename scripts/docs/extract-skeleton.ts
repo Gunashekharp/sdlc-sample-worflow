@@ -476,6 +476,71 @@ function mdEscape(s: string): string {
   return s.replace(/\|/g, '\\|').replace(/\n+/g, ' ')
 }
 
+/**
+ * Wrap a FILL prompt (or previously-filled prose) in stable HTML-comment
+ * anchors so the extractor can preserve LLM-written content across reruns.
+ *
+ *   <!-- fill:<id> -->
+ *   <content or FILL prompt>
+ *   <!-- /fill:<id> -->
+ *
+ * The id is derived from structural location (file/symbol/section) so it
+ * stays stable when the LLM only adds prose and the underlying code is
+ * unchanged. When a symbol gets renamed or its statements get reordered,
+ * the id changes and the fill content is lost — that is the correct
+ * behaviour, since the prose was tied to the old shape.
+ */
+function fillBlock(id: string, defaultPrompt: string, preserved?: Map<string, string>): string {
+  const content = preserved?.get(id) ?? `<FILL: ${defaultPrompt}>`
+  return `<!-- fill:${id} -->\n${content}\n<!-- /fill:${id} -->`
+}
+
+/**
+ * Parse all <!-- fill:ID -->...<!-- /fill:ID --> blocks from a doc file.
+ * Returns a map from id to the preserved inner content (FILL prompts and
+ * real prose alike — the caller decides what to do with each).
+ */
+function parseFillAnchors(content: string): Map<string, string> {
+  const out = new Map<string, string>()
+  const re = /<!--\s*fill:([^\s>]+)\s*-->([\s\S]*?)<!--\s*\/fill:\1\s*-->/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(content)) !== null) {
+    const inner = m[2].trim()
+    // Skip un-filled defaults so a regen with an updated default prompt
+    // wins instead of cementing the old one.
+    if (inner.startsWith('<FILL:') && inner.endsWith('>')) continue
+    out.set(m[1], inner)
+  }
+  return out
+}
+
+/**
+ * Snapshot every existing doc file's filled blocks BEFORE the wipe step.
+ * Returns a map from output doc path -> id -> preserved content.
+ */
+function snapshotExistingFills(): Map<string, Map<string, string>> {
+  const snap = new Map<string, Map<string, string>>()
+  for (const root of sourceRoots) {
+    const target = path.join(docsContentRoot, root.outDir)
+    if (!fs.existsSync(target)) continue
+    function walk(dir: string): void {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          walk(full)
+          continue
+        }
+        if (!entry.name.endsWith('.md')) continue
+        const content = fs.readFileSync(full, 'utf-8')
+        const fills = parseFillAnchors(content)
+        if (fills.size) snap.set(full, fills)
+      }
+    }
+    walk(target)
+  }
+  return snap
+}
+
 function renderTable(headers: string[], rows: string[][]): string {
   const sep = headers.map(() => '---').join(' | ')
   const head = headers.join(' | ')
@@ -502,23 +567,27 @@ function renderImports(imports: ImportRow[]): string {
   return lines.join('\n') + '\n'
 }
 
-function renderWalk(sym: SymbolDoc): string {
+function renderWalk(sym: SymbolDoc, preserved?: Map<string, string>): string {
   if (!sym.walk || sym.walk.length === 0) return ''
   const lines: string[] = []
   lines.push('### Line-by-line walkthrough')
   lines.push('')
   lines.push(`Each top-level statement of \`${sym.name}\`, in execution order. The line numbers reference the source file as it appears today.`)
   lines.push('')
-  for (const s of sym.walk) {
+  sym.walk.forEach((s, idx) => {
     lines.push(`**Line ${s.line} — \`${s.kind}\`**`)
     lines.push('')
     lines.push('```ts')
     lines.push(s.code)
     lines.push('```')
     lines.push('')
-    lines.push(`<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>`)
+    lines.push(fillBlock(
+      `sym:${sym.name}:walk:${idx}`,
+      `explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.`,
+      preserved,
+    ))
     lines.push('')
-  }
+  })
   if (sym.walk.length === maxStatementsPerFunction) {
     lines.push(':::note')
     lines.push(`Walkthrough truncated at ${maxStatementsPerFunction} statements. The full function body is in the [source appendix](#source).`)
@@ -528,7 +597,7 @@ function renderWalk(sym: SymbolDoc): string {
   return lines.join('\n')
 }
 
-function renderSymbol(sym: SymbolDoc): string {
+function renderSymbol(sym: SymbolDoc, preserved?: Map<string, string>): string {
   const lines: string[] = []
   const titleSuffix = sym.isDefault ? ' (default export)' : ''
   lines.push(`## ${sym.name}${titleSuffix}`)
@@ -543,7 +612,11 @@ function renderSymbol(sym: SymbolDoc): string {
     lines.push('> ' + sym.jsdoc.split('\n').join('\n> '))
     lines.push('')
   } else {
-    lines.push(`<FILL: 2-4 sentences explaining what ${sym.name} does and why it exists. Ground every claim in the signature and source.>`)
+    lines.push(fillBlock(
+      `sym:${sym.name}:summary`,
+      `2-4 sentences explaining what ${sym.name} does and why it exists. Ground every claim in the signature and source.`,
+      preserved,
+    ))
     lines.push('')
   }
   if (sym.propsTable && sym.propsTable.length) {
@@ -581,7 +654,11 @@ function renderSymbol(sym: SymbolDoc): string {
   if (sym.returnType && sym.kind !== 'component' && sym.kind !== 'class') {
     lines.push(`**Returns:** \`${sym.returnType}\``)
     lines.push('')
-    lines.push(`<FILL: describe the return value of ${sym.name} — what it represents, when it can be null/undefined, units.>`)
+    lines.push(fillBlock(
+      `sym:${sym.name}:return`,
+      `describe the return value of ${sym.name} — what it represents, when it can be null/undefined, units.`,
+      preserved,
+    ))
     lines.push('')
   }
   if (sym.members && sym.members.length) {
@@ -601,12 +678,16 @@ function renderSymbol(sym: SymbolDoc): string {
     lines.push('')
   }
   if (sym.walk && sym.walk.length) {
-    lines.push(renderWalk(sym))
+    lines.push(renderWalk(sym, preserved))
   }
   if (sym.kind === 'component' || sym.kind === 'hook' || sym.kind === 'function') {
     lines.push('### Examples')
     lines.push('')
-    lines.push(`<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>`)
+    lines.push(fillBlock(
+      `sym:${sym.name}:example`,
+      `at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.`,
+      preserved,
+    ))
     lines.push('')
   }
   if (sym.usedBy.length) {
@@ -642,7 +723,7 @@ function renderSourceAppendix(doc: FileDoc): string {
   return lines.join('\n')
 }
 
-function renderFileDoc(doc: FileDoc): string {
+function renderFileDoc(doc: FileDoc, preserved?: Map<string, string>): string {
   const fm: string[] = ['---']
   const title = path.basename(doc.relInRoot).replace(/\.[^.]+$/, '')
   fm.push(`title: ${title}`)
@@ -655,7 +736,11 @@ function renderFileDoc(doc: FileDoc): string {
     lines.push('> ' + doc.headerSummary.split('\n').join('\n> '))
     lines.push('')
   } else {
-    lines.push(`<FILL: 2-4 sentence plain-language summary of what \`${doc.relInRoot}\` is responsible for, what other files it integrates with, and what calls into it.>`)
+    lines.push(fillBlock(
+      `file:summary`,
+      `2-4 sentence plain-language summary of what \`${doc.relInRoot}\` is responsible for, what other files it integrates with, and what calls into it.`,
+      preserved,
+    ))
     lines.push('')
   }
   if (doc.imports.length) {
@@ -680,7 +765,7 @@ function renderFileDoc(doc: FileDoc): string {
     )
     lines.push('')
     for (const s of doc.symbols) {
-      lines.push(renderSymbol(s))
+      lines.push(renderSymbol(s, preserved))
     }
   }
   if (doc.tests.length) {
@@ -700,7 +785,11 @@ function renderFileDoc(doc: FileDoc): string {
   }
   lines.push('## Diagrams')
   lines.push('')
-  lines.push(`<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use \`flowchart\`, \`sequenceDiagram\`, or \`stateDiagram-v2\`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>`)
+  lines.push(fillBlock(
+    `file:diagrams`,
+    `if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use \`flowchart\`, \`sequenceDiagram\`, or \`stateDiagram-v2\`. Skip this section entirely — do not write "no diagram" — if the file is trivial.`,
+    preserved,
+  ))
   lines.push('')
   lines.push(renderSourceAppendix(doc))
   return lines.join('\n')
@@ -731,6 +820,12 @@ function assertPreservedFilesUntouched(): void {
 
 async function run(): Promise<void> {
   assertPreservedFilesUntouched()
+  // CRITICAL: snapshot LLM-filled prose BEFORE wiping. Without this, the
+  // workflow would re-run the LLM against every doc page on every push,
+  // even pages whose source did not change.
+  const snapshot = snapshotExistingFills()
+  let preservedFillCount = 0
+  for (const v of snapshot.values()) preservedFillCount += v.size
   wipeReplaceableSubtrees()
   fs.mkdirSync(docsContentRoot, { recursive: true })
   const summary: Record<string, number> = {}
@@ -780,7 +875,8 @@ async function run(): Promise<void> {
       const testPath = findTestFile(sourceFile)
       if (testPath) doc.tests = parseTests(testPath)
       fs.mkdirSync(path.dirname(outPath), { recursive: true })
-      fs.writeFileSync(outPath, renderFileDoc(doc), 'utf-8')
+      const preservedForThisDoc = snapshot.get(outPath)
+      fs.writeFileSync(outPath, renderFileDoc(doc, preservedForThisDoc), 'utf-8')
       count++
     }
     summary[root.name] = count
@@ -788,7 +884,8 @@ async function run(): Promise<void> {
   const total = Object.values(summary).reduce((a, b) => a + b, 0)
   console.log(`\nWrote ${total} skeleton page${total === 1 ? '' : 's'} to ${path.relative(repoRoot, docsContentRoot)}/`)
   for (const [name, n] of Object.entries(summary)) console.log(`  ${name.padEnd(12)} ${n}`)
-  console.log(`Preserved: ${preserveFiles.join(', ')}`)
+  console.log(`Preserved hand-curated: ${preserveFiles.join(', ')}`)
+  console.log(`Preserved LLM-filled blocks: ${preservedFillCount} across ${snapshot.size} doc file${snapshot.size === 1 ? '' : 's'}.`)
 }
 
 run().catch((err) => {

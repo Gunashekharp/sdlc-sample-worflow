@@ -5,7 +5,9 @@ description: Reference for `server/src/postgresStore.ts`
 
 **File:** `server/src/postgresStore.ts` · **Lines:** 81
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `postgresStore.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -44,7 +46,9 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 **Returns:** `Store`
 
+<!-- fill:sym:createPostgresStore:return -->
 <FILL: describe the return value of createPostgresStore — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:createPostgresStore:return -->
 
 ### Line-by-line walkthrough
 
@@ -76,11 +80,15 @@ return {
   }
 ```
 
+<!-- fill:sym:createPostgresStore:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createPostgresStore:walk:0 -->
 
 ### Examples
 
+<!-- fill:sym:createPostgresStore:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:createPostgresStore:example -->
 
 ### Used by
 
@@ -88,7 +96,9 @@ return {
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

@@ -5,7 +5,9 @@ description: Reference for `src/components/StatusDot.tsx`
 
 **File:** `src/components/StatusDot.tsx` · **Lines:** 28
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `components/StatusDot.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -58,7 +60,9 @@ if (status === 'running') {
   }
 ```
 
+<!-- fill:sym:StatusDot:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:StatusDot:walk:0 -->
 
 **Line 20 — `FirstStatement`**
 
@@ -66,7 +70,9 @@ if (status === 'running') {
 const color = status === 'attention' ? 'bg-warn' : 'bg-text-faint'
 ```
 
+<!-- fill:sym:StatusDot:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:StatusDot:walk:1 -->
 
 **Line 21 — `ReturnStatement`**
 
@@ -79,11 +85,15 @@ return (
   )
 ```
 
+<!-- fill:sym:StatusDot:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:StatusDot:walk:2 -->
 
 ### Examples
 
+<!-- fill:sym:StatusDot:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:StatusDot:example -->
 
 ### Used by
 
@@ -98,7 +108,9 @@ return (
 const STATUS_LABEL: Record<AgentStatus, string>
 ```
 
+<!-- fill:sym:STATUS_LABEL:summary -->
 <FILL: 2-4 sentences explaining what STATUS_LABEL does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:STATUS_LABEL:summary -->
 
 ### Used by
 
@@ -106,7 +118,9 @@ const STATUS_LABEL: Record<AgentStatus, string>
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

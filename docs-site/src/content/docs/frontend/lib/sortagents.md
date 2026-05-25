@@ -5,7 +5,9 @@ description: Reference for `src/lib/sortAgents.ts`
 
 **File:** `src/lib/sortAgents.ts` · **Lines:** 30
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `lib/sortAgents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -46,7 +48,9 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 **Returns:** `Agent[]`
 
+<!-- fill:sym:sortAgents:return -->
 <FILL: describe the return value of sortAgents — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:sortAgents:return -->
 
 ### Line-by-line walkthrough
 
@@ -58,7 +62,9 @@ Each top-level statement of `sortAgents`, in execution order. The line numbers r
 const copy = [...agents]
 ```
 
+<!-- fill:sym:sortAgents:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:sortAgents:walk:0 -->
 
 **Line 19 — `SwitchStatement`**
 
@@ -75,11 +81,15 @@ switch (key) {
   }
 ```
 
+<!-- fill:sym:sortAgents:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:sortAgents:walk:1 -->
 
 ### Examples
 
+<!-- fill:sym:sortAgents:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:sortAgents:example -->
 
 ### Used by
 
@@ -94,7 +104,9 @@ switch (key) {
 export type SortKey = 'runs' | 'success' | 'name' | 'recent'
 ```
 
+<!-- fill:sym:SortKey:summary -->
 <FILL: 2-4 sentences explaining what SortKey does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:SortKey:summary -->
 
 ### Used by
 
@@ -126,7 +138,9 @@ const SORT_LABELS: Record<SortKey, string>
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

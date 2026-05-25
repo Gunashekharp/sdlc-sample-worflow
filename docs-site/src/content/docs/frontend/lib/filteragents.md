@@ -5,7 +5,9 @@ description: Reference for `src/lib/filterAgents.ts`
 
 **File:** `src/lib/filterAgents.ts` · **Lines:** 33
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `lib/filterAgents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -45,7 +47,9 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 **Returns:** `Agent[]`
 
+<!-- fill:sym:filterAgents:return -->
 <FILL: describe the return value of filterAgents — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:filterAgents:return -->
 
 ### Line-by-line walkthrough
 
@@ -57,7 +61,9 @@ Each top-level statement of `filterAgents`, in execution order. The line numbers
 const query = filter.query.trim().toLowerCase()
 ```
 
+<!-- fill:sym:filterAgents:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:filterAgents:walk:0 -->
 
 **Line 17 — `ReturnStatement`**
 
@@ -79,11 +85,15 @@ return agents.filter((agent) => {
   })
 ```
 
+<!-- fill:sym:filterAgents:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:filterAgents:walk:1 -->
 
 ### Examples
 
+<!-- fill:sym:filterAgents:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:filterAgents:example -->
 
 ### Used by
 
@@ -98,7 +108,9 @@ return agents.filter((agent) => {
 export interface AgentFilter { ... }
 ```
 
+<!-- fill:sym:AgentFilter:summary -->
 <FILL: 2-4 sentences explaining what AgentFilter does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AgentFilter:summary -->
 
 ### Shape
 
@@ -124,7 +136,9 @@ export interface AgentFilter { ... }
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

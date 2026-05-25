@@ -5,7 +5,9 @@ description: Reference for `src/lib/usePersistentState.ts`
 
 **File:** `src/lib/usePersistentState.ts` · **Lines:** 31
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `lib/usePersistentState.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -48,7 +50,9 @@ export function usePersistentState<T>(
 
 **Returns:** `[T, (value: T) => void]`
 
+<!-- fill:sym:usePersistentState:return -->
 <FILL: describe the return value of usePersistentState — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:usePersistentState:return -->
 
 ### Line-by-line walkthrough
 
@@ -67,7 +71,9 @@ const [value, setValue] = useState<T>(() => {
   })
 ```
 
+<!-- fill:sym:usePersistentState:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:usePersistentState:walk:0 -->
 
 **Line 21 — `ExpressionStatement`**
 
@@ -81,7 +87,9 @@ useEffect(() => {
   }, [key, value])
 ```
 
+<!-- fill:sym:usePersistentState:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:usePersistentState:walk:1 -->
 
 **Line 29 — `ReturnStatement`**
 
@@ -89,11 +97,15 @@ useEffect(() => {
 return [value, setValue]
 ```
 
+<!-- fill:sym:usePersistentState:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:usePersistentState:walk:2 -->
 
 ### Examples
 
+<!-- fill:sym:usePersistentState:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:usePersistentState:example -->
 
 ### Used by
 
@@ -101,7 +113,9 @@ return [value, setValue]
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

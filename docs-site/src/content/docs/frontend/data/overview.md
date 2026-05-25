@@ -5,7 +5,9 @@ description: Files under src/data/
 
 **Folder:** `src/data/`
 
+<!-- fill:folder:summary -->
 <FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+<!-- /fill:folder:summary -->
 
 ## Files
 
@@ -24,4 +26,6 @@ No internal dependencies detected for this folder.
 
 ## Key flows
 
+<!-- fill:folder:flows -->
 <FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+<!-- /fill:folder:flows -->

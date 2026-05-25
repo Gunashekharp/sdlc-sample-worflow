@@ -5,7 +5,9 @@ description: Reference for `src/data/agents.ts`
 
 **File:** `src/data/agents.ts` · **Lines:** 211
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `data/agents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Symbols
 
@@ -28,7 +30,9 @@ This file exports 6 symbols. Every export is documented below, in declaration or
 export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
+<!-- fill:sym:AgentStatus:summary -->
 <FILL: 2-4 sentences explaining what AgentStatus does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AgentStatus:summary -->
 
 ### Used by
 
@@ -42,7 +46,9 @@ export type AgentStatus = 'running' | 'idle' | 'attention'
 export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
 ```
 
+<!-- fill:sym:AgentCategory:summary -->
 <FILL: 2-4 sentences explaining what AgentCategory does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AgentCategory:summary -->
 
 ## Agent
 
@@ -52,7 +58,9 @@ export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'D
 export interface Agent { ... }
 ```
 
+<!-- fill:sym:Agent:summary -->
 <FILL: 2-4 sentences explaining what Agent does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:Agent:summary -->
 
 ### Shape
 
@@ -88,7 +96,9 @@ export interface Agent { ... }
 const AGENTS: Agent[]
 ```
 
+<!-- fill:sym:AGENTS:summary -->
 <FILL: 2-4 sentences explaining what AGENTS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AGENTS:summary -->
 
 ### Used by
 
@@ -119,7 +129,9 @@ const FEATURED_AGENT_ID: "pr-reviewer"
 const AGENT_CATEGORIES: AgentCategory[]
 ```
 
+<!-- fill:sym:AGENT_CATEGORIES:summary -->
 <FILL: 2-4 sentences explaining what AGENT_CATEGORIES does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AGENT_CATEGORIES:summary -->
 
 ### Used by
 
@@ -139,7 +151,9 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

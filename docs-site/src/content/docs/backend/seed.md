@@ -5,7 +5,9 @@ description: Reference for `server/src/seed.ts`
 
 **File:** `server/src/seed.ts` · **Lines:** 218
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `seed.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -33,7 +35,9 @@ This file exports 2 symbols. Every export is documented below, in declaration or
 const SEED_AGENTS: Agent[]
 ```
 
+<!-- fill:sym:SEED_AGENTS:summary -->
 <FILL: 2-4 sentences explaining what SEED_AGENTS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:SEED_AGENTS:summary -->
 
 ### Used by
 
@@ -48,7 +52,9 @@ const SEED_AGENTS: Agent[]
 const SEED_KPIS: Kpi[]
 ```
 
+<!-- fill:sym:SEED_KPIS:summary -->
 <FILL: 2-4 sentences explaining what SEED_KPIS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:SEED_KPIS:summary -->
 
 ### Used by
 
@@ -57,7 +63,9 @@ const SEED_KPIS: Kpi[]
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

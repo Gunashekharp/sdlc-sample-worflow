@@ -38,6 +38,35 @@ import {
 
 const skipSet = new Set(configFilePatterns)
 
+/**
+ * Same anchor-based preservation pattern as extract-skeleton.ts. Major
+ * paragraph FILLs go inside <!-- fill:ID -->...<!-- /fill:ID --> so the
+ * LLM's prose survives the wipe-and-regenerate cycle on every run.
+ */
+function fillBlock(id: string, defaultPrompt: string, preserved?: Map<string, string>): string {
+  const content = preserved?.get(id) ?? `<FILL: ${defaultPrompt}>`
+  return `<!-- fill:${id} -->\n${content}\n<!-- /fill:${id} -->`
+}
+
+function parseFillAnchors(content: string): Map<string, string> {
+  const out = new Map<string, string>()
+  const re = /<!--\s*fill:([^\s>]+)\s*-->([\s\S]*?)<!--\s*\/fill:\1\s*-->/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(content)) !== null) {
+    const inner = m[2].trim()
+    if (inner.startsWith('<FILL:') && inner.endsWith('>')) continue
+    out.set(m[1], inner)
+  }
+  return out
+}
+
+function readExistingFills(p: string): Map<string, string> | undefined {
+  if (!fs.existsSync(p)) return undefined
+  const content = fs.readFileSync(p, 'utf-8')
+  const map = parseFillAnchors(content)
+  return map.size ? map : undefined
+}
+
 interface FileEntry {
   /** absolute path */
   abs: string
@@ -120,7 +149,7 @@ function embedMermaid(title: string, mermaid: string | null, emptyNote: string):
   return lines.join('\n')
 }
 
-function renderRootOverview(root: SourceRoot): string {
+function renderRootOverview(root: SourceRoot, preserved?: Map<string, string>): string {
   const absSourceDir = path.resolve(repoRoot, root.sourceDir)
   const files = listSourceFiles(absSourceDir)
   const folderSet = new Set<string>()
@@ -136,7 +165,11 @@ function renderRootOverview(root: SourceRoot): string {
   lines.push('')
   lines.push(`> ${root.blurb}`)
   lines.push('')
-  lines.push('<FILL: 3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.>')
+  lines.push(fillBlock(
+    `overview:summary`,
+    `3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.`,
+    preserved,
+  ))
   lines.push('')
 
   lines.push('## Top-level structure')
@@ -182,16 +215,24 @@ function renderRootOverview(root: SourceRoot): string {
   }
   lines.push('## Key flows')
   lines.push('')
-  lines.push('<FILL: 2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).>')
+  lines.push(fillBlock(
+    `overview:flows`,
+    `2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).`,
+    preserved,
+  ))
   lines.push('')
   lines.push('## When to add code here')
   lines.push('')
-  lines.push('<FILL: practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.>')
+  lines.push(fillBlock(
+    `overview:when-to-add`,
+    `practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.`,
+    preserved,
+  ))
   lines.push('')
   return lines.join('\n')
 }
 
-function renderFolderOverview(root: SourceRoot, folder: string): string {
+function renderFolderOverview(root: SourceRoot, folder: string, preserved?: Map<string, string>): string {
   const absSourceDir = path.resolve(repoRoot, root.sourceDir)
   const files = listSourceFiles(absSourceDir).filter(
     (f) => f.relInRoot.startsWith(folder + path.sep) && !f.relInRoot.slice(folder.length + 1).includes(path.sep),
@@ -201,7 +242,11 @@ function renderFolderOverview(root: SourceRoot, folder: string): string {
   const lines: string[] = [fm.join('\n'), '']
   lines.push(`**Folder:** \`${root.sourceDir}/${folder}/\``)
   lines.push('')
-  lines.push('<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>')
+  lines.push(fillBlock(
+    `folder:summary`,
+    `2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.`,
+    preserved,
+  ))
   lines.push('')
 
   lines.push('## Files')
@@ -227,7 +272,11 @@ function renderFolderOverview(root: SourceRoot, folder: string): string {
   ))
   lines.push('## Key flows')
   lines.push('')
-  lines.push('<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>')
+  lines.push(fillBlock(
+    `folder:flows`,
+    `1-3 short descriptions of how modules in this folder cooperate at runtime.`,
+    preserved,
+  ))
   lines.push('')
   return lines.join('\n')
 }
@@ -242,19 +291,25 @@ function writeIfChanged(p: string, content: string): boolean {
 
 async function run(): Promise<void> {
   let written = 0
+  let preservedFills = 0
   for (const root of sourceRoots) {
     const absSourceDir = path.resolve(repoRoot, root.sourceDir)
     if (!fs.existsSync(absSourceDir)) continue
     const rootOverviewPath = path.join(docsContentRoot, root.outDir, 'overview.md')
-    if (writeIfChanged(rootOverviewPath, renderRootOverview(root))) written++
+    const rootPreserved = readExistingFills(rootOverviewPath)
+    if (rootPreserved) preservedFills += rootPreserved.size
+    if (writeIfChanged(rootOverviewPath, renderRootOverview(root, rootPreserved))) written++
     console.log(`✓ ${path.relative(docsContentRoot, rootOverviewPath)}`)
     for (const folder of topLevelFolders(root)) {
       const folderOverviewPath = path.join(docsContentRoot, root.outDir, folder, 'overview.md')
-      if (writeIfChanged(folderOverviewPath, renderFolderOverview(root, folder))) written++
+      const folderPreserved = readExistingFills(folderOverviewPath)
+      if (folderPreserved) preservedFills += folderPreserved.size
+      if (writeIfChanged(folderOverviewPath, renderFolderOverview(root, folder, folderPreserved))) written++
       console.log(`✓ ${path.relative(docsContentRoot, folderOverviewPath)}`)
     }
   }
   console.log(`\nWrote ${written} overview page${written === 1 ? '' : 's'}.`)
+  if (preservedFills > 0) console.log(`Preserved ${preservedFills} LLM-filled block${preservedFills === 1 ? '' : 's'} from prior runs.`)
 }
 
 run().catch((err) => {

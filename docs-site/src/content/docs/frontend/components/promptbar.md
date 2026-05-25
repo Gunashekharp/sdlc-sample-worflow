@@ -5,7 +5,9 @@ description: Reference for `src/components/PromptBar.tsx`
 
 **File:** `src/components/PromptBar.tsx` · **Lines:** 58
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `components/PromptBar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -33,7 +35,9 @@ This file exports 1 symbol. Every export is documented below, in declaration ord
 export default function PromptBar() { ... }
 ```
 
+<!-- fill:sym:PromptBar:summary -->
 <FILL: 2-4 sentences explaining what PromptBar does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PromptBar:summary -->
 
 ### Line-by-line walkthrough
 
@@ -45,7 +49,9 @@ Each top-level statement of `PromptBar`, in execution order. The line numbers re
 const [value, setValue] = useState('')
 ```
 
+<!-- fill:sym:PromptBar:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PromptBar:walk:0 -->
 
 **Line 6 — `FirstStatement`**
 
@@ -53,7 +59,9 @@ const [value, setValue] = useState('')
 const canSend = value.trim().length > 0
 ```
 
+<!-- fill:sym:PromptBar:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PromptBar:walk:1 -->
 
 **Line 8 — `FunctionDeclaration`**
 
@@ -66,7 +74,9 @@ function submit() {
   }
 ```
 
+<!-- fill:sym:PromptBar:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PromptBar:walk:2 -->
 
 **Line 15 — `ReturnStatement`**
 
@@ -115,11 +125,15 @@ return (
   )
 ```
 
+<!-- fill:sym:PromptBar:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PromptBar:walk:3 -->
 
 ### Examples
 
+<!-- fill:sym:PromptBar:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:PromptBar:example -->
 
 ### Used by
 
@@ -127,7 +141,9 @@ return (
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

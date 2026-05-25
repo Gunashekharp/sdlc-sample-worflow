@@ -5,7 +5,9 @@ description: Reference for `src/components/TopBar.tsx`
 
 **File:** `src/components/TopBar.tsx` · **Lines:** 32
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `components/TopBar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -32,7 +34,9 @@ This file exports 1 symbol. Every export is documented below, in declaration ord
 export default function TopBar() { ... }
 ```
 
+<!-- fill:sym:TopBar:summary -->
 <FILL: 2-4 sentences explaining what TopBar does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:TopBar:summary -->
 
 ### Line-by-line walkthrough
 
@@ -70,11 +74,15 @@ return (
   )
 ```
 
+<!-- fill:sym:TopBar:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:TopBar:walk:0 -->
 
 ### Examples
 
+<!-- fill:sym:TopBar:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:TopBar:example -->
 
 ### Used by
 
@@ -82,7 +90,9 @@ return (
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

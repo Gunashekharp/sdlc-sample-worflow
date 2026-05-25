@@ -5,7 +5,9 @@ description: Reference for `src/lib/api.ts`
 
 **File:** `src/lib/api.ts` · **Lines:** 44
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `lib/api.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Symbols
 
@@ -29,7 +31,9 @@ export async function fetchPipelines(
 ): Promise<PipelinesResponse> { ... }
 ```
 
+<!-- fill:sym:fetchPipelines:summary -->
 <FILL: 2-4 sentences explaining what fetchPipelines does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:fetchPipelines:summary -->
 
 ### Parameters
 
@@ -39,7 +43,9 @@ export async function fetchPipelines(
 
 **Returns:** `Promise<PipelinesResponse>`
 
+<!-- fill:sym:fetchPipelines:return -->
 <FILL: describe the return value of fetchPipelines — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:fetchPipelines:return -->
 
 ### Line-by-line walkthrough
 
@@ -51,7 +57,9 @@ Each top-level statement of `fetchPipelines`, in execution order. The line numbe
 const res = await fetch(`${API_URL}/api/pipelines`, { signal })
 ```
 
+<!-- fill:sym:fetchPipelines:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:fetchPipelines:walk:0 -->
 
 **Line 39 — `IfStatement`**
 
@@ -61,7 +69,9 @@ if (!res.ok) {
   }
 ```
 
+<!-- fill:sym:fetchPipelines:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:fetchPipelines:walk:1 -->
 
 **Line 42 — `ReturnStatement`**
 
@@ -69,11 +79,15 @@ if (!res.ok) {
 return res.json() as Promise<PipelinesResponse>
 ```
 
+<!-- fill:sym:fetchPipelines:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:fetchPipelines:walk:2 -->
 
 ### Examples
 
+<!-- fill:sym:fetchPipelines:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:fetchPipelines:example -->
 
 ### Used by
 
@@ -87,7 +101,9 @@ return res.json() as Promise<PipelinesResponse>
 export type PipelineStatus = 'passing' | 'failing' | 'running'
 ```
 
+<!-- fill:sym:PipelineStatus:summary -->
 <FILL: 2-4 sentences explaining what PipelineStatus does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PipelineStatus:summary -->
 
 ## Pipeline
 
@@ -97,7 +113,9 @@ export type PipelineStatus = 'passing' | 'failing' | 'running'
 export interface Pipeline { ... }
 ```
 
+<!-- fill:sym:Pipeline:summary -->
 <FILL: 2-4 sentences explaining what Pipeline does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:Pipeline:summary -->
 
 ### Shape
 
@@ -124,7 +142,9 @@ export interface Pipeline { ... }
 export interface PipelineSummary { ... }
 ```
 
+<!-- fill:sym:PipelineSummary:summary -->
 <FILL: 2-4 sentences explaining what PipelineSummary does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PipelineSummary:summary -->
 
 ### Shape
 
@@ -144,7 +164,9 @@ export interface PipelineSummary { ... }
 export interface PipelinesResponse { ... }
 ```
 
+<!-- fill:sym:PipelinesResponse:summary -->
 <FILL: 2-4 sentences explaining what PipelinesResponse does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PipelinesResponse:summary -->
 
 ### Shape
 
@@ -156,7 +178,9 @@ export interface PipelinesResponse { ... }
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

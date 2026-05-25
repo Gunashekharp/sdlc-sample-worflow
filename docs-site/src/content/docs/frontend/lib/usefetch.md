@@ -5,7 +5,9 @@ description: Reference for `src/lib/useFetch.ts`
 
 **File:** `src/lib/useFetch.ts` · **Lines:** 47
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `lib/useFetch.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -47,7 +49,9 @@ export function useFetch<T>(
 
 **Returns:** `FetchState<T>`
 
+<!-- fill:sym:useFetch:return -->
 <FILL: describe the return value of useFetch — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:useFetch:return -->
 
 ### Line-by-line walkthrough
 
@@ -59,7 +63,9 @@ Each top-level statement of `useFetch`, in execution order. The line numbers ref
 const [data, setData] = useState<T | null>(null)
 ```
 
+<!-- fill:sym:useFetch:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:0 -->
 
 **Line 19 — `FirstStatement`**
 
@@ -67,7 +73,9 @@ const [data, setData] = useState<T | null>(null)
 const [loading, setLoading] = useState(true)
 ```
 
+<!-- fill:sym:useFetch:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:1 -->
 
 **Line 20 — `FirstStatement`**
 
@@ -75,7 +83,9 @@ const [loading, setLoading] = useState(true)
 const [error, setError] = useState<string | null>(null)
 ```
 
+<!-- fill:sym:useFetch:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:2 -->
 
 **Line 21 — `FirstStatement`**
 
@@ -83,7 +93,9 @@ const [error, setError] = useState<string | null>(null)
 const [nonce, setNonce] = useState(0)
 ```
 
+<!-- fill:sym:useFetch:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:3 -->
 
 **Line 23 — `FirstStatement`**
 
@@ -91,7 +103,9 @@ const [nonce, setNonce] = useState(0)
 const reload = useCallback(() => setNonce((n) => n + 1), [])
 ```
 
+<!-- fill:sym:useFetch:walk:4 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:4 -->
 
 **Line 25 — `ExpressionStatement`**
 
@@ -117,7 +131,9 @@ useEffect(() => {
   }, [fetcher, nonce])
 ```
 
+<!-- fill:sym:useFetch:walk:5 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:5 -->
 
 **Line 45 — `ReturnStatement`**
 
@@ -125,11 +141,15 @@ useEffect(() => {
 return { data, loading, error, reload }
 ```
 
+<!-- fill:sym:useFetch:walk:6 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:useFetch:walk:6 -->
 
 ### Examples
 
+<!-- fill:sym:useFetch:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:useFetch:example -->
 
 ### Used by
 
@@ -143,7 +163,9 @@ return { data, loading, error, reload }
 export interface FetchState<T> { ... }
 ```
 
+<!-- fill:sym:FetchState:summary -->
 <FILL: 2-4 sentences explaining what FetchState does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:FetchState:summary -->
 
 ### Shape
 
@@ -156,7 +178,9 @@ export interface FetchState<T> { ... }
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

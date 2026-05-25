@@ -5,7 +5,9 @@ description: Reference for `src/components/PipelinesPanel.tsx`
 
 **File:** `src/components/PipelinesPanel.tsx` · **Lines:** 93
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `components/PipelinesPanel.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -46,7 +48,9 @@ Each top-level statement of `PipelinesPanel`, in execution order. The line numbe
 const { data, loading, error, reload } = useFetch(fetchPipelines)
 ```
 
+<!-- fill:sym:PipelinesPanel:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PipelinesPanel:walk:0 -->
 
 **Line 49 — `ReturnStatement`**
 
@@ -96,11 +100,15 @@ return (
   )
 ```
 
+<!-- fill:sym:PipelinesPanel:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:PipelinesPanel:walk:1 -->
 
 ### Examples
 
+<!-- fill:sym:PipelinesPanel:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:PipelinesPanel:example -->
 
 ### Used by
 
@@ -116,7 +124,9 @@ return (
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

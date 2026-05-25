@@ -5,7 +5,9 @@ description: Reference for `server/src/integrations/cicd.ts`
 
 **File:** `server/src/integrations/cicd.ts` · **Lines:** 162
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `integrations/cicd.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Symbols
 
@@ -40,7 +42,9 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 **Returns:** `PipelineSummary`
 
+<!-- fill:sym:summarizePipelines:return -->
 <FILL: describe the return value of summarizePipelines — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:summarizePipelines:return -->
 
 ### Line-by-line walkthrough
 
@@ -52,7 +56,9 @@ Each top-level statement of `summarizePipelines`, in execution order. The line n
 const passing = pipelines.filter((p) => p.status === 'passing').length
 ```
 
+<!-- fill:sym:summarizePipelines:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:summarizePipelines:walk:0 -->
 
 **Line 40 — `FirstStatement`**
 
@@ -60,7 +66,9 @@ const passing = pipelines.filter((p) => p.status === 'passing').length
 const failing = pipelines.filter((p) => p.status === 'failing').length
 ```
 
+<!-- fill:sym:summarizePipelines:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:summarizePipelines:walk:1 -->
 
 **Line 41 — `FirstStatement`**
 
@@ -68,7 +76,9 @@ const failing = pipelines.filter((p) => p.status === 'failing').length
 const running = pipelines.filter((p) => p.status === 'running').length
 ```
 
+<!-- fill:sym:summarizePipelines:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:summarizePipelines:walk:2 -->
 
 **Line 42 — `FirstStatement`**
 
@@ -76,7 +86,9 @@ const running = pipelines.filter((p) => p.status === 'running').length
 const finished = passing + failing
 ```
 
+<!-- fill:sym:summarizePipelines:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:summarizePipelines:walk:3 -->
 
 **Line 43 — `ReturnStatement`**
 
@@ -90,11 +102,15 @@ return {
   }
 ```
 
+<!-- fill:sym:summarizePipelines:walk:4 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:summarizePipelines:walk:4 -->
 
 ### Examples
 
+<!-- fill:sym:summarizePipelines:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:summarizePipelines:example -->
 
 ### Used by
 
@@ -109,11 +125,15 @@ return {
 export function createMockCicdProvider(): CicdProvider { ... }
 ```
 
+<!-- fill:sym:createMockCicdProvider:summary -->
 <FILL: 2-4 sentences explaining what createMockCicdProvider does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:createMockCicdProvider:summary -->
 
 **Returns:** `CicdProvider`
 
+<!-- fill:sym:createMockCicdProvider:return -->
 <FILL: describe the return value of createMockCicdProvider — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:createMockCicdProvider:return -->
 
 ### Line-by-line walkthrough
 
@@ -130,11 +150,15 @@ return {
   }
 ```
 
+<!-- fill:sym:createMockCicdProvider:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createMockCicdProvider:walk:0 -->
 
 ### Examples
 
+<!-- fill:sym:createMockCicdProvider:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:createMockCicdProvider:example -->
 
 ### Used by
 
@@ -152,7 +176,9 @@ export function createGithubActionsProvider(
 ): CicdProvider { ... }
 ```
 
+<!-- fill:sym:createGithubActionsProvider:summary -->
 <FILL: 2-4 sentences explaining what createGithubActionsProvider does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:createGithubActionsProvider:summary -->
 
 ### Parameters
 
@@ -163,7 +189,9 @@ export function createGithubActionsProvider(
 
 **Returns:** `CicdProvider`
 
+<!-- fill:sym:createGithubActionsProvider:return -->
 <FILL: describe the return value of createGithubActionsProvider — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:createGithubActionsProvider:return -->
 
 ### Line-by-line walkthrough
 
@@ -194,11 +222,15 @@ return {
   }
 ```
 
+<!-- fill:sym:createGithubActionsProvider:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:createGithubActionsProvider:walk:0 -->
 
 ### Examples
 
+<!-- fill:sym:createGithubActionsProvider:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:createGithubActionsProvider:example -->
 
 ## getCicdProvider
 
@@ -221,7 +253,9 @@ export function getCicdProvider(env: {
 
 **Returns:** `CicdProvider`
 
+<!-- fill:sym:getCicdProvider:return -->
 <FILL: describe the return value of getCicdProvider — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:getCicdProvider:return -->
 
 ### Line-by-line walkthrough
 
@@ -235,7 +269,9 @@ if (env.githubToken && env.githubRepo) {
   }
 ```
 
+<!-- fill:sym:getCicdProvider:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:getCicdProvider:walk:0 -->
 
 **Line 160 — `ReturnStatement`**
 
@@ -243,11 +279,15 @@ if (env.githubToken && env.githubRepo) {
 return createMockCicdProvider()
 ```
 
+<!-- fill:sym:getCicdProvider:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:getCicdProvider:walk:1 -->
 
 ### Examples
 
+<!-- fill:sym:getCicdProvider:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:getCicdProvider:example -->
 
 ### Used by
 
@@ -262,7 +302,9 @@ return createMockCicdProvider()
 export type PipelineStatus = 'passing' | 'failing' | 'running'
 ```
 
+<!-- fill:sym:PipelineStatus:summary -->
 <FILL: 2-4 sentences explaining what PipelineStatus does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PipelineStatus:summary -->
 
 ### Used by
 
@@ -276,7 +318,9 @@ export type PipelineStatus = 'passing' | 'failing' | 'running'
 export interface Pipeline { ... }
 ```
 
+<!-- fill:sym:Pipeline:summary -->
 <FILL: 2-4 sentences explaining what Pipeline does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:Pipeline:summary -->
 
 ### Shape
 
@@ -303,7 +347,9 @@ export interface Pipeline { ... }
 export interface PipelineSummary { ... }
 ```
 
+<!-- fill:sym:PipelineSummary:summary -->
 <FILL: 2-4 sentences explaining what PipelineSummary does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:PipelineSummary:summary -->
 
 ### Shape
 
@@ -323,7 +369,9 @@ export interface PipelineSummary { ... }
 export interface CicdProvider { ... }
 ```
 
+<!-- fill:sym:CicdProvider:summary -->
 <FILL: 2-4 sentences explaining what CicdProvider does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:CicdProvider:summary -->
 
 ### Shape
 
@@ -337,7 +385,9 @@ export interface CicdProvider { ... }
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

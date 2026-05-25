@@ -5,7 +5,9 @@ description: Reference for `server/src/db/setup.ts`
 
 **File:** `server/src/db/setup.ts` · **Lines:** 68
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `db/setup.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -25,7 +27,9 @@ No exported symbols detected by the AST. This file is likely a side-effect entry
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

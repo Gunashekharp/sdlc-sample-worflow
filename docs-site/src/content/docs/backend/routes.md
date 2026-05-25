@@ -5,7 +5,9 @@ description: Reference for `server/src/routes.ts`
 
 **File:** `server/src/routes.ts` · **Lines:** 37
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `routes.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Imports
 
@@ -45,7 +47,9 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 **Returns:** `void`
 
+<!-- fill:sym:registerRoutes:return -->
 <FILL: describe the return value of registerRoutes — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:registerRoutes:return -->
 
 ### Line-by-line walkthrough
 
@@ -59,7 +63,9 @@ app.get('/api/health', (_req, res) => {
   })
 ```
 
+<!-- fill:sym:registerRoutes:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:0 -->
 
 **Line 11 — `ExpressionStatement`**
 
@@ -69,7 +75,9 @@ app.get('/api/agents', async (_req, res) => {
   })
 ```
 
+<!-- fill:sym:registerRoutes:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:1 -->
 
 **Line 15 — `ExpressionStatement`**
 
@@ -84,7 +92,9 @@ app.get('/api/agents/:id', async (req, res) => {
   })
 ```
 
+<!-- fill:sym:registerRoutes:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:2 -->
 
 **Line 24 — `ExpressionStatement`**
 
@@ -94,7 +104,9 @@ app.get('/api/kpis', async (_req, res) => {
   })
 ```
 
+<!-- fill:sym:registerRoutes:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:3 -->
 
 **Line 28 — `ExpressionStatement`**
 
@@ -109,11 +121,15 @@ app.get('/api/pipelines', async (_req, res) => {
   })
 ```
 
+<!-- fill:sym:registerRoutes:walk:4 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:4 -->
 
 ### Examples
 
+<!-- fill:sym:registerRoutes:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:registerRoutes:example -->
 
 ### Used by
 
@@ -121,7 +137,9 @@ app.get('/api/pipelines', async (_req, res) => {
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

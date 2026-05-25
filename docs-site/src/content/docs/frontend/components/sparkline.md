@@ -5,7 +5,9 @@ description: Reference for `src/components/Sparkline.tsx`
 
 **File:** `src/components/Sparkline.tsx` · **Lines:** 47
 
+<!-- fill:file:summary -->
 <FILL: 2-4 sentence plain-language summary of what `components/Sparkline.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
 ## Symbols
 
@@ -43,7 +45,9 @@ Each top-level statement of `Sparkline`, in execution order. The line numbers re
 if (points.length < 2) return null
 ```
 
+<!-- fill:sym:Sparkline:walk:0 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:0 -->
 
 **Line 13 — `FirstStatement`**
 
@@ -51,7 +55,9 @@ if (points.length < 2) return null
 const width = 100
 ```
 
+<!-- fill:sym:Sparkline:walk:1 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:1 -->
 
 **Line 14 — `FirstStatement`**
 
@@ -59,7 +65,9 @@ const width = 100
 const height = 28
 ```
 
+<!-- fill:sym:Sparkline:walk:2 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:2 -->
 
 **Line 15 — `FirstStatement`**
 
@@ -67,7 +75,9 @@ const height = 28
 const pad = 3
 ```
 
+<!-- fill:sym:Sparkline:walk:3 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:3 -->
 
 **Line 16 — `FirstStatement`**
 
@@ -75,7 +85,9 @@ const pad = 3
 const min = Math.min(...points)
 ```
 
+<!-- fill:sym:Sparkline:walk:4 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:4 -->
 
 **Line 17 — `FirstStatement`**
 
@@ -83,7 +95,9 @@ const min = Math.min(...points)
 const max = Math.max(...points)
 ```
 
+<!-- fill:sym:Sparkline:walk:5 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:5 -->
 
 **Line 18 — `FirstStatement`**
 
@@ -91,7 +105,9 @@ const max = Math.max(...points)
 const range = max - min || 1
 ```
 
+<!-- fill:sym:Sparkline:walk:6 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:6 -->
 
 **Line 20 — `FirstStatement`**
 
@@ -105,7 +121,9 @@ const coords = points
     .join(' ')
 ```
 
+<!-- fill:sym:Sparkline:walk:7 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:7 -->
 
 **Line 28 — `ReturnStatement`**
 
@@ -130,11 +148,15 @@ return (
   )
 ```
 
+<!-- fill:sym:Sparkline:walk:8 -->
 <FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:Sparkline:walk:8 -->
 
 ### Examples
 
+<!-- fill:sym:Sparkline:example -->
 <FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:Sparkline:example -->
 
 ### Used by
 
@@ -151,7 +173,9 @@ return (
 
 ## Diagrams
 
+<!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
 ## Source
 

@@ -5,7 +5,9 @@ description: Files under src/lib/
 
 **Folder:** `src/lib/`
 
+<!-- fill:folder:summary -->
 <FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+<!-- /fill:folder:summary -->
 
 ## Files
 
@@ -34,4 +36,6 @@ flowchart LR
 
 ## Key flows
 
+<!-- fill:folder:flows -->
 <FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+<!-- /fill:folder:flows -->
