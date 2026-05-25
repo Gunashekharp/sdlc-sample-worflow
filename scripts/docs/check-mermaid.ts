@@ -68,11 +68,20 @@ function locateMmdc(): string {
   return 'mmdc'
 }
 
+const puppeteerConfigPath = path.resolve(repoRoot, 'scripts', 'docs', 'puppeteer-config.json')
+
 function validateBlock(mmdc: string, block: MermaidBlock, tmpDir: string): Failure | null {
   const inPath = path.join(tmpDir, `block-${block.index}.mmd`)
   const outPath = path.join(tmpDir, `block-${block.index}.svg`)
   fs.writeFileSync(inPath, block.content, 'utf-8')
-  const result = spawnSync(mmdc, ['-i', inPath, '-o', outPath, '--quiet'], {
+  // --puppeteerConfigFile passes `--no-sandbox` to Chromium, required when
+  // running under GitHub Actions (Linux container without setuid bits).
+  // The same config is harmless on dev machines.
+  const args = ['-i', inPath, '-o', outPath, '--quiet']
+  if (fs.existsSync(puppeteerConfigPath)) {
+    args.push('--puppeteerConfigFile', puppeteerConfigPath)
+  }
+  const result = spawnSync(mmdc, args, {
     encoding: 'utf-8',
     timeout: 60_000,
   })
