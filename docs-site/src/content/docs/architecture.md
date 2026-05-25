@@ -55,8 +55,8 @@ flowchart TD
 
   SPA -->|"POST { question, history }"| Worker
   Worker -->|"POST /v1/messages"| Anthropic
-  Anthropic -->>Worker: answer text
-  Worker -->>SPA: "{ answer, sources }"
+  Anthropic -.->|"answer text"| Worker
+  Worker -.->|"answer + sources JSON"| SPA
 ```
 
 The frontend is a fully self-contained SPA. Of its four dashboard panels, only the **CI/CD pipelines panel** makes a live network call to the backend. The KPI strip, featured agent, and agent grid all render from static seed data bundled into the client at build time. The chat worker operates on a completely separate path — it is never proxied through the Express API.
@@ -279,8 +279,8 @@ flowchart LR
   widget -->|"POST { question, history }"| worker
   worker -->|"keyword search → top-6 chunks"| docsIndex
   worker -->|"POST /v1/messages\nx-api-key: ANTHROPIC_API_KEY"| anthropic
-  anthropic -->>worker: answer text
-  worker -->>widget: "{ answer, sources }"
+  anthropic -.->|"answer text"| worker
+  worker -.->|"answer + sources JSON"| widget
 ```
 
 ### How the search works
