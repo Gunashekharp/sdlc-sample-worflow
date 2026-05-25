@@ -49,10 +49,10 @@ flowchart TD
   CicdProvider -->|"no credentials"| Mock
   CicdProvider -.->|"GITHUB_TOKEN + GITHUB_REPO"| GH
 
-  ChatWidget -->|"POST { question, history }"| Worker
+  ChatWidget -->|"POST: question + history"| Worker
   Worker -->|"POST /v1/messages"| Anthropic
-  Anthropic -->>Worker: answer text
-  Worker -->>ChatWidget: "{ answer, sources }"
+  Anthropic -.->|"answer text"| Worker
+  Worker -.->|"answer + sources JSON"| ChatWidget
 ```
 
 ## What's in the box
