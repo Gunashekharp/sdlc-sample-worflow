@@ -35,7 +35,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | CSS classes for the `<svg>`, controlling its rendered size; falls back to `h-7 w-full` when omitted. |
+| className | `string` | no | <FILL: what does className control?> |
 
 ### Line-by-line walkthrough
 
@@ -154,6 +154,12 @@ return (
 Returns the SVG. The `viewBox` uses the computed `width`/`height`, `preserveAspectRatio="none"` lets it stretch freely to the CSS box, and `aria-hidden="true"` hides this purely decorative chart from screen readers. The `<polyline>` draws the `coords`, with `stroke` chosen by `positive` (`--color-ok` vs `--color-err`) and `vectorEffect="non-scaling-stroke"` so the 1.5-unit line keeps a constant pixel thickness despite the non-uniform scaling.
 <!-- /fill:sym:Sparkline:walk:8 -->
 
+### Behavior
+
+<!-- fill:sym:Sparkline:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:Sparkline:behavior -->
+
 ### Examples
 
 <!-- fill:sym:Sparkline:example -->
@@ -173,9 +179,9 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | For `points={[1, 2, 3, 4]}` the `<polyline>` exists and its `points` attribute holds exactly 4 coordinate pairs. |
-| <Sparkline /> | renders nothing when given fewer than two points | For `points={[1]}` no `<polyline>` element is rendered. |
-| <Sparkline /> | uses the error color when not positive | With `positive={false}` the polyline's `stroke` contains `color-err`. |
+| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
+| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
+| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
 
 ## Diagrams
 

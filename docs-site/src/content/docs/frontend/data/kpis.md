@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique slug for the metric (e.g. `agent-runs`), used as the React key. |
-| label | `string` | Short metric name shown on the card (e.g. `Mean time to merge`). |
-| value | `string` | Pre-formatted headline figure for the current period (e.g. `1,284`). |
-| delta | `string` | Pre-formatted change versus the prior period, including sign (e.g. `+18%`, `-22%`). |
-| positive | `boolean` | Whether the delta is a good outcome, independent of its sign (a falling time-to-merge is positive). |
-| hint | `string` | One-line explanation of what the metric measures, shown as supporting text. |
-| trend | `number[]` | Seven-point series (oldest first) rendered as the card's sparkline. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 
@@ -67,5 +67,5 @@ const KPIS: Kpi[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

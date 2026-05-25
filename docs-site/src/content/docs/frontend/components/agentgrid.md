@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | The full pool of agents to display; the grid filters and sorts this array into its `visible` list. |
+| agents | `Agent[]` | yes | <FILL: what does agents control?> |
 
 ### Line-by-line walkthrough
 
@@ -195,6 +195,12 @@ return (
 Returns the UI. A header shows the title with the live `visible.length` count. The tab strip maps over `TABS` (`'All'`, `'Popular'`, plus the spread `AGENT_CATEGORIES`), rendering a button per tab whose `onClick` calls `setCategory(tab)` and whose `aria-pressed`/active styling reflect `category === tab`. The sort `<select>` is bound to `sort`, lists every `SORT_LABELS` entry as an `<option>`, and casts the changed value to `SortKey` in `setSort`. The search `<label>` wraps `IconSearch` and a controlled `<input>` bound to `query`/`setQuery`. Finally, the conditional renders the responsive `grid` of `AgentCard`s when `visible.length > 0` — each card marked `selected` when its id equals `selectedId` and wired to `setSelectedId` — otherwise it renders the dashed empty-state panel, interpolating the active `query` into the "No agents match" message.
 <!-- /fill:sym:AgentGrid:walk:5 -->
 
+### Behavior
+
+<!-- fill:sym:AgentGrid:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:AgentGrid:behavior -->
+
 ### Examples
 
 <!-- fill:sym:AgentGrid:example -->
@@ -218,13 +224,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | Every agent's `name` from `AGENTS` is present in the document on initial render. |
-| <AgentGrid /> | filters agents by the search query | Typing `deploy` keeps `Deploy Bot` visible and removes `PR Reviewer`. |
-| <AgentGrid /> | shows an empty state when nothing matches | Typing `zzznotanagent` renders the "no agents match" message. |
-| <AgentGrid /> | filters agents by category tab | Clicking the `Deploy` tab keeps `Deploy Bot` and hides `RCA Analyst`. |
-| <AgentGrid /> | marks a card as selected when clicked | A card starts `aria-pressed="false"` and flips to `"true"` after it is clicked. |
-| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the `name` sort still leaves every agent's name in the document. |
-| <AgentGrid /> | remembers the selected category across remounts | After clicking `Deploy`, unmounting, and remounting, the `Deploy` tab is still `aria-pressed="true"`. |
+| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
+| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
+| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
+| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
+| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
 
 ## Diagrams
 

@@ -97,6 +97,12 @@ return (
 Returns the dashboard layout. The outer `div` is a full-height (`h-screen`), clipped flex row containing the `Sidebar` and a `min-w-0 flex-1` column. That column stacks the `TopBar`, a scrollable `main` region (`flex-1 overflow-y-auto`) whose centered, max-width inner `div` renders `KpiStrip`, `FeaturedAgent` (receiving the `featured` agent), `PipelinesPanel`, and `AgentGrid` (receiving `rest`), and finally a `PromptBar` fixed at the bottom of the column. Only `main` scrolls, keeping the sidebar, top bar, and prompt bar in view at all times.
 <!-- /fill:sym:App:walk:2 -->
 
+### Behavior
+
+<!-- fill:sym:App:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:App:behavior -->
+
 ### Examples
 
 <!-- fill:sym:App:example -->
@@ -126,10 +132,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | Renders `App` and asserts both the "Featured agent" eyebrow and the featured agent's name "PR Reviewer" are in the document. |
-| <App /> | renders the KPI strip | Asserts the region labelled "key metrics" (`getByRole('region', { name: /key metrics/i })`) is present, confirming `KpiStrip` mounted. |
-| <App /> | renders agents in the grid | Asserts non-featured agents "Deploy Bot" and "Alert Triage" appear, confirming the `rest` array flowed into `AgentGrid`. |
-| <App /> | renders the prompt input | Asserts the element labelled "Prompt input" (the `PromptBar` textarea) is in the document. |
+| <App /> | renders the featured agent | <FILL: assertion summary> |
+| <App /> | renders the KPI strip | <FILL: assertion summary> |
+| <App /> | renders agents in the grid | <FILL: assertion summary> |
+| <App /> | renders the prompt input | <FILL: assertion summary> |
 
 ## Diagrams
 

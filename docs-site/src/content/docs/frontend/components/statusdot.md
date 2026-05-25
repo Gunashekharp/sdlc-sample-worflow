@@ -43,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | The agent state to visualize; selects the dot's color/animation and its `STATUS_LABEL` tooltip. |
+| status | `AgentStatus` | yes | <FILL: what does status control?> |
 
 ### Line-by-line walkthrough
 
@@ -90,6 +90,12 @@ return (
 <!-- fill:sym:StatusDot:walk:2 -->
 Returns the static dot: a single 2×2 `rounded-full` `<span>` whose color comes from the `color` computed above, with `shrink-0` so it keeps its size in flex layouts. The `title` is looked up dynamically via `STATUS_LABEL[status]`, giving an `Idle` or `Needs attention` tooltip depending on the current state.
 <!-- /fill:sym:StatusDot:walk:2 -->
+
+### Behavior
+
+<!-- fill:sym:StatusDot:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:StatusDot:behavior -->
 
 ### Examples
 

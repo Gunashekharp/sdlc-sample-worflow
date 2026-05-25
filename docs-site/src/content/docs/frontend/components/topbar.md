@@ -80,6 +80,12 @@ return (
 The single return renders a flex `<header>` of fixed height (`h-14`) with a bottom border. The leading `<div>` is the breadcrumb ("Agent Console" / "Overview"). An `ml-auto` search `<button>` pushes itself and the following items to the right; it contains `IconSearch`, the "Search agents, runs, sessions…" placeholder text, and a `⌘K` `<kbd>` to advertise the shortcut. The final environment `<button>` shows a green `bg-ok` dot, the "Production" label, and `IconChevronDown` to signal it is a dropdown. The markup is static with no state or handlers.
 <!-- /fill:sym:TopBar:walk:0 -->
 
+### Behavior
+
+<!-- fill:sym:TopBar:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:TopBar:behavior -->
+
 ### Examples
 
 <!-- fill:sym:TopBar:example -->
@@ -103,5 +109,5 @@ This renders the "Agent Console / Overview" breadcrumb, the `⌘K` search button
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

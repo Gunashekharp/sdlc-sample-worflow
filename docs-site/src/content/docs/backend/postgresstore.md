@@ -44,7 +44,7 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pool | `Pool` | — | yes | The `pg` connection pool every store method queries; constructed from `config.databaseUrl` in `index.ts`. |
+| pool | `Pool` | — | yes | <FILL: purpose of pool> |
 
 **Returns:** `Store`
 

@@ -131,6 +131,12 @@ return (
 Returns the composer UI. The bordered container holds a controlled `<textarea>` bound to `value`/`setValue` with an `onKeyDown` that intercepts Enter without Shift — calling `e.preventDefault()` and `submit()` so Enter sends while Shift+Enter still inserts a newline. The footer row contains the model-selector button (`IconSparkle`, "Opus 4.7", `IconChevronDown`), an `sm:`-only hint ("Enter to send · Shift+Enter for newline"), and the send `<button>` whose `onClick` is `submit`, `disabled={!canSend}`, and styled to dim/disable when empty. `aria-label`s on the textarea and send button keep it accessible.
 <!-- /fill:sym:PromptBar:walk:3 -->
 
+### Behavior
+
+<!-- fill:sym:PromptBar:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:PromptBar:behavior -->
+
 ### Examples
 
 <!-- fill:sym:PromptBar:example -->

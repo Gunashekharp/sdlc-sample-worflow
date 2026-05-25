@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier (slug, e.g. `pr-reviewer`); used as the `:id` path parameter and the primary key. |
-| name | `string` | Human-readable display name shown in the UI (e.g. `PR Reviewer`). |
-| category | `AgentCategory` | Functional grouping the agent belongs to (Review, Deploy, Reliability, Quality, or Docs). |
-| description | `string` | One-sentence summary of what the agent does. |
-| status | `AgentStatus` | Current operational state: running, idle, or attention. |
-| runsPerWeek | `number` | Number of times the agent executed in the last 7 days (count). |
-| successRate | `number` | Percentage of runs that succeeded, 0–100. |
-| avgDuration | `string` | Pre-formatted mean run duration for display (e.g. `2m 40s`). |
-| lastRun | `string` | Pre-formatted relative time of the most recent run (e.g. `3m ago`). |
-| lastRunMinutes | `number` | Minutes elapsed since the last run, used for sorting/comparison. |
-| popular | `boolean` | Whether the agent is flagged as popular for UI highlighting. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
+| runsPerWeek | `number` | <FILL: runsPerWeek> |
+| successRate | `number` | <FILL: successRate> |
+| avgDuration | `string` | <FILL: avgDuration> |
+| lastRun | `string` | <FILL: lastRun> |
+| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
+| popular | `boolean` | <FILL: popular> |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier for the KPI (slug, e.g. `agent-runs`); primary key. |
-| label | `string` | Display label for the KPI tile (e.g. `Agent runs · 7d`). |
-| value | `string` | Pre-formatted headline value as shown (e.g. `1,284` or `4h 12m`). |
-| delta | `string` | Pre-formatted change vs. the prior period (e.g. `+18%` or `-22%`). |
-| positive | `boolean` | Whether the delta represents a good outcome, used to colour the trend. |
-| hint | `string` | Tooltip text explaining what the metric measures. |
-| trend | `number[]` | Ordered series of data points (oldest to newest) for the sparkline. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 

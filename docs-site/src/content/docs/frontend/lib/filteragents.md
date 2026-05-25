@@ -44,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The source list of agents to narrow down; never mutated. |
-| filter | `AgentFilter` | — | yes | The category selection and free-text query to apply. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
 
 **Returns:** `Agent[]`
 
@@ -142,16 +142,16 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | All 3 agents are returned when category is `All` and query is empty. |
-| filterAgents | filters by an exact category | Category `Review` returns only agent `a`. |
-| filterAgents | filters by the Popular pseudo-category | Category `Popular` returns the two agents flagged `popular` (`a`, `b`). |
-| filterAgents | matches the query against the agent name | Query `deploy` matches `b` via its name. |
-| filterAgents | matches the query against the description | Query `root cause` matches `c` via its description. |
-| filterAgents | is case-insensitive | Query `REVIEWER` matches `a` regardless of case. |
-| filterAgents | ignores surrounding whitespace in the query | Query `  bot  ` is trimmed and matches `b`. |
-| filterAgents | applies category and query together | `Popular` plus query `reviewer` returns only `a` (both must match). |
-| filterAgents | returns an empty array when nothing matches | A non-matching query yields an empty array. |
-| filterAgents | does not mutate the input array | The input `agents` array is unchanged after filtering. |
+| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
+| filterAgents | filters by an exact category | <FILL: assertion summary> |
+| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
+| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
+| filterAgents | matches the query against the description | <FILL: assertion summary> |
+| filterAgents | is case-insensitive | <FILL: assertion summary> |
+| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
+| filterAgents | applies category and query together | <FILL: assertion summary> |
+| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
+| filterAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 
