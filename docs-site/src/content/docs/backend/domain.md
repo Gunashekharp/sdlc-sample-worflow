@@ -68,17 +68,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
-| runsPerWeek | `number` | <FILL: runsPerWeek> |
-| successRate | `number` | <FILL: successRate> |
-| avgDuration | `string` | <FILL: avgDuration> |
-| lastRun | `string` | <FILL: lastRun> |
-| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
-| popular | `boolean` | <FILL: popular> |
+| id | `string` | Stable unique slug for the agent (e.g. `pr-reviewer`); the primary key in the `agents` table. |
+| name | `string` | Human-readable display name. |
+| category | `AgentCategory` | One of the five fixed classification buckets. |
+| description | `string` | One-sentence summary of what the agent does. |
+| status | `AgentStatus` | Current operational state: running, idle, or attention. |
+| runsPerWeek | `number` | Approximate executions over the last 7 days. |
+| successRate | `number` | Successful-run percentage, 0–100. |
+| avgDuration | `string` | Human-readable average run duration (e.g. "2m 40s"). |
+| lastRun | `string` | Human-readable time since the last run (e.g. "3m ago"). |
+| lastRunMinutes | `number` | Minutes since the last run; the orderable companion to `lastRun`. |
+| popular | `boolean` | Whether the agent appears under the frontend's "Popular" filter. |
 
 ### Used by
 
@@ -102,13 +102,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique identifier for the metric; the primary key in the `kpis` table. |
+| label | `string` | Short caption shown above the value. |
+| value | `string` | Pre-formatted headline figure (e.g. "1,284" or "4h 12m"). |
+| delta | `string` | Pre-formatted change versus the prior period (e.g. "+18%"). |
+| positive | `boolean` | Whether the change is a good outcome, independent of the delta's sign. |
+| hint | `string` | Longer explanatory caption for the metric. |
+| trend | `number[]` | Series of points (oldest first) rendered as the sparkline; stored as JSONB. |
 
 ### Used by
 

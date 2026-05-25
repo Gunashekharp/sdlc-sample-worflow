@@ -6,7 +6,7 @@ description: Reference for `server/src/index.ts`
 **File:** `server/src/index.ts` · **Lines:** 21
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `index.ts` is responsible for, what other files it integrates with, and what calls into it.>
+`index.ts` is the server's runtime entry point — the file Node executes to start the API. It reads runtime settings from `config.ts`, opens a `pg` connection `Pool` against `config.databaseUrl`, wraps it with `createPostgresStore` from `postgresStore.ts`, and selects a CI/CD provider via `getCicdProvider` from `integrations/cicd`. It then hands both collaborators to `createApp` (`app.ts`) and calls `app.listen(config.port)`, logging the bound URL and the active provider name. Nothing imports this file; it is invoked directly as the process bootstrap.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -29,5 +29,14 @@ No exported symbols detected by the AST. This file is a side-effect entrypoint, 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  C[config from config.ts] --> P[new Pool connectionString]
+  P --> S[createPostgresStore pool]
+  C --> G[getCicdProvider githubToken, githubRepo]
+  S --> A[createApp store, cicd]
+  G --> A
+  A --> L[app.listen config.port]
+  L --> Log[log bound URL + provider name]
+```
 <!-- /fill:file:diagrams -->

@@ -50,7 +50,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+| agents | `Agent[]` | yes | The full pool of agents to display; the grid filters, sorts, and selects within this set. |
 
 ### Line-by-line walkthrough
 
@@ -216,13 +216,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
-| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
-| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
-| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
-| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
+| <AgentGrid /> | renders a card for every agent | Every agent's name in `AGENTS` appears in the document. |
+| <AgentGrid /> | filters agents by the search query | Typing "deploy" shows "Deploy Bot" and removes "PR Reviewer". |
+| <AgentGrid /> | shows an empty state when nothing matches | Typing a non-matching query renders the "no agents match" panel. |
+| <AgentGrid /> | filters agents by category tab | Clicking the "Deploy" tab shows "Deploy Bot" and hides "RCA Analyst". |
+| <AgentGrid /> | marks a card as selected when clicked | A card's `aria-pressed` flips from "false" to "true" after a click. |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the "name" sort still shows all agent names. |
+| <AgentGrid /> | remembers the selected category across remounts | After picking "Deploy", unmounting, and remounting, the "Deploy" tab is still `aria-pressed="true"` (persisted state). |
 
 ## Diagrams
 

@@ -41,7 +41,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | <FILL: what does status control?> |
+| status | `AgentStatus` | yes | The agent state to visualize; selects the dot's color and whether it pulses, plus its tooltip label. |
 
 ### Line-by-line walkthrough
 

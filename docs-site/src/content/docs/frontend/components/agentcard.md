@@ -43,9 +43,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
-| selected | `boolean` | yes | <FILL: what does selected control?> |
-| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
+| agent | `Agent` | yes | The agent to display; supplies every piece of text and metric on the card. |
+| selected | `boolean` | yes | Whether this card is the active selection; toggles the accent border/ring and `aria-pressed`. |
+| onSelect | `(id: string) => void` | yes | Callback fired with `agent.id` when the card is clicked, reporting the selection to the parent. |
 
 ### Line-by-line walkthrough
 

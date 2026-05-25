@@ -44,8 +44,8 @@ export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| kpis | `Kpi[]` | — | yes | <FILL: purpose of kpis> |
+| agents | `Agent[]` | — | yes | The agent records the store serves; held in a closure and returned as copies. |
+| kpis | `Kpi[]` | — | yes | The KPI records the store serves; held in a closure and returned as copies. |
 
 **Returns:** `Store`
 

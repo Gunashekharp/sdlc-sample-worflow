@@ -45,8 +45,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | The `localStorage` key under which the value is stored and restored. |
+| initial | `T` | — | yes | The default used when nothing is stored or reading from storage fails. |
 
 **Returns:** `[T, (value: T) => void]`
 

@@ -43,8 +43,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| key | `SortKey` | — | yes | <FILL: purpose of key> |
+| agents | `Agent[]` | — | yes | The list to sort; shallow-copied first, so it is left unmodified. |
+| key | `SortKey` | — | yes | Which order to apply: runs, success, name, or recent. |
 
 **Returns:** `Agent[]`
 
@@ -137,14 +137,26 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
-| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
-| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
-| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
-| sortAgents | does not mutate the input array | <FILL: assertion summary> |
+| sortAgents | sorts by runs, descending | Highest `runsPerWeek` comes first. |
+| sortAgents | sorts by success rate, descending | Highest `successRate` comes first. |
+| sortAgents | sorts by name, ascending | Alphabetical order via `localeCompare`. |
+| sortAgents | sorts by most recent run first | Smallest `lastRunMinutes` comes first. |
+| sortAgents | does not mutate the input array | The original `agents` array order is preserved. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+```mermaid
+flowchart TD
+  In[agents, key] --> Copy[copy = spread of agents]
+  Copy --> Sw{key}
+  Sw -->|runs| R[sort by runsPerWeek desc]
+  Sw -->|success| S[sort by successRate desc]
+  Sw -->|name| N[sort by name asc - localeCompare]
+  Sw -->|recent| T[sort by lastRunMinutes asc]
+  R --> Out[return sorted copy]
+  S --> Out
+  N --> Out
+  T --> Out
+```
 <!-- /fill:file:diagrams -->

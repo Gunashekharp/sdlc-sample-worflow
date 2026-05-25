@@ -39,7 +39,7 @@ export async function fetchPipelines(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| signal | `AbortSignal` | — | no | <FILL: purpose of signal> |
+| signal | `AbortSignal` | — | no | Optional signal that lets the caller abort the in-flight request; forwarded straight to `fetch`. |
 
 **Returns:** `Promise<PipelinesResponse>`
 
@@ -139,14 +139,14 @@ export interface Pipeline { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Stable unique identifier for the run, used as the React list key. |
+| name | `string` | Human-readable workflow name, e.g. "CI · build & test". |
+| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run. |
+| branch | `string` | Git branch the run executed against. |
+| status | `PipelineStatus` | Current state of the run: passing, failing, or running. |
+| durationSeconds | `number` | Elapsed run time in seconds; formatted to `Xm Ys` in the UI. |
+| triggeredBy | `string` | Login of the user or bot that started the run. |
+| updatedAt | `string` | ISO-8601 timestamp of the run's last update. |
 
 ### Used by
 
@@ -168,11 +168,11 @@ export interface PipelineSummary { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
-| passRate | `number` | <FILL: passRate> |
+| total | `number` | Count of all pipelines in the response. |
+| passing | `number` | Number of runs with `passing` status. |
+| failing | `number` | Number of runs with `failing` status. |
+| running | `number` | Number of runs still in progress. |
+| passRate | `number` | Passing runs as a percentage of finished (passing + failing) runs, 0–100. |
 
 ## PipelinesResponse
 
@@ -190,9 +190,9 @@ export interface PipelinesResponse { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| provider | `string` | <FILL: provider> |
-| summary | `PipelineSummary` | <FILL: summary> |
-| pipelines | `Pipeline[]` | <FILL: pipelines> |
+| provider | `string` | Name of the active CI/CD provider that served the data (e.g. "github-actions" or "mock"). |
+| summary | `PipelineSummary` | Pre-aggregated status counts and pass rate for the run set. |
+| pipelines | `Pipeline[]` | Full list of individual pipeline runs, newest first. |
 
 ## Diagrams
 

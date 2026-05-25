@@ -66,11 +66,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable unique slug for the agent (e.g. `pr-reviewer`); used as a key and for the featured lookup. |
+| name | `string` | Display name shown on the card and featured panel. |
+| category | `AgentCategory` | Classification used by the grid's category filter. |
+| description | `string` | One-sentence summary of what the agent does. |
+| status | `AgentStatus` | Operational state driving the `StatusDot` indicator. |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -142,12 +142,12 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | `AGENTS` is non-empty. |
+| agent catalogue | gives every agent a unique id | No two agents share the same `id`. |
+| agent catalogue | includes the featured agent | An agent with `id === FEATURED_AGENT_ID` exists in the catalogue. |
+| agent catalogue | only uses known categories | Every agent's `category` is one of `AGENT_CATEGORIES`. |
+| agent catalogue | keeps success rates between 0 and 100 | Each `successRate` falls within the inclusive 0–100 range. |
+| agent catalogue | gives every agent a non-empty name and description | No agent has a blank `name` or `description`. |
 
 ## Diagrams
 

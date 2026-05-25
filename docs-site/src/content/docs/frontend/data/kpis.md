@@ -34,13 +34,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique identifier for the metric; used as the React list key. |
+| label | `string` | Short caption shown above the value (e.g. "Agent runs · 7d"). |
+| value | `string` | Pre-formatted headline figure (e.g. "1,284" or "4h 12m"). |
+| delta | `string` | Pre-formatted change versus the prior period (e.g. "+18%"); a leading `-` selects the down-trend icon. |
+| positive | `boolean` | Whether the change is a good outcome, independent of the delta's sign; drives the green/red color. |
+| hint | `string` | Longer explanatory caption shown beneath the card. |
+| trend | `number[]` | Seven-point series, oldest first, rendered as the sparkline. |
 
 ### Used by
 
