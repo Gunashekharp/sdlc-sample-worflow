@@ -1,149 +1,379 @@
 ---
-title: agents.ts — agent catalogue
+title: agents
+description: Reference for `src/data/agents.ts`
 ---
 
-**File:** `src/data/agents.ts`
+**File:** `src/data/agents.ts` · **Lines:** 211
 
-The frontend's static agent catalogue. Exports two union types, one interface, the 12-agent array, the featured-agent ID constant, and the canonical category list.
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `data/agents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-:::note
-This is static seed data bundled at build time. The backend holds a matching copy in `server/src/seed.ts`. If you add or modify an agent here, update the backend seed file as well.
-:::
+## Symbols
 
-## `AgentStatus` type
+This file exports 6 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| AgentStatus | type | no |
+| AgentCategory | type | no |
+| Agent | interface | no |
+| AGENTS | const | no |
+| FEATURED_AGENT_ID | const | no |
+| AGENT_CATEGORIES | const | no |
+
+## AgentStatus
+
+**Kind:** `type`
 
 ```ts
 export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
-The three operational states an agent can be in at any moment.
+<!-- fill:sym:AgentStatus:summary -->
+<FILL: 2-4 sentences explaining what AgentStatus does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AgentStatus:summary -->
 
-| Value | Meaning | `StatusDot` rendering |
-|---|---|---|
-| `'running'` | The agent is actively executing a task right now | Pulsing pink circle (CSS `animate-pulse`, `--color-accent`) |
-| `'idle'` | The agent is healthy and waiting for its next trigger | Static grey circle (`--color-text-faint`) |
-| `'attention'` | The agent has encountered an issue and requires human review | Static amber circle (`--color-warn`) |
+### Used by
 
-## `AgentCategory` type
+- `src/components/StatusDot.tsx`
+
+## AgentCategory
+
+**Kind:** `type`
 
 ```ts
 export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
 ```
 
-The five categories used to bucket agents in `AgentGrid`'s tab filter. The canonical display order is defined by `AGENT_CATEGORIES` below.
+<!-- fill:sym:AgentCategory:summary -->
+<FILL: 2-4 sentences explaining what AgentCategory does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AgentCategory:summary -->
 
-| Category | Domain |
-|---|---|
-| `'Review'` | Code review automation (PRs, database migrations) |
-| `'Deploy'` | Deployment automation and health checks |
-| `'Reliability'` | Incident response, alert triage, on-call support |
-| `'Quality'` | Testing, coverage, dependency hygiene |
-| `'Docs'` | Documentation and specification writing |
+## Agent
 
-## `Agent` interface
+**Kind:** `interface`
 
 ```ts
+export interface Agent { ... }
+```
+
+<!-- fill:sym:Agent:summary -->
+<FILL: 2-4 sentences explaining what Agent does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:Agent:summary -->
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
+| runsPerWeek | `number` | Approximate runs over the last 7 days. |
+| successRate | `number` | Successful-run percentage, 0–100. |
+| avgDuration | `string` | Human-readable average run duration. |
+| lastRun | `string` | Human-readable time since the last run. |
+| lastRunMinutes | `number` | Minutes since the last run — orderable companion to `lastRun`. |
+| popular | `boolean` | Whether the agent appears under the "Popular" filter. |
+
+### Used by
+
+- `src/components/FeaturedAgent.tsx`
+- `src/lib/filterAgents.ts`
+- `src/lib/sortAgents.ts`
+- `src/components/AgentCard.tsx`
+- `src/components/AgentGrid.tsx`
+- `src/lib/filterAgents.test.ts`
+- `src/lib/sortAgents.test.ts`
+
+## AGENTS
+
+**Kind:** `const`
+
+```ts
+const AGENTS: Agent[]
+```
+
+<!-- fill:sym:AGENTS:summary -->
+<FILL: 2-4 sentences explaining what AGENTS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AGENTS:summary -->
+
+### Used by
+
+- `src/App.tsx`
+- `src/components/AgentGrid.test.tsx`
+- `src/data/agents.test.ts`
+
+## FEATURED_AGENT_ID
+
+**Kind:** `const`
+
+```ts
+const FEATURED_AGENT_ID: "pr-reviewer"
+```
+
+> The agent surfaced in the featured slot at the top of the console.
+
+### Used by
+
+- `src/App.tsx`
+- `src/data/agents.test.ts`
+
+## AGENT_CATEGORIES
+
+**Kind:** `const`
+
+```ts
+const AGENT_CATEGORIES: AgentCategory[]
+```
+
+<!-- fill:sym:AGENT_CATEGORIES:summary -->
+<FILL: 2-4 sentences explaining what AGENT_CATEGORIES does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:AGENT_CATEGORIES:summary -->
+
+### Used by
+
+- `src/components/AgentGrid.tsx`
+- `src/data/agents.test.ts`
+
+## Tests
+
+| Suite | Test | Asserts |
+| --- | --- | --- |
+| agent catalogue | has at least one agent | <FILL: assertion summary> |
+| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
+| agent catalogue | includes the featured agent | <FILL: assertion summary> |
+| agent catalogue | only uses known categories | <FILL: assertion summary> |
+| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
+| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `src/data/agents.ts` (211 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (211 lines)</summary>
+
+````ts
+/*
+ * SDLC agent catalogue for the Snabbit Agent Console.
+ * Static seed data — a real deployment would load this from the backend.
+ */
+
+export type AgentStatus = 'running' | 'idle' | 'attention'
+
+export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
+
 export interface Agent {
   id: string
   name: string
   category: AgentCategory
   description: string
   status: AgentStatus
+  /** Approximate runs over the last 7 days. */
   runsPerWeek: number
+  /** Successful-run percentage, 0–100. */
   successRate: number
+  /** Human-readable average run duration. */
   avgDuration: string
+  /** Human-readable time since the last run. */
   lastRun: string
+  /** Minutes since the last run — orderable companion to `lastRun`. */
   lastRunMinutes: number
+  /** Whether the agent appears under the "Popular" filter. */
   popular: boolean
 }
-```
 
-### Field reference
-
-| Field | Type | Display-only? | Purpose |
-|---|---|---|---|
-| `id` | `string` | No | Stable kebab-case slug (e.g. `'pr-reviewer'`). Used as the React `key` in lists, as the `FEATURED_AGENT_ID` lookup key, and as the anchor for future URL routing. Never changes. |
-| `name` | `string` | Yes | Human-readable display name (e.g. `'PR Reviewer'`). Shown in `AgentCard`, `FeaturedAgent`, and as the search match target. |
-| `category` | `AgentCategory` | No | Category bucket. Used by `filterAgents` for the category tab filter and by `AgentGrid` to build the tab bar via `AGENT_CATEGORIES`. |
-| `description` | `string` | Yes | One-sentence plain-English summary of what the agent does. Shown in `AgentCard` and `FeaturedAgent`. Also searched by `filterAgents` when a query is typed. |
-| `status` | `AgentStatus` | Yes | Current operational state. Drives `StatusDot` color and animation. |
-| `runsPerWeek` | `number` | Yes | Approximate number of executions in the last 7 days. Shown in the `AgentCard` stats row. Used by `sortAgents` for the `'runs'` sort key (descending). |
-| `successRate` | `number` | Yes | Percentage of successful runs, 0–100. Shown in `AgentCard`. Used by `sortAgents` for the `'success'` sort key (descending). |
-| `avgDuration` | `string` | Yes | Human-readable average run duration (e.g. `'2m 40s'`). Display-only; not used for sorting or filtering. |
-| `lastRun` | `string` | Yes | Human-readable time since the last run (e.g. `'3m ago'`, `'just now'`, `'1d ago'`). Display-only companion to `lastRunMinutes`. |
-| `lastRunMinutes` | `number` | No | Numeric minutes since the last run (e.g. `3`, `0`, `1440`). Used by `sortAgents` for the `'recent'` sort key (ascending — smaller value = more recent). |
-| `popular` | `boolean` | No | When `true`, the agent appears under the `'Popular'` tab in `AgentGrid`. Set manually; not derived from any metric. |
-
-## `AGENTS` array
-
-```ts
-export const AGENTS: Agent[] = [ /* 12 agents */ ]
-```
-
-The complete catalogue. Each agent has a unique `id` — this invariant is verified by `src/data/agents.test.ts`.
-
-### Full catalogue
-
-| ID | Name | Category | Status | Runs/wk | Success | Popular |
-|---|---|---|---|---|---|---|
-| `pr-reviewer` | PR Reviewer | Review | `running` | 342 | 96% | Yes |
-| `deploy-bot` | Deploy Bot | Deploy | `idle` | 57 | 99% | Yes |
-| `rca-analyst` | RCA Analyst | Reliability | `attention` | 14 | 88% | No |
-| `alert-triage` | Alert Triage | Reliability | `running` | 410 | 94% | Yes |
-| `changelog-author` | Changelog Author | Docs | `idle` | 38 | 99% | No |
-| `e2e-verifier` | E2E Verifier | Quality | `running` | 122 | 91% | Yes |
-| `flaky-test-hunter` | Flaky Test Hunter | Quality | `idle` | 26 | 93% | No |
-| `migration-reviewer` | Migration Reviewer | Review | `idle` | 19 | 97% | No |
-| `dependency-bot` | Dependency Bot | Quality | `idle` | 64 | 95% | Yes |
-| `oncall-digest` | On-call Digest | Reliability | `idle` | 7 | 100% | No |
-| `spec-author` | Spec Author | Docs | `idle` | 31 | 98% | No |
-| `coverage-guard` | Coverage Guard | Quality | `running` | 88 | 92% | No |
-
-:::note
-`coverage-guard` has `popular: false` despite its relatively high run volume (88/wk). The `popular` flag is set manually in the source and is not derived from `runsPerWeek` or any other metric.
-:::
-
-## `FEATURED_AGENT_ID` constant
-
-```ts
-export const FEATURED_AGENT_ID = 'pr-reviewer'
-```
-
-The `id` of the agent displayed in the `FeaturedAgent` hero card at the top of the dashboard. `App.tsx` uses this value to split `AGENTS`:
-
-```ts
-const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-const rest = AGENTS.filter((a) => a.id !== featured.id)
-```
-
-The `?? AGENTS[0]` fallback ensures the app renders correctly even if `FEATURED_AGENT_ID` is changed to an ID that no longer exists in `AGENTS`.
-
-## `AGENT_CATEGORIES` constant
-
-```ts
-export const AGENT_CATEGORIES: AgentCategory[] = [
-  'Review', 'Deploy', 'Reliability', 'Quality', 'Docs',
+export const AGENTS: Agent[] = [
+  {
+    id: 'pr-reviewer',
+    name: 'PR Reviewer',
+    category: 'Review',
+    description:
+      'Reviews open pull requests for correctness, security, and style, and leaves inline comments before merge.',
+    status: 'running',
+    runsPerWeek: 342,
+    successRate: 96,
+    avgDuration: '2m 40s',
+    lastRun: '3m ago',
+    lastRunMinutes: 3,
+    popular: true,
+  },
+  {
+    id: 'deploy-bot',
+    name: 'Deploy Bot',
+    category: 'Deploy',
+    description:
+      'Ships approved changes to staging and production with health checks and automated rollback on failure.',
+    status: 'idle',
+    runsPerWeek: 57,
+    successRate: 99,
+    avgDuration: '6m 10s',
+    lastRun: '1h ago',
+    lastRunMinutes: 60,
+    popular: true,
+  },
+  {
+    id: 'rca-analyst',
+    name: 'RCA Analyst',
+    category: 'Reliability',
+    description:
+      'Investigates incidents and drafts a root-cause analysis from logs, traces, and recent deploys.',
+    status: 'attention',
+    runsPerWeek: 14,
+    successRate: 88,
+    avgDuration: '8m 30s',
+    lastRun: '22m ago',
+    lastRunMinutes: 22,
+    popular: false,
+  },
+  {
+    id: 'alert-triage',
+    name: 'Alert Triage',
+    category: 'Reliability',
+    description:
+      'Triages PagerDuty and Datadog alerts, dedupes noise, and routes each to the right owner.',
+    status: 'running',
+    runsPerWeek: 410,
+    successRate: 94,
+    avgDuration: '0m 45s',
+    lastRun: 'just now',
+    lastRunMinutes: 0,
+    popular: true,
+  },
+  {
+    id: 'changelog-author',
+    name: 'Changelog Author',
+    category: 'Docs',
+    description:
+      'Generates release notes and changelog entries from merged pull requests and linked issues.',
+    status: 'idle',
+    runsPerWeek: 38,
+    successRate: 99,
+    avgDuration: '1m 20s',
+    lastRun: '5h ago',
+    lastRunMinutes: 300,
+    popular: false,
+  },
+  {
+    id: 'e2e-verifier',
+    name: 'E2E Verifier',
+    category: 'Quality',
+    description:
+      'Runs Playwright end-to-end suites against preview deploys and reports failures and flakes.',
+    status: 'running',
+    runsPerWeek: 122,
+    successRate: 91,
+    avgDuration: '11m 05s',
+    lastRun: '8m ago',
+    lastRunMinutes: 8,
+    popular: true,
+  },
+  {
+    id: 'flaky-test-hunter',
+    name: 'Flaky Test Hunter',
+    category: 'Quality',
+    description:
+      'Detects flaky tests across CI history, quarantines them, and opens a tracking issue.',
+    status: 'idle',
+    runsPerWeek: 26,
+    successRate: 93,
+    avgDuration: '4m 15s',
+    lastRun: '1d ago',
+    lastRunMinutes: 1440,
+    popular: false,
+  },
+  {
+    id: 'migration-reviewer',
+    name: 'Migration Reviewer',
+    category: 'Review',
+    description:
+      'Checks database migrations for lock risk, missing backfills, and reversibility before merge.',
+    status: 'idle',
+    runsPerWeek: 19,
+    successRate: 97,
+    avgDuration: '3m 50s',
+    lastRun: '6h ago',
+    lastRunMinutes: 360,
+    popular: false,
+  },
+  {
+    id: 'dependency-bot',
+    name: 'Dependency Bot',
+    category: 'Quality',
+    description:
+      'Opens dependency-upgrade pull requests, runs the full suite, and validates the diff.',
+    status: 'idle',
+    runsPerWeek: 64,
+    successRate: 95,
+    avgDuration: '5m 30s',
+    lastRun: '3h ago',
+    lastRunMinutes: 180,
+    popular: true,
+  },
+  {
+    id: 'oncall-digest',
+    name: 'On-call Digest',
+    category: 'Reliability',
+    description:
+      'Summarizes the overnight on-call shift: alerts fired, deploys shipped, and incidents opened.',
+    status: 'idle',
+    runsPerWeek: 7,
+    successRate: 100,
+    avgDuration: '2m 00s',
+    lastRun: '9h ago',
+    lastRunMinutes: 540,
+    popular: false,
+  },
+  {
+    id: 'spec-author',
+    name: 'Spec Author',
+    category: 'Docs',
+    description:
+      'Drafts technical specs and architecture decision records from a short natural-language prompt.',
+    status: 'idle',
+    runsPerWeek: 31,
+    successRate: 98,
+    avgDuration: '1m 45s',
+    lastRun: '2h ago',
+    lastRunMinutes: 120,
+    popular: false,
+  },
+  {
+    id: 'coverage-guard',
+    name: 'Coverage Guard',
+    category: 'Quality',
+    description:
+      'Blocks pull requests that drop test coverage below the configured threshold.',
+    status: 'running',
+    runsPerWeek: 88,
+    successRate: 92,
+    avgDuration: '0m 55s',
+    lastRun: '12m ago',
+    lastRunMinutes: 12,
+    popular: false,
+  },
 ]
-```
 
-The canonical list of categories in their intended display order. Used by `AgentGrid` to build the tab bar:
+/** The agent surfaced in the featured slot at the top of the console. */
+export const FEATURED_AGENT_ID = 'pr-reviewer'
 
-```ts
-const TABS: string[] = ['All', 'Popular', ...AGENT_CATEGORIES]
-// → ['All', 'Popular', 'Review', 'Deploy', 'Reliability', 'Quality', 'Docs']
-```
+export const AGENT_CATEGORIES: AgentCategory[] = [
+  'Review',
+  'Deploy',
+  'Reliability',
+  'Quality',
+  'Docs',
+]
 
-Iterating `AGENT_CATEGORIES` here (rather than hardcoding the tab list) means adding a new category to the type and the array automatically adds the tab to the UI.
+````
 
-## Tests
-
-`src/data/agents.test.ts` — 6 invariant checks:
-
-| Test | Assertion |
-|---|---|
-| has at least one agent | `AGENTS.length > 0` |
-| all IDs are unique | `new Set(ids).size === AGENTS.length` |
-| `FEATURED_AGENT_ID` exists in `AGENTS` | `AGENTS.some((a) => a.id === FEATURED_AGENT_ID)` |
-| all categories are known | Every `agent.category` is in `AGENT_CATEGORIES` |
-| success rates are in range | `successRate >= 0 && successRate <= 100` for every agent |
-| names and descriptions are non-empty | Both fields are truthy after `.trim()` |
+</details>

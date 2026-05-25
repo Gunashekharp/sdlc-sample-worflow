@@ -1,0 +1,18 @@
+{
+  "name": "docs-agent-scripts",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Deterministic AST extractors and validators that feed the auto-documentation agent. Self-contained workspace so the docs toolchain does not pollute the app dependency tree.",
+  "scripts": {
+    "extract:skeleton": "tsx extract-skeleton.ts",
+    "extract:diagrams": "tsx extract-diagrams.ts",
+    "extract:overviews": "tsx extract-overviews.ts",
+    "extract:all": "npm run extract:skeleton && npm run extract:overviews",
+    "check:coverage": "tsx check-coverage.ts"
+  },
+  "dependencies": {
+    "ts-morph": "^25.0.1",
+    "tsx": "^4.19.2"
+  }
+}

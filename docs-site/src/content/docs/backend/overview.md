@@ -1,100 +1,81 @@
 ---
-title: Backend overview
+title: backend
+description: Express + TypeScript API server. Serves agent, KPI, and pipeline data.
 ---
 
-The Snabbit API server is an Express application written in TypeScript. It persists agent and KPI data in PostgreSQL and exposes a thin REST layer consumed by the frontend dashboard. The server lives entirely under `server/`.
+**Section root:** `server/src`
 
-## Technology stack
+> Express + TypeScript API server. Serves agent, KPI, and pipeline data.
 
-| Concern | Choice |
-|---|---|
-| Runtime | Node.js |
-| TypeScript execution | tsx (no separate compile step during development) |
-| Framework | Express 5 |
-| Language | TypeScript 6 |
-| Database | PostgreSQL via the `pg` connection pool |
-| Test runner | Vitest |
-| CI/CD integration | GitHub Actions (or built-in mock) |
+<!-- fill:overview:summary -->
+<FILL: 3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.>
+<!-- /fill:overview:summary -->
 
-## Dependency-injection architecture
+## Top-level structure
 
-`createApp` accepts a `deps` object that bundles two collaborators:
+| Folder | Purpose |
+| --- | --- |
+| [`db/`](./backend/db/overview/) | <FILL: one line on what lives in db/ and when to add a file here.> |
+| [`integrations/`](./backend/integrations/overview/) | <FILL: one line on what lives in integrations/ and when to add a file here.> |
 
-- **`store`** — a `Store` implementation that reads agents and KPIs.
-- **`cicd`** — a `CicdProvider` implementation that lists CI/CD pipelines.
+### Files at the root of this section
 
-Neither is imported directly inside `app.ts` or `routes.ts`. The concrete implementations (`createPostgresStore`, `createGithubActionsProvider`) are wired together only in `index.ts`.
+| File | Hint |
+| --- | --- |
+| [`app.ts`](./app) | <FILL: one-line purpose for app.ts> |
+| [`config.ts`](./config) | Runtime configuration, read from environment variables. |
+| [`domain.ts`](./domain) | Domain types for the Snabbit Agent Console API. |
+| [`index.ts`](./index) | <FILL: one-line purpose for index.ts> |
+| [`postgresStore.ts`](./postgresstore) | <FILL: one-line purpose for postgresStore.ts> |
+| [`routes.ts`](./routes) | <FILL: one-line purpose for routes.ts> |
+| [`seed.ts`](./seed) | <FILL: one-line purpose for seed.ts> |
+| [`store.ts`](./store) | <FILL: one-line purpose for store.ts> |
 
-### Why dependency injection?
+## Architecture
 
-Tests can supply a `createMemoryStore` (in-memory arrays) and `createMockCicdProvider` (eight deterministic pipelines) without any network or database connection. The same application logic is exercised regardless of which implementations are injected. `npm test` requires no running Postgres instance and no GitHub token.
-
-```
-index.ts         → injects createPostgresStore + getCicdProvider  → production
-api.test.ts      → injects createMemoryStore   + mock provider     → tests
-```
-
-## Architecture flowchart
+### Module dependency graph
 
 ```mermaid
-flowchart TD
-    A[index.ts] --> B["new Pool(databaseUrl)"]
-    B --> C["createPostgresStore(pool)"]
-    A --> D["getCicdProvider(githubToken, githubRepo)"]
-    D --> E{credentials set?}
-    E -->|yes| F["createGithubActionsProvider()"]
-    E -->|no| G["createMockCicdProvider()"]
-    A --> H["createApp({ store, cicd })"]
-    C --> H
-    F --> H
-    G --> H
-    H --> I["registerRoutes(app, deps)"]
-    I --> J["GET /api/health"]
-    I --> K["GET /api/agents"]
-    I --> L["GET /api/agents/:id"]
-    I --> M["GET /api/kpis"]
-    I --> N["GET /api/pipelines"]
+%% Module dependency graph for backend
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
+flowchart LR
+  app_ts["app.ts"]
+  config_ts["config.ts"]
+  db_schema_ts["db/schema.ts"]
+  db_setup_ts["db/setup.ts"]
+  domain_ts["domain.ts"]
+  index_ts["index.ts"]
+  integrations_cicd_ts["integrations/cicd.ts"]
+  postgresStore_ts["postgresStore.ts"]
+  routes_ts["routes.ts"]
+  seed_ts["seed.ts"]
+  store_ts["store.ts"]
+  app_ts --> store_ts
+  app_ts --> integrations_cicd_ts
+  app_ts --> routes_ts
+  index_ts --> config_ts
+  index_ts --> app_ts
+  index_ts --> postgresStore_ts
+  index_ts --> integrations_cicd_ts
+  postgresStore_ts --> domain_ts
+  postgresStore_ts --> store_ts
+  routes_ts --> app_ts
+  routes_ts --> integrations_cicd_ts
+  seed_ts --> domain_ts
+  store_ts --> domain_ts
+  db_setup_ts --> config_ts
+  db_setup_ts --> db_schema_ts
+  db_setup_ts --> seed_ts
 ```
 
-## Source file map
+## Key flows
 
-| File | Purpose |
-|---|---|
-| `src/index.ts` | Server entry point — wires real dependencies and starts listening |
-| `src/app.ts` | `createApp` factory — middleware stack and error handler |
-| `src/config.ts` | Environment variable configuration with local defaults |
-| `src/domain.ts` | `Agent`, `Kpi`, `AgentStatus`, `AgentCategory` types |
-| `src/routes.ts` | REST route registration |
-| `src/store.ts` | `Store` interface + in-memory implementation |
-| `src/postgresStore.ts` | PostgreSQL-backed `Store` implementation |
-| `src/seed.ts` | Seed data — 12 agents + 4 KPIs |
-| `src/db/schema.ts` | `SCHEMA_SQL` — `CREATE TABLE` statements |
-| `src/db/setup.ts` | One-shot database setup script |
-| `src/integrations/cicd.ts` | `CicdProvider` interface, mock and GitHub Actions implementations |
-| `vitest.config.ts` | Vitest configuration for the backend test suite |
+<!-- fill:overview:flows -->
+<FILL: 2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).>
+<!-- /fill:overview:flows -->
 
-## Package scripts
+## When to add code here
 
-| Script | Command | Purpose |
-|---|---|---|
-| `dev` | `tsx watch src/index.ts` | Start with live reload on file changes |
-| `build` | `tsc` | Compile TypeScript to `dist/` |
-| `start` | `node dist/index.js` | Run compiled production output |
-| `db:setup` | `tsx src/db/setup.ts` | Create tables and upsert seed data |
-| `test` | `vitest run` | Execute all unit tests once (CI mode) |
-| `test:watch` | `vitest` | Run tests in watch mode |
-
-## Configuration summary
-
-All runtime configuration is read from environment variables. Every field has a local-friendly default so `npm run dev` works with no setup.
-
-| Field | Env var | Default |
-|---|---|---|
-| `port` | `PORT` | `3001` |
-| `databaseUrl` | `DATABASE_URL` | `postgres://localhost:5432/snabbit_dash` |
-| `githubToken` | `GITHUB_TOKEN` | `''` (empty — selects mock provider) |
-| `githubRepo` | `GITHUB_REPO` | `''` (empty — selects mock provider) |
-
-:::tip
-For zero-config local development, start a Postgres instance named `snabbit_dash` on port 5432, run `npm run db:setup` once, then `npm run dev`. No environment variables required.
-:::
+<!-- fill:overview:when-to-add -->
+<FILL: practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.>
+<!-- /fill:overview:when-to-add -->

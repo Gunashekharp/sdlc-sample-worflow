@@ -18,6 +18,9 @@ on:
     paths:
       - 'src/**'
       - 'server/**'
+      - 'chat-worker/**'
+      - 'scripts/docs/**'
+      - '.github/workflows/docs.yml'
 
 permissions:
   actions: write

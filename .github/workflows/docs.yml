@@ -1,14 +1,36 @@
 name: Docs agent — update and deploy
 
+# Two-pass auto-documentation pipeline.
+#
+#   1. Deterministic extractors (scripts/docs/) walk the source tree
+#      with the TypeScript compiler API and emit Markdown skeletons that
+#      already contain every exported symbol, every signature, every
+#      parameter table, every import list, every test name, and every
+#      Mermaid dependency diagram. These artifacts are correct by
+#      construction — no LLM is involved.
+#
+#   2. The LLM (claude-code-action, Opus 4.7) only fills <FILL: ...>
+#      markers wrapped in <!-- fill:ID --> anchors. Existing filled
+#      content survives the regeneration step, so a push that touches one
+#      file does not re-bill the LLM for unrelated pages.
+#
+#   3. A coverage gate verifies every exported symbol has a `## <Name>`
+#      section and exits non-zero if anything is missing.
+#
+# Result: every function is documented, every signature is real, every
+# diagram is current, and the LLM only writes prose.
+
 on:
   workflow_dispatch:
     inputs:
       full_rebuild:
-        description: 'Document the entire codebase from scratch'
+        description: 'Re-fill prose for every file (ignores existing anchors)'
         type: boolean
         default: false
   schedule:
-    - cron: '0 */4 * * *'
+    # Weekly self-heal. Push triggers (trigger-docs.yml) cover everyday
+    # updates. The cron exists only to catch drift the push triggers miss.
+    - cron: '0 8 * * 1'
 
 permissions:
   contents: write
@@ -29,7 +51,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Determine documentation scope
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            scripts/docs/package-lock.json
+            docs-site/package-lock.json
+
+      - name: Determine source scope (incremental hint for the LLM)
         id: scope
         run: |
           MARKER=".github/docs-agent-state"
@@ -41,8 +72,8 @@ jobs:
             if [ -z "$LAST_SHA" ] || ! git cat-file -e "${LAST_SHA}^{commit}" 2>/dev/null; then
               MODE="full"; CHANGED=""
             else
-              CHANGED="$(git diff --name-only "$LAST_SHA" HEAD -- src server || true)"
-              if [ -z "$CHANGED" ]; then MODE="none"; else MODE="incremental"; fi
+              CHANGED="$(git diff --name-only "$LAST_SHA" HEAD -- src server chat-worker || true)"
+              if [ -z "$CHANGED" ]; then MODE="full"; else MODE="incremental"; fi
             fi
           fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
@@ -51,140 +82,179 @@ jobs:
             echo "$CHANGED"
             echo "DOCS_EOF"
           } >> "$GITHUB_OUTPUT"
-          echo "Run mode: $MODE"
+          echo "Source-change mode: $MODE"
 
-      - name: Run the documentation agent
-        if: steps.scope.outputs.mode != 'none'
+      - name: Install docs-toolchain dependencies
+        run: |
+          cd scripts/docs
+          npm ci --no-audit --no-fund
+
+      - name: Discard preserved prose on full rebuild
+        # `full_rebuild` means "re-fill every page from scratch". Deleting
+        # the auto-generated subtrees before the extractor runs means the
+        # snapshot step finds nothing to preserve, so every anchor comes
+        # out as a default FILL prompt for the LLM to (re-)write.
+        if: inputs.full_rebuild == true
+        run: |
+          rm -rf docs-site/src/content/docs/frontend
+          rm -rf docs-site/src/content/docs/backend
+          rm -rf docs-site/src/content/docs/chat-worker
+          echo "Full rebuild: cleared auto-generated subtrees."
+
+      - name: Run deterministic extractors (pre-LLM)
+        # Always runs. Cheap, deterministic, ~5s. Regenerates skeletons +
+        # overviews + Mermaid diagrams from the current source. PRESERVES
+        # LLM-filled prose from previous runs via the anchor system, so
+        # nothing the LLM wrote gets lost unless the surrounding code
+        # changed enough to invalidate the anchor id.
+        run: |
+          cd scripts/docs
+          npm run extract:all
+
+      - name: Decide whether the LLM step is needed
+        id: llm
+        # Count unfilled FILL prompts remaining in the docs. If zero,
+        # everything is already documented and Opus has no work to do.
+        # Skipping the LLM step saves the budget for runs that actually
+        # change something.
+        run: |
+          UNFILLED=$(grep -rl '<FILL:' docs-site/src/content/docs/ 2>/dev/null | wc -l | tr -d ' ')
+          echo "unfilled_files=$UNFILLED" >> "$GITHUB_OUTPUT"
+          if [ "$UNFILLED" -gt 0 ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "$UNFILLED file(s) have unfilled FILL prompts; dispatching the LLM."
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "All FILL prompts are filled; skipping the LLM step."
+          fi
+
+      - name: Documentation agent — fill FILL markers
+        if: steps.llm.outputs.needed == 'true'
         uses: anthropics/claude-code-action@v1
         env:
           FIGMA_API_KEY: ${{ secrets.FIGMA_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # The dispatcher starts this workflow as the github-actions bot;
-          # allow bot-initiated runs or claude-code-action refuses them.
           allowed_bots: "*"
           prompt: |
-            You maintain the documentation for this repository. The docs are a
-            Starlight (Astro) site. The documentation pages are Markdown files
-            in `docs-site/src/content/docs/`.
+            You are filling in the documentation for this repository.
+
+            The docs are a Starlight (Astro) site under `docs-site/src/content/docs/`.
+            A deterministic toolchain has already generated the structure of every
+            documentation page — file lists, symbol headings, signatures, parameter
+            tables, dependency diagrams, test tables, and the source appendix. You
+            must NOT edit any of that. Your only job is to fill in the prose.
 
             RUN MODE: ${{ steps.scope.outputs.mode }}
 
-            If RUN MODE is "full":
-              Read the entire repository — every source file under `src/` and
-              `server/src/`, the config files and the tests. Produce deep,
-              exhaustive reference documentation — not high-level summaries.
-              Give every source file its own page, and on that page:
-              - Document EVERY function, method, class, React component,
-                hook, type and exported constant in the file. Skip nothing.
-              - For each one, give the full signature, every parameter (name,
-                type, purpose), the return value, any errors thrown and any
-                side effects.
-              - Walk through the implementation in depth: explain the logic
-                block by block, and line by line wherever the code is
-                non-obvious. Quote the relevant source lines in fenced code
-                blocks as you explain them.
-              - Call out edge cases, assumptions and how each piece connects
-                to the rest of the codebase.
-              Organise pages into subfolders inside
-              `docs-site/src/content/docs/` that mirror the source tree (for
-              example `frontend/` and `backend/`); the sidebar is generated
-              automatically from the folder structure.
+            Where to write prose:
+            - Each documentation page contains HTML-comment anchors of the form:
+                <!-- fill:<id> -->
+                <FILL: <prompt for what to write here>>
+                <!-- /fill:<id> -->
+              Replace the FILL prompt with real prose. Keep the surrounding
+              `<!-- fill:ID -->` and `<!-- /fill:ID -->` lines exactly as they
+              are. They are how the toolchain preserves your work across reruns.
+
+            - In Markdown tables, some cells contain inline `<FILL: ...>` text
+              without anchors (for example the Purpose column in parameter tables,
+              the Description column in interface shape tables, the Asserts
+              column in the Tests table). Replace those inline FILL placeholders
+              with one-line descriptions. Do not add anchors around table cells —
+              they break the table renderer.
+
+            What you may write:
+            - Plain prose explaining what code does and why it exists.
+            - Mermaid diagrams ONLY inside fill anchors marked
+              `<!-- fill:file:diagrams -->`. Use ```mermaid fenced blocks. Pick
+              the right diagram type for the file: flowchart, sequenceDiagram,
+              stateDiagram-v2, classDiagram, or erDiagram. Skip the diagrams
+              section if the file is trivial — do not invent flow.
+            - Concrete examples in Examples sections. Pull from tests when
+              available so the example reflects real call sites.
+
+            What you must NOT do:
+            - Do NOT touch anything outside fill anchors and table FILL cells.
+            - Do NOT edit headings, signatures, code blocks, tables (except for
+              the FILL cells described above), the Imports table, the Source
+              appendix, the Symbols table, the Used by list, or anything inside
+              `<!-- fill:*-deps -->` / `<!-- fill:*-tree -->`-style auto-generated
+              blocks (those exist as Mermaid blocks marked with `%% Auto-generated`).
+            - Do NOT touch existing fill content that already has real prose
+              (anything that does not start with `<FILL:` and end with `>`).
+            - Do NOT create or delete files.
+            - Do NOT touch the hand-curated pages: `index.md`, `getting-started.md`,
+              `testing.md`, or `architecture.md`.
+            - Do NOT write to any directory that starts with a digit (those are
+              frozen archived versions). Only write under
+              `docs-site/src/content/docs/frontend/`,
+              `docs-site/src/content/docs/backend/`, or
+              `docs-site/src/content/docs/chat-worker/`.
 
             If RUN MODE is "incremental":
-              Only these source files changed since the docs were last updated:
+              Only these source files changed since the docs were last updated.
+              Open the docs page for each one and fill its anchors.
+
               ---
               ${{ steps.scope.outputs.changed }}
               ---
-              Read them and update the documentation pages they affect, to
-              the same depth as a full run: re-document every function,
-              method, class, component and type in each changed file, with
-              full signatures, parameters, return values and a line-by-line
-              walkthrough of any non-obvious logic.
 
-            Diagrams — the docs site renders Mermaid, so use it heavily:
-            - Write each diagram as a fenced code block with the language
-              set to mermaid; the site renders these automatically as
-              pictures.
-            - Add diagrams to every page where they aid understanding, and
-              prefer a diagram over long prose for anything structural.
-            - Use `sequenceDiagram` for request flows, authentication, data
-              synchronisation and any multi-step interaction between
-              components or services.
-            - Use `flowchart TD` for control flow, decision logic and
-              processes.
-            - Give the system an overall architecture diagram: a `flowchart`
-              showing the React frontend, the Express API, the PostgreSQL
-              database and any external services, with the connections
-              between them.
-            - Render the database schema as an `erDiagram` showing entities,
-              columns and relationships.
-            - Use `stateDiagram-v2` for components with distinct states and
-              `classDiagram` for important module or class relationships.
-            - Keep Mermaid syntax valid and reasonably simple. If a diagram
-              would be guesswork, add a `:::caution` note instead.
+            If RUN MODE is "full":
+              Walk every doc page under the three sections above and fill every
+              anchor whose content is still a default `<FILL: ...>` prompt. Skip
+              anchors whose content is already real prose.
 
-            Figma designs from merged pull requests:
-            - The marker file `.github/docs-agent-state` holds the commit SHA
-              the docs were last built from. Get that commit's date with:
+            Depth bar (this is the most important instruction):
+            - For each function/component/hook, every line of the line-by-line
+              walkthrough must be filled with a precise explanation of that
+              specific statement. Do not summarise the whole function in one
+              walkthrough cell — explain each statement on its own line.
+            - Return-value FILLs must say what the value represents, when it
+              can be null/undefined, units, and any failure modes.
+            - File-summary FILLs must reference the file's collaborators by
+              name (other documented files).
+            - Folder/section overview FILLs must reference the diagrams above
+              them and the most important entry points.
+            - Examples must be real and runnable, not vague templates.
+
+            Figma designs from merged pull requests (optional, best-effort):
+            - The marker file `.github/docs-agent-state` holds the commit SHA the
+              docs were last built from. Get that commit's date with:
               `git show -s --format=%cI <SHA>`
-            - Using the GitHub CLI (`gh`, authenticated by the GH_TOKEN
-              environment variable), list pull requests merged into `main`
-              since that date:
+            - List PRs merged since:
               `gh pr list --state merged --base main --search "merged:>=<date>" --json number --limit 100`
-              On a "full" run, list all merged PRs instead (omit the search).
-            - For each merged PR, read its description and changed files:
-              `gh pr view <number> --json number,title,body,files`
-            - Scan each PR description for Figma links — any URL containing
-              `figma.com`. For every Figma link found:
+              On a "full" run, list all merged PRs (omit the search).
+            - For each PR description containing a `figma.com` URL:
               - Export the design with `mcp__figma__download_figma_images`
-                into `docs-site/public/figma/` as a PNG; use
-                `mcp__figma__get_figma_data` for detail to describe it.
-              - Embed it on the documentation page(s) for the SOURCE files
-                that same PR changed (files under `src/` or `server/src/`):
-                ![<short caption>](https://gunashekharp.github.io/sdlc-sample-worflow/figma/<name>.png)
-                Use that full absolute https:// URL, not a /sdlc-sample-worflow/
-                root path — the docs are versioned, and the versioning plugin
-                only handles figma images embedded with a full URL. Add a
-                short written description below the image.
-            - A PR with no Figma link just has its changed code documented
-              as usual — there is no design to embed.
-            - If a Figma call or a gh call fails, add a `:::caution` note
-              rather than guessing or inventing a design.
+                into `docs-site/public/figma/`.
+              - Embed it on the documentation pages for the source files that
+                PR changed, using a full absolute https://… URL.
+              - Add a short caption beneath the image.
+            - If gh or Figma fails, add a `:::caution` note inside the relevant
+              fill anchor rather than guessing.
 
-            Strict formatting rules for Starlight:
-            - EVERY Markdown file must begin with frontmatter, exactly:
-              ---
-              title: <the page title>
-              ---
-            - For callouts use Starlight asides, not MkDocs syntax:
-              `:::note`, `:::tip`, `:::caution` or `:::danger`, each closed by
-              a line containing only `:::`.
-            - Use standard Markdown headings, tables and fenced code blocks.
-            - Create or edit Markdown files inside
-              `docs-site/src/content/docs/`, and design images inside
-              `docs-site/public/figma/`. Never edit source code, the
-              workflow, or any other file under `docs-site/`.
-            - The docs are versioned. Only ever write to the CURRENT
-              version: Markdown directly in `docs-site/src/content/docs/`
-              and its non-numbered subfolders (e.g. `frontend/`,
-              `backend/`). NEVER create, edit, rename or delete anything
-              inside a numbered version directory such as
-              `docs-site/src/content/docs/2.0/`, and never touch
-              `docs-site/src/content/versions/` — those are frozen
-              archives managed automatically.
+            Starlight formatting:
+            - Every Markdown file ALREADY has frontmatter. Do not edit it.
+            - For callouts, use `:::note`, `:::tip`, `:::caution`, `:::danger`.
 
-            Be accurate — base every statement on the actual code. If something
-            is unclear, add a `:::caution` note rather than guessing.
+            Be accurate. Base every statement on the actual code. If something
+            is unclear, write a `:::caution` note inside the fill anchor.
           claude_args: |
-            --model claude-sonnet-4-6
-            --max-turns 200
+            --model claude-opus-4-7
+            --max-turns 300
             --mcp-config '{"mcpServers":{"figma":{"command":"npx","args":["-y","figma-developer-mcp","--stdio"]}}}'
             --allowedTools "Read,Edit,Write,Grep,Glob,Bash,mcp__figma__get_figma_data,mcp__figma__download_figma_images"
 
+      - name: Coverage gate
+        # Every exported symbol must have a `## <Name>` section in the
+        # corresponding doc page. If not, the LLM dropped something and
+        # we want to know loudly rather than ship a doc with holes.
+        run: |
+          cd scripts/docs
+          npm run check:coverage
+
       - name: Commit documentation updates
-        if: steps.scope.outputs.mode != 'none'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -200,15 +270,10 @@ jobs:
             echo "No documentation changes to commit."
           fi
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
       - name: Build the docs site
         run: |
           cd docs-site
-          npm install
+          npm ci --no-audit --no-fund
           npm run build
 
       - name: Configure Pages

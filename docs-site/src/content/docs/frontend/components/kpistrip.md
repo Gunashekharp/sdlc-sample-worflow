@@ -1,163 +1,138 @@
 ---
 title: KpiStrip
+description: Reference for `src/components/KpiStrip.tsx`
 ---
 
-`KpiStrip` is the four-column strip of key performance indicator cards rendered near the top of the dashboard. It is a pure rendering component: it reads from the static `KPIS` array and produces one `KpiCard` per entry. There are no props, no network calls, and no state.
+**File:** `src/components/KpiStrip.tsx` · **Lines:** 45
 
-**File:** `src/components/KpiStrip.tsx`
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `components/KpiStrip.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-## Dependencies
+## Imports
 
-| Import | Source | Purpose |
-|--------|--------|---------|
-| `KPIS` | `../data/kpis` | Static array of all KPI records |
-| `Kpi` (type) | `../data/kpis` | Shape of a single KPI record |
-| `IconTrendDown`, `IconTrendUp` | `./icons` | Trend direction icons shown in `KpiCard` |
-| `Sparkline` | `./Sparkline` | SVG trend-line rendered at the bottom of each card |
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-## `Kpi` type (from `src/data/kpis.ts`)
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../data/kpis` | `KPIS` | internal |
+| `../data/kpis` | `Kpi` | type-only · internal |
+| `./icons` | `IconTrendDown`, `IconTrendUp` | internal |
+| `./Sparkline` | `default as Sparkline` | internal |
 
-`KpiCard` consumes all fields of `Kpi`. The expected shape is:
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `id` | `string` | React `key` for list rendering |
-| `label` | `string` | Metric name, e.g. `"Agent runs · 7d"` |
-| `value` | `string` | Pre-formatted current value, e.g. `"4,821"` |
-| `delta` | `string` | Change indicator, e.g. `"+18%"` or `"-5%"` |
-| `positive` | `boolean` | Whether the trend direction is semantically good (see delta logic below) |
-| `trend` | `number[]` | 7-point history series passed to `Sparkline` |
-| `hint` | `string` | Short explanatory footnote, e.g. `"vs previous 7 days"` |
+## Symbols
 
-## Internal subcomponent: `KpiCard`
+This file exports 1 symbol. Every export is documented below, in declaration order.
 
-```ts
-function KpiCard({ kpi }: { kpi: Kpi }): JSX.Element
-```
+| Name | Kind | Default |
+| --- | --- | --- |
+| KpiStrip | component | yes |
 
-Not exported. Renders a single metric card.
+## KpiStrip (default export)
 
-### Delta direction logic
+**Kind:** `component`
 
 ```ts
-const isDown = kpi.delta.trim().startsWith('-')
-const Trend = isDown ? IconTrendDown : IconTrendUp
-const deltaColor = kpi.positive ? 'text-ok' : 'text-err'
+export default function KpiStrip() { ... }
 ```
 
-The trend icon and the delta colour are derived independently:
+<!-- fill:sym:KpiStrip:summary -->
+<FILL: 2-4 sentences explaining what KpiStrip does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:KpiStrip:summary -->
 
-- **`isDown`** — inspects the leading character of `kpi.delta` (after trimming whitespace) to decide which directional icon to show. This is purely visual.
-- **`deltaColor`** — comes from `kpi.positive`, which is a semantic flag set in the data layer, independent of the sign character.
+### Line-by-line walkthrough
 
-This separation handles inverse metrics: a falling value can be good (e.g. mean-time-to-merge decreasing) and a rising value can be bad (e.g. error rate increasing).
+Each top-level statement of `KpiStrip`, in execution order. The line numbers reference the source file as it appears today.
 
-| `kpi.positive` | `kpi.delta` starts with `-`? | Icon | Colour class |
-|----------------|------------------------------|------|-------------|
-| `true` | No (`+18%`) | `IconTrendUp` | `text-ok` (green) |
-| `true` | Yes (`-22%`) | `IconTrendDown` | `text-ok` (green) |
-| `false` | Yes (`-5%`) | `IconTrendDown` | `text-err` (red) |
-| `false` | No (`+3%`) | `IconTrendUp` | `text-err` (red) |
-
-### `KpiCard` rendered structure
-
-```
-<div rounded-lg border border-border bg-surface p-3.5>
-  ├── <p>       Label  (text-[11px] uppercase tracking-wide text-text-faint)
-  ├── <div>     Value + delta row  (flex items-end justify-between)
-  │     ├── <span>    Value  (text-2xl font-semibold tracking-tight)
-  │     └── <span>    Delta row  (flex items-center gap-1)
-  │                   ├── <Trend className="h-3.5 w-3.5" />
-  │                   └── {kpi.delta}  (text-xs font-medium, text-ok or text-err)
-  ├── <Sparkline points={kpi.trend} positive={kpi.positive} className="mt-2 h-7 w-full" />
-  └── <p>       Hint  (mt-1 text-xs text-text-faint)
-</div>
-```
-
-**Layout notes:**
-- `items-end` on the value/delta row aligns the large value number and the smaller delta text at their bottom edges (baseline alignment across different font sizes).
-- `tracking-tight` on the value reduces letter-spacing for large display numbers.
-- `text-[11px] uppercase tracking-wide` on the label creates a "screamer" / all-caps badge-like appearance at a very small size.
-
-### Sparkline integration
-
-```tsx
-<Sparkline
-  points={kpi.trend}
-  positive={kpi.positive}
-  className="mt-2 h-7 w-full"
-/>
-```
-
-`kpi.trend` is the raw `number[]` series. `kpi.positive` is passed through so that the sparkline stroke colour matches the delta colour — a good metric (green) has a green sparkline; a bad metric (red) has a red sparkline. The `className` overrides `Sparkline`'s default class with `h-7 w-full` so the chart spans the full card width.
-
-## Component signature
+**Line 34 — `ReturnStatement`**
 
 ```ts
-export default function KpiStrip(): JSX.Element
+return (
+    <section
+      aria-label="Key metrics"
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {KPIS.map((kpi) => (
+        <KpiCard key={kpi.id} kpi={kpi} />
+      ))}
+    </section>
+  )
 ```
 
-**Parameters:** None.
+<!-- fill:sym:KpiStrip:walk:0 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:KpiStrip:walk:0 -->
 
-**Returns:** A `<section>` element with `aria-label="Key metrics"`.
+### Examples
 
-**Side effects:** None. Pure rendering from static data.
+<!-- fill:sym:KpiStrip:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:KpiStrip:example -->
 
-## Rendered structure
+### Used by
 
-```
-<section aria-label="Key metrics" grid 1/2/4 cols>
-  └── {KPIS.map((kpi) => <KpiCard key={kpi.id} kpi={kpi} />)}
-```
+- `src/App.tsx`
 
-## Accessibility
+## Diagrams
 
-| Attribute | Element | Value | Purpose |
-|-----------|---------|-------|---------|
-| `aria-label="Key metrics"` | `<section>` | `"Key metrics"` | Creates a named landmark region; allows screen-reader navigation by region name |
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
 
-The named `<section>` is asserted in tests as `screen.getByRole('region', { name: /key metrics/i })`. The trend icons use `aria-hidden="true"` (inherited from the `Svg` wrapper in `icons.tsx`) so they do not add noise to the accessibility tree.
+## Source
 
-## Grid layout
+Full file source for `src/components/KpiStrip.tsx` (45 lines). The line-by-line walkthroughs above reference these line numbers.
 
-```tsx
-<section
-  aria-label="Key metrics"
-  className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
->
-```
+<details>
+<summary>View source (45 lines)</summary>
 
-| Breakpoint | Columns |
-|-----------|---------|
-| Default (mobile) | 1 (stacked) |
-| `sm` (≥ 640px) | 2 |
-| `lg` (≥ 1024px) | 4 (canonical strip layout) |
+````tsx
+import { KPIS } from '../data/kpis'
+import type { Kpi } from '../data/kpis'
+import { IconTrendDown, IconTrendUp } from './icons'
+import Sparkline from './Sparkline'
 
-`gap-3` (12px) between all cells.
+function KpiCard({ kpi }: { kpi: Kpi }) {
+  const isDown = kpi.delta.trim().startsWith('-')
+  const Trend = isDown ? IconTrendDown : IconTrendUp
+  const deltaColor = kpi.positive ? 'text-ok' : 'text-err'
 
-## Styling notes
+  return (
+    <div className="rounded-lg border border-border bg-surface p-3.5">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">
+        {kpi.label}
+      </p>
+      <div className="mt-1.5 flex items-end justify-between gap-2">
+        <span className="text-2xl font-semibold tracking-tight">{kpi.value}</span>
+        <span className={`flex items-center gap-1 text-xs font-medium ${deltaColor}`}>
+          <Trend className="h-3.5 w-3.5" />
+          {kpi.delta}
+        </span>
+      </div>
+      <Sparkline
+        points={kpi.trend}
+        positive={kpi.positive}
+        className="mt-2 h-7 w-full"
+      />
+      <p className="mt-1 text-xs text-text-faint">{kpi.hint}</p>
+    </div>
+  )
+}
 
-### `KpiCard` design tokens
+export default function KpiStrip() {
+  return (
+    <section
+      aria-label="Key metrics"
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {KPIS.map((kpi) => (
+        <KpiCard key={kpi.id} kpi={kpi} />
+      ))}
+    </section>
+  )
+}
 
-| Token / class | Element | Purpose |
-|---------------|---------|---------|
-| `bg-surface` | Card `<div>` | Slightly elevated card surface |
-| `border-border` | Card `<div>` | Neutral card border |
-| `rounded-lg` | Card `<div>` | 8px corner radius |
-| `p-3.5` | Card `<div>` | 14px inner padding |
-| `text-[11px] uppercase tracking-wide` | Label `<p>` | Compact all-caps metric label |
-| `text-text-faint` | Label `<p>`, hint `<p>` | Tertiary text colour |
-| `text-2xl font-semibold tracking-tight` | Value `<span>` | Large display number |
-| `text-ok` | Delta `<span>` when `positive` | Green (`--color-ok`, `#3fb950`) |
-| `text-err` | Delta `<span>` when `!positive` | Red (`--color-err`, `#f85149`) |
+````
 
-## Data source
-
-`KPIS` is a static array defined in `src/data/kpis.ts`. There is no network request. The data represents a snapshot of metrics at application build time (or mock data during development).
-
-## Edge cases and assumptions
-
-- **`kpi.delta` whitespace:** `kip.delta.trim().startsWith('-')` correctly handles values like `" -5%"` with a leading space, but the data layer is expected to produce clean strings.
-- **`kpi.delta` with no sign character:** A delta string like `"5%"` (no `+` or `-`) will be treated as positive (not starting with `'-'`), showing `IconTrendUp`. This may be misleading; the data layer should always include an explicit sign.
-- **`kpi.trend.length < 2`:** `Sparkline` returns `null` for fewer than 2 points, leaving an empty space where the chart would be. `KPIS` data is expected to always provide at least 2 trend points.
-- **`kpi.trend` all-equal values:** `Sparkline` handles this with a `range = max - min || 1` guard, producing a flat horizontal line. See `Sparkline` docs for details.
+</details>

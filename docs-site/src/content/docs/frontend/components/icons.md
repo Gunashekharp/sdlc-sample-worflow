@@ -1,30 +1,513 @@
 ---
-title: Icon set (icons.tsx)
+title: icons
+description: Reference for `src/components/icons.tsx`
 ---
 
-`icons.tsx` is a self-contained, dependency-free inline SVG icon set. It exports 13 named icon components, all built on a shared `Svg` wrapper. Icons are 16×16px, stroke-based (except `IconSparkle`), and inherit text colour via `stroke="currentColor"`. All icons are `aria-hidden` by default.
+**File:** `src/components/icons.tsx` · **Lines:** 118
 
-**File:** `src/components/icons.tsx`
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `components/icons.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-## Design principles
+## Imports
 
-- **No icon library dependency.** Every icon is a hand-authored inline SVG using only `<path>`, `<rect>`, `<circle>`, and `<polyline>` elements. This eliminates bundle-size overhead from external icon packages.
-- **Consistent visual grammar.** All stroke icons share 1.5px stroke width, round caps, and round joins, matching the "dense, Linear-grade" aesthetic of the application.
-- **Colour inheritance.** `stroke="currentColor"` means every icon inherits the CSS `color` of its parent element. Tailwind text-colour utilities (`text-accent`, `text-text-faint`, etc.) control icon colour with no extra props.
-- **Size overrideable.** Default `width="16" height="16"` can be overridden by passing Tailwind size utilities as `className` (e.g. `className="h-4 w-4"`).
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-## `IconProps` type
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `SVGProps` | type-only · external |
+
+
+## Symbols
+
+This file exports 13 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| IconDashboard | function | no |
+| IconSessions | function | no |
+| IconAgents | function | no |
+| IconRuns | function | no |
+| IconIntegrations | function | no |
+| IconSettings | function | no |
+| IconSearch | function | no |
+| IconPlus | function | no |
+| IconArrowUp | function | no |
+| IconSparkle | function | no |
+| IconChevronDown | function | no |
+| IconTrendUp | function | no |
+| IconTrendDown | function | no |
+
+## IconDashboard
+
+**Kind:** `function`
 
 ```ts
-type IconProps = SVGProps<SVGSVGElement>
+const IconDashboard = (p: IconProps) => { ... }
 ```
 
-`SVGProps<SVGSVGElement>` is React's full SVG attribute type for `<svg>` elements. It includes every standard SVG attribute plus React event handlers and the `className` / `style` props. All 13 icon components accept `IconProps`, so callers can pass any valid SVG or HTML attribute.
+<!-- fill:sym:IconDashboard:summary -->
+<FILL: 2-4 sentences explaining what IconDashboard does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconDashboard:summary -->
 
-## `Svg` wrapper (internal, not exported)
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconDashboard:return -->
+<FILL: describe the return value of IconDashboard — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconDashboard:return -->
+
+### Examples
+
+<!-- fill:sym:IconDashboard:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconDashboard:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconSessions
+
+**Kind:** `function`
 
 ```ts
-function Svg({ children, ...props }: IconProps): JSX.Element {
+const IconSessions = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconSessions:summary -->
+<FILL: 2-4 sentences explaining what IconSessions does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconSessions:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconSessions:return -->
+<FILL: describe the return value of IconSessions — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconSessions:return -->
+
+### Examples
+
+<!-- fill:sym:IconSessions:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconSessions:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconAgents
+
+**Kind:** `function`
+
+```ts
+const IconAgents = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconAgents:summary -->
+<FILL: 2-4 sentences explaining what IconAgents does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconAgents:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconAgents:return -->
+<FILL: describe the return value of IconAgents — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconAgents:return -->
+
+### Examples
+
+<!-- fill:sym:IconAgents:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconAgents:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconRuns
+
+**Kind:** `function`
+
+```ts
+const IconRuns = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconRuns:summary -->
+<FILL: 2-4 sentences explaining what IconRuns does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconRuns:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconRuns:return -->
+<FILL: describe the return value of IconRuns — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconRuns:return -->
+
+### Examples
+
+<!-- fill:sym:IconRuns:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconRuns:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconIntegrations
+
+**Kind:** `function`
+
+```ts
+const IconIntegrations = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconIntegrations:summary -->
+<FILL: 2-4 sentences explaining what IconIntegrations does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconIntegrations:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconIntegrations:return -->
+<FILL: describe the return value of IconIntegrations — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconIntegrations:return -->
+
+### Examples
+
+<!-- fill:sym:IconIntegrations:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconIntegrations:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconSettings
+
+**Kind:** `function`
+
+```ts
+const IconSettings = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconSettings:summary -->
+<FILL: 2-4 sentences explaining what IconSettings does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconSettings:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconSettings:return -->
+<FILL: describe the return value of IconSettings — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconSettings:return -->
+
+### Examples
+
+<!-- fill:sym:IconSettings:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconSettings:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconSearch
+
+**Kind:** `function`
+
+```ts
+const IconSearch = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconSearch:summary -->
+<FILL: 2-4 sentences explaining what IconSearch does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconSearch:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconSearch:return -->
+<FILL: describe the return value of IconSearch — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconSearch:return -->
+
+### Examples
+
+<!-- fill:sym:IconSearch:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconSearch:example -->
+
+### Used by
+
+- `src/components/TopBar.tsx`
+- `src/components/AgentGrid.tsx`
+
+## IconPlus
+
+**Kind:** `function`
+
+```ts
+const IconPlus = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconPlus:summary -->
+<FILL: 2-4 sentences explaining what IconPlus does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconPlus:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconPlus:return -->
+<FILL: describe the return value of IconPlus — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconPlus:return -->
+
+### Examples
+
+<!-- fill:sym:IconPlus:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconPlus:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+
+## IconArrowUp
+
+**Kind:** `function`
+
+```ts
+const IconArrowUp = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconArrowUp:summary -->
+<FILL: 2-4 sentences explaining what IconArrowUp does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconArrowUp:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconArrowUp:return -->
+<FILL: describe the return value of IconArrowUp — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconArrowUp:return -->
+
+### Examples
+
+<!-- fill:sym:IconArrowUp:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconArrowUp:example -->
+
+### Used by
+
+- `src/components/FeaturedAgent.tsx`
+- `src/components/PromptBar.tsx`
+
+## IconSparkle
+
+**Kind:** `function`
+
+```ts
+const IconSparkle = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconSparkle:summary -->
+<FILL: 2-4 sentences explaining what IconSparkle does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconSparkle:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconSparkle:return -->
+<FILL: describe the return value of IconSparkle — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconSparkle:return -->
+
+### Examples
+
+<!-- fill:sym:IconSparkle:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconSparkle:example -->
+
+### Used by
+
+- `src/components/FeaturedAgent.tsx`
+- `src/components/PromptBar.tsx`
+
+## IconChevronDown
+
+**Kind:** `function`
+
+```ts
+const IconChevronDown = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconChevronDown:summary -->
+<FILL: 2-4 sentences explaining what IconChevronDown does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconChevronDown:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconChevronDown:return -->
+<FILL: describe the return value of IconChevronDown — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconChevronDown:return -->
+
+### Examples
+
+<!-- fill:sym:IconChevronDown:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconChevronDown:example -->
+
+### Used by
+
+- `src/components/Sidebar.tsx`
+- `src/components/TopBar.tsx`
+- `src/components/PromptBar.tsx`
+
+## IconTrendUp
+
+**Kind:** `function`
+
+```ts
+const IconTrendUp = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconTrendUp:summary -->
+<FILL: 2-4 sentences explaining what IconTrendUp does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconTrendUp:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconTrendUp:return -->
+<FILL: describe the return value of IconTrendUp — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconTrendUp:return -->
+
+### Examples
+
+<!-- fill:sym:IconTrendUp:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconTrendUp:example -->
+
+### Used by
+
+- `src/components/KpiStrip.tsx`
+
+## IconTrendDown
+
+**Kind:** `function`
+
+```ts
+const IconTrendDown = (p: IconProps) => { ... }
+```
+
+<!-- fill:sym:IconTrendDown:summary -->
+<FILL: 2-4 sentences explaining what IconTrendDown does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:IconTrendDown:summary -->
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+
+**Returns:** `any`
+
+<!-- fill:sym:IconTrendDown:return -->
+<FILL: describe the return value of IconTrendDown — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:IconTrendDown:return -->
+
+### Examples
+
+<!-- fill:sym:IconTrendDown:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:IconTrendDown:example -->
+
+### Used by
+
+- `src/components/KpiStrip.tsx`
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `src/components/icons.tsx` (118 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (118 lines)</summary>
+
+````tsx
+/*
+ * Minimal inline icon set — 16px, stroke-based, currentColor.
+ * Kept dependency-free and geometric to match the dense, Linear-grade UI.
+ */
+import type { SVGProps } from 'react'
+
+type IconProps = SVGProps<SVGSVGElement>
+
+function Svg({ children, ...props }: IconProps) {
   return (
     <svg
       width="16"
@@ -42,216 +525,98 @@ function Svg({ children, ...props }: IconProps): JSX.Element {
     </svg>
   )
 }
-```
 
-`Svg` is the base element for every icon. It establishes the following defaults:
+export const IconDashboard = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1" />
+    <rect x="9" y="2.5" width="4.5" height="4.5" rx="1" />
+    <rect x="2.5" y="9" width="4.5" height="4.5" rx="1" />
+    <rect x="9" y="9" width="4.5" height="4.5" rx="1" />
+  </Svg>
+)
 
-| Attribute | Default value | Meaning |
-|-----------|--------------|---------|
-| `width` | `"16"` | 16px rendered width (overrideable via CSS) |
-| `height` | `"16"` | 16px rendered height (overrideable via CSS) |
-| `viewBox` | `"0 0 16 16"` | Logical coordinate space; all path data is authored in 16×16 units |
-| `fill` | `"none"` | No fill on the SVG root; individual shapes may set their own `fill` |
-| `stroke` | `"currentColor"` | Inherits the CSS `color` property |
-| `strokeWidth` | `"1.5"` | 1.5px visual stroke weight |
-| `strokeLinecap` | `"round"` | Rounded ends on open path segments |
-| `strokeLinejoin` | `"round"` | Rounded corners at path joins |
-| `aria-hidden` | `"true"` | Excludes all icons from the accessibility tree by default |
+export const IconSessions = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2.5 4.5a1 1 0 011-1h9a1 1 0 011 1v5a1 1 0 01-1 1H6l-3 2.5V10.5H3.5a1 1 0 01-1-1z" />
+  </Svg>
+)
 
-**Override mechanism:** `{...props}` is spread after the defaults, so any attribute passed to an icon component overrides the default. Example: `<IconSearch stroke="red" />` produces `stroke="red"`.
+export const IconAgents = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 2 13.5 5v6L8 14 2.5 11V5z" />
+    <path d="M2.5 5 8 8l5.5-3M8 8v6" />
+  </Svg>
+)
 
-:::tip
-To change icon colour, use a Tailwind text-colour class: `<IconSearch className="text-accent" />`. React applies the `className` to the `<svg>`, and `stroke="currentColor"` picks up the CSS `color` value automatically.
-:::
+export const IconRuns = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M1.8 8h2.7l2-5 3 10 2-5h2.7" />
+  </Svg>
+)
 
-## Exported icons
+export const IconIntegrations = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5.5 2v3.5M10.5 2v3.5M3.5 5.5h9V9a4.5 4.5 0 01-9 0zM8 13.5V15" />
+  </Svg>
+)
 
-All icons follow the pattern:
+export const IconSettings = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2 5h6M12.5 5H14M2 11h1.5M8 11h6" />
+    <circle cx="10" cy="5" r="2" />
+    <circle cx="6" cy="11" r="2" />
+  </Svg>
+)
 
-```ts
-export const IconXxx = (p: IconProps) => <Svg {...p}>…SVG shapes…</Svg>
-```
+export const IconSearch = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="7" cy="7" r="4.5" />
+    <path d="m10.5 10.5 3 3" />
+  </Svg>
+)
 
-### `IconDashboard`
+export const IconPlus = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 3v10M3 8h10" />
+  </Svg>
+)
 
-| Property | Value |
-|----------|-------|
-| Visual | Four small rounded rectangles arranged in a 2×2 grid |
-| SVG shapes | Four `<rect>` elements; top-left, top-right, bottom-left, bottom-right quadrants |
-| Used by | `Sidebar` — Dashboard nav item |
+export const IconArrowUp = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M8 13V3.5M3.8 7.7 8 3.5l4.2 4.2" />
+  </Svg>
+)
 
-### `IconSessions`
+export const IconSparkle = (p: IconProps) => (
+  <Svg {...p}>
+    <path
+      d="M8 2.2 9.3 6.7 13.8 8 9.3 9.3 8 13.8 6.7 9.3 2.2 8 6.7 6.7z"
+      fill="currentColor"
+      stroke="none"
+    />
+  </Svg>
+)
 
-| Property | Value |
-|----------|-------|
-| Visual | A speech bubble / chat message outline |
-| SVG shapes | `<path>` describing a rounded rectangle with a triangular tail at the bottom-left |
-| Used by | `Sidebar` — Sessions nav item |
+export const IconChevronDown = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 6 8 10l4-4" />
+  </Svg>
+)
 
-### `IconAgents`
+export const IconTrendUp = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2.5 11 6.5 7l2.5 2.5L13.5 5" />
+    <path d="M10 5h3.5v3.5" />
+  </Svg>
+)
 
-| Property | Value |
-|----------|-------|
-| Visual | A hexagon with internal line segments suggesting a network or agent graph |
-| SVG shapes | `<path>` for the hexagon outline + internal cross-lines |
-| Used by | `Sidebar` — Agents nav item |
+export const IconTrendDown = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2.5 5 6.5 9l2.5-2.5L13.5 11" />
+    <path d="M10 11h3.5V7.5" />
+  </Svg>
+)
 
-### `IconRuns`
+````
 
-| Property | Value |
-|----------|-------|
-| Visual | An ECG / pulse waveform (flat — sharp spike — flat) |
-| SVG shapes | `<polyline>` or `<path>` tracing the waveform |
-| Used by | `Sidebar` — Runs nav item |
-
-### `IconIntegrations`
-
-| Property | Value |
-|----------|-------|
-| Visual | A plug or flask/connector shape |
-| SVG shapes | `<path>` describing the plug body and prongs |
-| Used by | `Sidebar` — Integrations nav item |
-
-### `IconSettings`
-
-| Property | Value |
-|----------|-------|
-| Visual | Two horizontal slider tracks with circular thumb handles |
-| SVG shapes | Two `<line>` or `<path>` segments (tracks) + two `<circle>` elements (thumbs) |
-| Used by | `Sidebar` — Settings nav item |
-
-### `IconSearch`
-
-| Property | Value |
-|----------|-------|
-| Visual | A magnifying glass — circle with a diagonal handle line extending from the lower-right |
-| SVG shapes | `<circle>` (lens) + `<line>` (handle) |
-| Used by | `TopBar` (search trigger), `AgentGrid` (search label) |
-
-### `IconPlus`
-
-| Property | Value |
-|----------|-------|
-| Visual | A `+` cross (two perpendicular line segments) |
-| SVG shapes | Two `<line>` elements (horizontal + vertical) |
-| Used by | `Sidebar` — New session button |
-
-### `IconArrowUp`
-
-| Property | Value |
-|----------|-------|
-| Visual | An upward-pointing arrow with an angled arrowhead |
-| SVG shapes | `<path>` or `<line>` + `<polyline>` for the shaft and arrowhead |
-| Used by | `FeaturedAgent` Run button, `PromptBar` send button |
-
-### `IconSparkle`
-
-| Property | Value |
-|----------|-------|
-| Visual | A solid four-point star (sparkle/asterisk shape) |
-| SVG shapes | `<path>` with `fill="currentColor"` and `stroke="none"` directly on the path |
-| Special | The **only icon that is not purely stroke-based**. `fill="currentColor"` is set on the `<path>` element, and `stroke="none"` overrides the `Svg` wrapper's `stroke="currentColor"`. The SVG root still has `fill="none"` from the `Svg` wrapper, but the inner path overrides it. |
-| Used by | `PromptBar` — model picker decoration, `FeaturedAgent` — "Featured agent" eyebrow |
-
-:::note
-`IconSparkle` is unique in the icon set: it sets `fill="currentColor"` and `stroke="none"` directly on its inner `<path>` element. Passing `className="text-accent"` to `IconSparkle` colours the filled star pink, while passing it to any other icon colours its stroke.
-:::
-
-### `IconChevronDown`
-
-| Property | Value |
-|----------|-------|
-| Visual | A `˅` chevron (two line segments meeting at a downward point) |
-| SVG shapes | `<polyline>` or `<path>` |
-| Used by | `Sidebar` — workspace switcher, `PromptBar` — model picker, `TopBar` — environment switcher |
-
-### `IconTrendUp`
-
-| Property | Value |
-|----------|-------|
-| Visual | A rising diagonal line with an arrowhead at the upper-right end |
-| SVG shapes | `<path>` or `<line>` + arrowhead `<polyline>` |
-| Used by | `KpiStrip` (via `KpiCard`) — shown when `isDown === false` (positive or upward delta) |
-
-### `IconTrendDown`
-
-| Property | Value |
-|----------|-------|
-| Visual | A falling diagonal line with an arrowhead at the lower-right end |
-| SVG shapes | `<path>` or `<line>` + arrowhead `<polyline>` |
-| Used by | `KpiStrip` (via `KpiCard`) — shown when `isDown === true` (negative or downward delta) |
-
-## Usage patterns
-
-### Basic usage (colour from parent)
-
-```tsx
-import { IconSearch } from './icons'
-
-// Icon inherits text colour from the parent element's CSS color:
-<button className="text-text-faint hover:text-text">
-  <IconSearch />
-  Search
-</button>
-```
-
-### Explicit colour
-
-```tsx
-// Apply a specific colour via Tailwind text-colour utility:
-<IconPlus className="text-accent" />
-```
-
-### Size override
-
-```tsx
-// Override the 16×16px default size with Tailwind utilities:
-<IconArrowUp className="h-4 w-4" />  // 16px (same as default)
-<IconSparkle className="h-3.5 w-3.5" />  // 14px (smaller)
-```
-
-Both `width`/`height` attributes and CSS `height`/`width` properties affect SVG size. The Tailwind `h-*`/`w-*` classes set CSS `height`/`width`, which override the SVG `width="16" height="16"` attributes in browsers.
-
-### Combined colour and size
-
-```tsx
-<IconSparkle className="h-3.5 w-3.5 text-accent" />
-```
-
-## Icon overview table
-
-| Export | Visual | Fill/stroke | Used by |
-|--------|--------|------------|---------|
-| `IconDashboard` | 2×2 grid of rectangles | Stroke | `Sidebar` |
-| `IconSessions` | Chat bubble | Stroke | `Sidebar` |
-| `IconAgents` | Hexagon + lines | Stroke | `Sidebar` |
-| `IconRuns` | ECG waveform | Stroke | `Sidebar` |
-| `IconIntegrations` | Plug/flask | Stroke | `Sidebar` |
-| `IconSettings` | Two sliders | Stroke | `Sidebar` |
-| `IconSearch` | Magnifying glass | Stroke | `TopBar`, `AgentGrid` |
-| `IconPlus` | Plus cross | Stroke | `Sidebar` |
-| `IconArrowUp` | Upward arrow | Stroke | `FeaturedAgent`, `PromptBar` |
-| `IconSparkle` | Solid 4-point star | **Fill only** | `PromptBar`, `FeaturedAgent` |
-| `IconChevronDown` | Down chevron | Stroke | `Sidebar`, `PromptBar`, `TopBar` |
-| `IconTrendUp` | Rising line + arrow | Stroke | `KpiStrip` |
-| `IconTrendDown` | Falling line + arrow | Stroke | `KpiStrip` |
-
-## Accessibility
-
-All icons have `aria-hidden="true"` by default (set in the `Svg` wrapper). This is the correct default because:
-
-1. Icons are always used alongside text labels or `aria-label` attributes on their parent buttons.
-2. Exposing icon SVG paths to screen readers would produce meaningless or no useful output.
-
-To make a standalone icon accessible (e.g. an icon-only button that does not pass `aria-label` to the button), override with `aria-hidden={false}` and add `role="img"` and `aria-label`:
-
-```tsx
-// Example: accessible icon with no parent aria-label
-<IconSearch aria-hidden={false} role="img" aria-label="Search" />
-```
-
-In practice, every component that uses an icon-only button already provides `aria-label` on the `<button>` element (`PromptBar`'s send button uses `aria-label="Send prompt"`), so overriding `aria-hidden` is not needed.
-
-## Bundle size
-
-Each icon is a small inline SVG with a single `<path>` or a handful of primitive elements. The total size of `icons.tsx` is in the kilobyte range. Because icons are tree-shaken individually as named exports, only the icons actually imported in the application are included in the final bundle.
+</details>

@@ -1,90 +1,298 @@
 ---
-title: "seed.ts — seed data"
+title: seed
+description: Reference for `server/src/seed.ts`
 ---
 
-**File:** `server/src/seed.ts`
+**File:** `server/src/seed.ts` · **Lines:** 218
 
-Exports the canonical seed data for the backend: 12 agents typed as `Agent[]` and 4 KPIs typed as `Kpi[]`. This data serves two purposes:
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `seed.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-1. **Database seeding** — `db/setup.ts` upserts all rows into Postgres when you run `npm run db:setup`.
-2. **Test fixtures** — `api.test.ts` passes these arrays to `createMemoryStore` so tests have deterministic data without a database connection.
+## Imports
 
-:::note
-The seed data is structurally identical to the frontend's `src/data/agents.ts` (`AGENTS`) and `src/data/kpis.ts` (`KPIS`) arrays. There is no shared package — the two copies are maintained by hand. Any change to an agent or KPI must be mirrored in both places.
-:::
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-## `SEED_AGENTS`
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `./domain` | `Agent`, `Kpi` | type-only · internal |
 
-```ts
-export const SEED_AGENTS: Agent[]
-```
 
-An array of 12 `Agent` objects in display order. When upserted into Postgres, `db/setup.ts` uses `ON CONFLICT (id) DO UPDATE` so re-running the script refreshes all fields back to these values.
+## Symbols
 
-### Agent catalogue
+This file exports 2 symbols. Every export is documented below, in declaration order.
 
-| ID | Name | Category | Status | Runs/wk | Success% | Popular |
-|---|---|---|---|---|---|---|
-| `pr-reviewer` | PR Reviewer | Review | running | 342 | 96 | yes |
-| `deploy-bot` | Deploy Bot | Deploy | idle | 57 | 99 | yes |
-| `rca-analyst` | RCA Analyst | Reliability | attention | 14 | 88 | no |
-| `alert-triage` | Alert Triage | Reliability | running | 410 | 94 | yes |
-| `changelog-author` | Changelog Author | Docs | idle | 38 | 99 | no |
-| `e2e-verifier` | E2E Verifier | Quality | running | 122 | 91 | yes |
-| `flaky-test-hunter` | Flaky Test Hunter | Quality | idle | 26 | 93 | no |
-| `migration-reviewer` | Migration Reviewer | Review | idle | 19 | 97 | no |
-| `dependency-bot` | Dependency Bot | Quality | idle | 64 | 95 | yes |
-| `oncall-digest` | On-call Digest | Reliability | idle | 7 | 100 | no |
-| `spec-author` | Spec Author | Docs | idle | 31 | 98 | no |
-| `coverage-guard` | Coverage Guard | Quality | running | 88 | 92 | no |
+| Name | Kind | Default |
+| --- | --- | --- |
+| SEED_AGENTS | const | no |
+| SEED_KPIS | const | no |
 
-When served from the Postgres store (`listAgents`), agents are returned ordered by `runs_per_week DESC`:
-1. `alert-triage` (410)
-2. `pr-reviewer` (342)
-3. `e2e-verifier` (122)
-4. `coverage-guard` (88)
-5. `dependency-bot` (64)
-6. `deploy-bot` (57)
-7. `changelog-author` (38)
-8. `spec-author` (31)
-9. `flaky-test-hunter` (26)
-10. `migration-reviewer` (19)
-11. `rca-analyst` (14)
-12. `oncall-digest` (7)
+## SEED_AGENTS
 
-## `SEED_KPIS`
+**Kind:** `const`
 
 ```ts
-export const SEED_KPIS: Kpi[]
+const SEED_AGENTS: Agent[]
 ```
 
-An array of 4 `Kpi` objects. The array index determines `sort_order` in Postgres (index 0 → `sort_order = 0`, etc.).
+<!-- fill:sym:SEED_AGENTS:summary -->
+<FILL: 2-4 sentences explaining what SEED_AGENTS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:SEED_AGENTS:summary -->
 
-### KPI catalogue
+### Used by
 
-| Index | ID | Label | Value | Delta | Positive |
-|---|---|---|---|---|---|
-| 0 | `agent-runs` | Agent runs · 7d | `1,284` | `+18%` | yes |
-| 1 | `prs-reviewed` | PRs reviewed | `342` | `+9%` | yes |
-| 2 | `time-to-merge` | Mean time to merge | `4h 12m` | `-22%` | yes |
-| 3 | `suite-pass-rate` | Suite pass rate | `97.4%` | `+0.6%` | yes |
+- `server/src/__tests__/api.test.ts`
+- `server/src/db/setup.ts`
 
-Each KPI has a 7-point `trend` array used by the sparkline chart:
+## SEED_KPIS
 
-| ID | Trend series |
-|---|---|
-| `agent-runs` | `[980, 1020, 1050, 1100, 1180, 1240, 1284]` |
-| `prs-reviewed` | `[290, 298, 305, 315, 325, 334, 342]` |
-| `time-to-merge` | `[340, 325, 310, 295, 275, 260, 252]` (decreasing = improving) |
-| `suite-pass-rate` | `[96.2, 96.4, 96.7, 96.9, 97.1, 97.3, 97.4]` |
+**Kind:** `const`
 
-## Used by
+```ts
+const SEED_KPIS: Kpi[]
+```
 
-- **`server/src/db/setup.ts`** — iterates `SEED_AGENTS` and `SEED_KPIS`, upserting each row into Postgres with `ON CONFLICT (id) DO UPDATE`.
-- **`server/src/__tests__/api.test.ts`**:
-  ```ts
-  import { SEED_AGENTS, SEED_KPIS } from '../seed'
-  import { createMemoryStore } from '../store'
+<!-- fill:sym:SEED_KPIS:summary -->
+<FILL: 2-4 sentences explaining what SEED_KPIS does and why it exists. Ground every claim in the signature and source.>
+<!-- /fill:sym:SEED_KPIS:summary -->
 
-  const store = createMemoryStore(SEED_AGENTS, SEED_KPIS)
-  ```
+### Used by
+
+- `server/src/__tests__/api.test.ts`
+- `server/src/db/setup.ts`
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `server/src/seed.ts` (218 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (218 lines)</summary>
+
+````ts
+import type { Agent, Kpi } from './domain'
+
+/*
+ * Seed data — the agent catalogue and KPIs.
+ * Loaded into Postgres by `npm run db:setup` and used directly by the
+ * in-memory store in tests.
+ */
+
+export const SEED_AGENTS: Agent[] = [
+  {
+    id: 'pr-reviewer',
+    name: 'PR Reviewer',
+    category: 'Review',
+    description:
+      'Reviews open pull requests for correctness, security, and style, and leaves inline comments before merge.',
+    status: 'running',
+    runsPerWeek: 342,
+    successRate: 96,
+    avgDuration: '2m 40s',
+    lastRun: '3m ago',
+    lastRunMinutes: 3,
+    popular: true,
+  },
+  {
+    id: 'deploy-bot',
+    name: 'Deploy Bot',
+    category: 'Deploy',
+    description:
+      'Ships approved changes to staging and production with health checks and automated rollback on failure.',
+    status: 'idle',
+    runsPerWeek: 57,
+    successRate: 99,
+    avgDuration: '6m 10s',
+    lastRun: '1h ago',
+    lastRunMinutes: 60,
+    popular: true,
+  },
+  {
+    id: 'rca-analyst',
+    name: 'RCA Analyst',
+    category: 'Reliability',
+    description:
+      'Investigates incidents and drafts a root-cause analysis from logs, traces, and recent deploys.',
+    status: 'attention',
+    runsPerWeek: 14,
+    successRate: 88,
+    avgDuration: '8m 30s',
+    lastRun: '22m ago',
+    lastRunMinutes: 22,
+    popular: false,
+  },
+  {
+    id: 'alert-triage',
+    name: 'Alert Triage',
+    category: 'Reliability',
+    description:
+      'Triages PagerDuty and Datadog alerts, dedupes noise, and routes each to the right owner.',
+    status: 'running',
+    runsPerWeek: 410,
+    successRate: 94,
+    avgDuration: '0m 45s',
+    lastRun: 'just now',
+    lastRunMinutes: 0,
+    popular: true,
+  },
+  {
+    id: 'changelog-author',
+    name: 'Changelog Author',
+    category: 'Docs',
+    description:
+      'Generates release notes and changelog entries from merged pull requests and linked issues.',
+    status: 'idle',
+    runsPerWeek: 38,
+    successRate: 99,
+    avgDuration: '1m 20s',
+    lastRun: '5h ago',
+    lastRunMinutes: 300,
+    popular: false,
+  },
+  {
+    id: 'e2e-verifier',
+    name: 'E2E Verifier',
+    category: 'Quality',
+    description:
+      'Runs Playwright end-to-end suites against preview deploys and reports failures and flakes.',
+    status: 'running',
+    runsPerWeek: 122,
+    successRate: 91,
+    avgDuration: '11m 05s',
+    lastRun: '8m ago',
+    lastRunMinutes: 8,
+    popular: true,
+  },
+  {
+    id: 'flaky-test-hunter',
+    name: 'Flaky Test Hunter',
+    category: 'Quality',
+    description:
+      'Detects flaky tests across CI history, quarantines them, and opens a tracking issue.',
+    status: 'idle',
+    runsPerWeek: 26,
+    successRate: 93,
+    avgDuration: '4m 15s',
+    lastRun: '1d ago',
+    lastRunMinutes: 1440,
+    popular: false,
+  },
+  {
+    id: 'migration-reviewer',
+    name: 'Migration Reviewer',
+    category: 'Review',
+    description:
+      'Checks database migrations for lock risk, missing backfills, and reversibility before merge.',
+    status: 'idle',
+    runsPerWeek: 19,
+    successRate: 97,
+    avgDuration: '3m 50s',
+    lastRun: '6h ago',
+    lastRunMinutes: 360,
+    popular: false,
+  },
+  {
+    id: 'dependency-bot',
+    name: 'Dependency Bot',
+    category: 'Quality',
+    description:
+      'Opens dependency-upgrade pull requests, runs the full suite, and validates the diff.',
+    status: 'idle',
+    runsPerWeek: 64,
+    successRate: 95,
+    avgDuration: '5m 30s',
+    lastRun: '3h ago',
+    lastRunMinutes: 180,
+    popular: true,
+  },
+  {
+    id: 'oncall-digest',
+    name: 'On-call Digest',
+    category: 'Reliability',
+    description:
+      'Summarizes the overnight on-call shift: alerts fired, deploys shipped, and incidents opened.',
+    status: 'idle',
+    runsPerWeek: 7,
+    successRate: 100,
+    avgDuration: '2m 00s',
+    lastRun: '9h ago',
+    lastRunMinutes: 540,
+    popular: false,
+  },
+  {
+    id: 'spec-author',
+    name: 'Spec Author',
+    category: 'Docs',
+    description:
+      'Drafts technical specs and architecture decision records from a short natural-language prompt.',
+    status: 'idle',
+    runsPerWeek: 31,
+    successRate: 98,
+    avgDuration: '1m 45s',
+    lastRun: '2h ago',
+    lastRunMinutes: 120,
+    popular: false,
+  },
+  {
+    id: 'coverage-guard',
+    name: 'Coverage Guard',
+    category: 'Quality',
+    description:
+      'Blocks pull requests that drop test coverage below the configured threshold.',
+    status: 'running',
+    runsPerWeek: 88,
+    successRate: 92,
+    avgDuration: '0m 55s',
+    lastRun: '12m ago',
+    lastRunMinutes: 12,
+    popular: false,
+  },
+]
+
+export const SEED_KPIS: Kpi[] = [
+  {
+    id: 'agent-runs',
+    label: 'Agent runs · 7d',
+    value: '1,284',
+    delta: '+18%',
+    positive: true,
+    hint: 'Total agent executions in the last 7 days.',
+    trend: [980, 1010, 1060, 1040, 1120, 1180, 1284],
+  },
+  {
+    id: 'prs-reviewed',
+    label: 'PRs reviewed',
+    value: '342',
+    delta: '+9%',
+    positive: true,
+    hint: 'Pull requests reviewed by agents this week.',
+    trend: [290, 300, 285, 310, 320, 330, 342],
+  },
+  {
+    id: 'time-to-merge',
+    label: 'Mean time to merge',
+    value: '4h 12m',
+    delta: '-22%',
+    positive: true,
+    hint: 'Average time from PR open to merge.',
+    trend: [340, 330, 318, 300, 285, 270, 252],
+  },
+  {
+    id: 'suite-pass-rate',
+    label: 'Suite pass rate',
+    value: '97.4%',
+    delta: '+0.6%',
+    positive: true,
+    hint: 'Share of CI runs passing on the first attempt.',
+    trend: [96.2, 96.5, 96.8, 96.6, 97.0, 97.1, 97.4],
+  },
+]
+
+````
+
+</details>

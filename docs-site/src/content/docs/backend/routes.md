@@ -1,188 +1,191 @@
 ---
-title: "routes.ts — REST endpoints"
+title: routes
+description: Reference for `server/src/routes.ts`
 ---
 
-**File:** `server/src/routes.ts`
+**File:** `server/src/routes.ts` · **Lines:** 37
 
-Registers all REST route handlers on the Express application. Each handler is intentionally thin: it reads from an injected dependency, serializes the result as JSON, and returns. No business logic lives in this file.
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `routes.ts` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-## `registerRoutes`
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `express` | `Express` | type-only · external |
+| `./app` | `AppDeps` | type-only · internal |
+| `./integrations/cicd` | `summarizePipelines` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| registerRoutes | function | no |
+
+## registerRoutes
+
+**Kind:** `function`
 
 ```ts
-export function registerRoutes(app: Express, deps: AppDeps): void
+export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 ```
 
-| Parameter | Type | Purpose |
-|---|---|---|
-| `app` | `Express` | The Express application instance to attach routes to |
-| `deps` | `AppDeps` | Injected `{ store, cicd }` dependencies forwarded to each handler |
+> Register all REST routes on the given Express app.
 
-**Returns:** `void` — mutates `app` by registering `GET` handlers as a side effect.
+### Parameters
 
-## Endpoint table
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| app | `Express` | — | yes | <FILL: purpose of app> |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
-| Method | Path | Description | Success response | Error response |
-|---|---|---|---|---|
-| `GET` | `/api/health` | Liveness probe | `200 { status, time }` | — |
-| `GET` | `/api/agents` | Full agent catalogue | `200 Agent[]` | `500 { error }` |
-| `GET` | `/api/agents/:id` | Single agent by ID | `200 Agent` | `404 { error }` / `500 { error }` |
-| `GET` | `/api/kpis` | KPI list | `200 Kpi[]` | `500 { error }` |
-| `GET` | `/api/pipelines` | CI/CD pipelines + summary | `200 { provider, summary, pipelines }` | `500 { error }` |
+**Returns:** `void`
 
-## `GET /api/health`
+<!-- fill:sym:registerRoutes:return -->
+<FILL: describe the return value of registerRoutes — what it represents, when it can be null/undefined, units.>
+<!-- /fill:sym:registerRoutes:return -->
+
+### Line-by-line walkthrough
+
+Each top-level statement of `registerRoutes`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 7 — `ExpressionStatement`**
 
 ```ts
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() })
-})
+    res.json({ status: 'ok', time: new Date().toISOString() })
+  })
 ```
 
-A liveness probe that makes no calls to the store or CI/CD provider. Returns immediately with a current timestamp.
+<!-- fill:sym:registerRoutes:walk:0 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:0 -->
 
-**Response shape:**
-```json
-{ "status": "ok", "time": "2026-05-24T10:00:00.000Z" }
-```
-
-`time` is an ISO 8601 UTC string generated at request time. Suitable for health-check polling by load balancers or container orchestrators.
-
-## `GET /api/agents`
+**Line 11 — `ExpressionStatement`**
 
 ```ts
 app.get('/api/agents', async (_req, res) => {
-  res.json(await deps.store.listAgents())
-})
+    res.json(await deps.store.listAgents())
+  })
 ```
 
-Returns the full agent catalogue as a JSON array. When backed by the Postgres store, agents are ordered by `runs_per_week DESC`. When backed by the memory store, agents are returned in the order they appear in `SEED_AGENTS`.
+<!-- fill:sym:registerRoutes:walk:1 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:1 -->
 
-**Response shape:** `Agent[]` — see [domain.ts](/backend/domain/) for the full `Agent` interface.
-
-## `GET /api/agents/:id`
+**Line 15 — `ExpressionStatement`**
 
 ```ts
 app.get('/api/agents/:id', async (req, res) => {
-  const agent = await deps.store.getAgent(req.params.id)
-  if (!agent) { res.status(404).json({ error: 'Agent not found' }); return }
-  res.json(agent)
-})
+    const agent = await deps.store.getAgent(req.params.id)
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' })
+      return
+    }
+    res.json(agent)
+  })
 ```
 
-Returns a single agent by its `id` path parameter. Calls `store.getAgent(req.params.id)` which returns `null` when no agent matches. The `return` statement after the 404 response is required to prevent Express from attempting a second `res.json(agent)` call.
+<!-- fill:sym:registerRoutes:walk:2 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:2 -->
 
-**Response shape (found):** `Agent`
-
-**Response shape (not found):**
-```json
-{ "error": "Agent not found" }
-```
-HTTP status `404`.
-
-## `GET /api/kpis`
+**Line 24 — `ExpressionStatement`**
 
 ```ts
 app.get('/api/kpis', async (_req, res) => {
-  res.json(await deps.store.listKpis())
-})
+    res.json(await deps.store.listKpis())
+  })
 ```
 
-Returns the KPI list as a JSON array. When backed by the Postgres store, KPIs are ordered by `sort_order ASC`. When backed by the memory store, KPIs are returned in `SEED_KPIS` array order.
+<!-- fill:sym:registerRoutes:walk:3 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:3 -->
 
-**Response shape:** `Kpi[]` — see [domain.ts](/backend/domain/) for the full `Kpi` interface.
-
-## `GET /api/pipelines`
+**Line 28 — `ExpressionStatement`**
 
 ```ts
 app.get('/api/pipelines', async (_req, res) => {
-  const pipelines = await deps.cicd.listPipelines()
-  res.json({ provider: deps.cicd.name, summary: summarizePipelines(pipelines), pipelines })
-})
+    const pipelines = await deps.cicd.listPipelines()
+    res.json({
+      provider: deps.cicd.name,
+      summary: summarizePipelines(pipelines),
+      pipelines,
+    })
+  })
 ```
 
-Fetches the current pipeline list from the CI/CD provider and computes a summary in the same request. All three fields are returned together to avoid the client needing a separate aggregation call.
+<!-- fill:sym:registerRoutes:walk:4 -->
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+<!-- /fill:sym:registerRoutes:walk:4 -->
 
-`summarizePipelines` is imported from `integrations/cicd.ts` and is a pure function — it performs no I/O. It counts pipelines by status and computes `passRate` over finished pipelines only (passing + failing; running pipelines are excluded from the denominator).
+### Examples
 
-**Response shape:**
-```json
-{
-  "provider": "mock",
-  "summary": {
-    "total": 8,
-    "passing": 4,
-    "failing": 2,
-    "running": 2,
-    "passRate": 67
-  },
-  "pipelines": [
-    {
-      "id": "p-1041",
-      "name": "CI · build & test",
-      "provider": "github-actions",
-      "branch": "main",
-      "status": "passing",
-      "durationSeconds": 184,
-      "triggeredBy": "a.kapoor",
-      "updatedAt": "2026-05-24T09:54:00.000Z"
+<!-- fill:sym:registerRoutes:example -->
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+<!-- /fill:sym:registerRoutes:example -->
+
+### Used by
+
+- `server/src/app.ts`
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `server/src/routes.ts` (37 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (37 lines)</summary>
+
+````ts
+import type { Express } from 'express'
+import type { AppDeps } from './app'
+import { summarizePipelines } from './integrations/cicd'
+
+/** Register all REST routes on the given Express app. */
+export function registerRoutes(app: Express, deps: AppDeps): void {
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() })
+  })
+
+  app.get('/api/agents', async (_req, res) => {
+    res.json(await deps.store.listAgents())
+  })
+
+  app.get('/api/agents/:id', async (req, res) => {
+    const agent = await deps.store.getAgent(req.params.id)
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' })
+      return
     }
-  ]
+    res.json(agent)
+  })
+
+  app.get('/api/kpis', async (_req, res) => {
+    res.json(await deps.store.listKpis())
+  })
+
+  app.get('/api/pipelines', async (_req, res) => {
+    const pipelines = await deps.cicd.listPipelines()
+    res.json({
+      provider: deps.cicd.name,
+      summary: summarizePipelines(pipelines),
+      pipelines,
+    })
+  })
 }
-```
 
-`provider` is `deps.cicd.name` — either `'mock'` or `'github-actions'`. See [CI/CD integration](/backend/cicd-integration/) for details on when each is active.
+````
 
-## Request flow diagram
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Routes as routes.ts
-    participant Store
-    participant Cicd as CicdProvider
-
-    Client->>Routes: GET /api/health
-    Routes-->>Client: { status: "ok", time } (200)
-
-    Client->>Routes: GET /api/agents
-    Routes->>Store: listAgents()
-    Store-->>Routes: Agent[]
-    Routes-->>Client: Agent[] (200)
-
-    Client->>Routes: GET /api/agents/:id
-    Routes->>Store: getAgent(id)
-    Store-->>Routes: Agent | null
-    alt agent found
-        Routes-->>Client: Agent (200)
-    else agent not found
-        Routes-->>Client: { error: "Agent not found" } (404)
-    end
-
-    Client->>Routes: GET /api/kpis
-    Routes->>Store: listKpis()
-    Store-->>Routes: Kpi[]
-    Routes-->>Client: Kpi[] (200)
-
-    Client->>Routes: GET /api/pipelines
-    Routes->>Cicd: listPipelines()
-    Cicd-->>Routes: Pipeline[]
-    Routes->>Routes: summarizePipelines(pipelines)
-    Routes-->>Client: { provider, summary, pipelines } (200)
-```
-
-## Error handling
-
-Unhandled errors thrown inside any route handler are caught by the catch-all error handler registered in `createApp` (in `app.ts`). That handler responds with:
-
-```json
-{ "error": "Internal server error" }
-```
-
-HTTP status `500`.
-
-## Used by
-
-`server/src/app.ts` — called inside `createApp`:
-
-```ts
-registerRoutes(app, deps)
-```
+</details>

@@ -1,22 +1,50 @@
 ---
-title: "db/schema.ts — database schema"
+title: schema
+description: Reference for `server/src/db/schema.ts`
 ---
 
-**File:** `server/src/db/schema.ts`
+**File:** `server/src/db/schema.ts` · **Lines:** 28
 
-Exports the SQL string that creates both Postgres tables. The SQL is stored as a TypeScript constant so it can be imported and executed by `db/setup.ts` without reading a separate `.sql` file.
+> Postgres schema for the Snabbit Agent Console. Idempotent.
 
-## `SCHEMA_SQL` constant
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| SCHEMA_SQL | const | no |
+
+## SCHEMA_SQL
+
+**Kind:** `const`
 
 ```ts
-export const SCHEMA_SQL: string
+const SCHEMA_SQL: "\nCREATE TABLE IF NOT EXISTS agents (\n id TEXT PRIMARY KEY,\n name TEXT NOT NULL,\n category TEXT NOT NULL,\n description TEXT NOT NULL,\n status TEXT NOT NULL,\n runs_per_week INTEGER NOT NULL,\n success_rate INTEGER NOT NULL,\n avg_duration TEXT NOT NULL,\n last_run TEXT NOT NULL,\n last_run_minutes INTEGER NOT NULL,\n popular BOOLEAN NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS kpis (\n id TEXT PRIMARY KEY,\n sort_order INTEGER NOT NULL,\n label TEXT NOT NULL,\n value TEXT NOT NULL,\n delta TEXT NOT NULL,\n positive BOOLEAN NOT NULL,\n hint TEXT NOT NULL,\n trend JSONB NOT NULL\n);\n"
 ```
 
-A single string containing two `CREATE TABLE IF NOT EXISTS` statements separated by a semicolon. Both statements are idempotent — running them on a database that already has the tables is a no-op.
+> Postgres schema for the Snabbit Agent Console. Idempotent.
 
-## Full schema SQL
+### Used by
 
-```sql
+- `server/src/db/setup.ts`
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `server/src/db/schema.ts` (28 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (28 lines)</summary>
+
+````ts
+/** Postgres schema for the Snabbit Agent Console. Idempotent. */
+export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS agents (
   id               TEXT PRIMARY KEY,
   name             TEXT NOT NULL,
@@ -41,61 +69,8 @@ CREATE TABLE IF NOT EXISTS kpis (
   hint       TEXT NOT NULL,
   trend      JSONB NOT NULL
 );
-```
+`
 
-## `agents` table columns
+````
 
-| Column | SQL type | Notes |
-|---|---|---|
-| `id` | `TEXT PRIMARY KEY` | Kebab-case slug; must be unique across all agents |
-| `name` | `TEXT NOT NULL` | Human-readable display name |
-| `category` | `TEXT NOT NULL` | Plain text; one of `Review`, `Deploy`, `Reliability`, `Quality`, `Docs` |
-| `description` | `TEXT NOT NULL` | One-sentence summary |
-| `status` | `TEXT NOT NULL` | Plain text; one of `running`, `idle`, `attention` |
-| `runs_per_week` | `INTEGER NOT NULL` | Weekly execution count |
-| `success_rate` | `INTEGER NOT NULL` | Integer percentage 0–100 |
-| `avg_duration` | `TEXT NOT NULL` | Human-readable string (e.g. `'2m 40s'`) |
-| `last_run` | `TEXT NOT NULL` | Human-readable string (e.g. `'3m ago'`) |
-| `last_run_minutes` | `INTEGER NOT NULL` | Numeric minutes for sorting |
-| `popular` | `BOOLEAN NOT NULL` | Dashboard "popular" tab membership flag |
-
-`category` and `status` intentionally use `TEXT` instead of Postgres `ENUM`. Enum types require `ALTER TYPE … ADD VALUE` migrations when new values are added; plain `TEXT` does not. The union-type narrowing is handled in the application layer (`rowToAgent()` in `postgresStore.ts`).
-
-## `kpis` table columns
-
-| Column | SQL type | Notes |
-|---|---|---|
-| `id` | `TEXT PRIMARY KEY` | Stable identifier |
-| `sort_order` | `INTEGER NOT NULL` | Ascending display order; set to array index at seed time |
-| `label` | `TEXT NOT NULL` | Metric display name |
-| `value` | `TEXT NOT NULL` | Pre-formatted display value |
-| `delta` | `TEXT NOT NULL` | Pre-formatted period change string |
-| `positive` | `BOOLEAN NOT NULL` | Favorable outcome flag |
-| `hint` | `TEXT NOT NULL` | Sub-label beneath the sparkline |
-| `trend` | `JSONB NOT NULL` | Seven-point numeric array; stored in binary JSON format |
-
-`trend` is `JSONB` rather than `JSON` for better read performance and future indexing capability. `pg` deserializes `JSONB` columns into JavaScript arrays automatically on read.
-
-`sort_order` is not present in the `Kpi` domain type — it is a database-only ordering column.
-
-## Idempotency
-
-Both statements use `CREATE TABLE IF NOT EXISTS`. This means:
-
-- Running `db/setup.ts` on a fresh database creates both tables.
-- Running `db/setup.ts` on a database that already has the tables performs no schema changes.
-- The subsequent upsert statements then refresh or insert seed data.
-
-:::tip
-You can safely run `npm run db:setup` multiple times. Each run is idempotent for schema creation and refreshes agent and KPI data back to seed values via `ON CONFLICT DO UPDATE`.
-:::
-
-## Used by
-
-`server/src/db/setup.ts`:
-
-```ts
-import { SCHEMA_SQL } from './schema'
-
-await pool.query(SCHEMA_SQL)
-```
+</details>

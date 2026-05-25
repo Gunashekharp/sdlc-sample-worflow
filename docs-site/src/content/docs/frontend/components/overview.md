@@ -1,0 +1,84 @@
+---
+title: components
+description: Files under src/components/
+---
+
+**Folder:** `src/components/`
+
+<!-- fill:folder:summary -->
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+<!-- /fill:folder:summary -->
+
+## Files
+
+| File | Hint |
+| --- | --- |
+| [`AgentCard.tsx`](../components/agentcard) | <FILL: one-line purpose for AgentCard.tsx> |
+| [`AgentGrid.tsx`](../components/agentgrid) | <FILL: one-line purpose for AgentGrid.tsx> |
+| [`FeaturedAgent.tsx`](../components/featuredagent) | <FILL: one-line purpose for FeaturedAgent.tsx> |
+| [`icons.tsx`](../components/icons) | Minimal inline icon set — 16px, stroke-based, currentColor. |
+| [`KpiStrip.tsx`](../components/kpistrip) | <FILL: one-line purpose for KpiStrip.tsx> |
+| [`PipelinesPanel.tsx`](../components/pipelinespanel) | <FILL: one-line purpose for PipelinesPanel.tsx> |
+| [`PromptBar.tsx`](../components/promptbar) | <FILL: one-line purpose for PromptBar.tsx> |
+| [`Sidebar.tsx`](../components/sidebar) | <FILL: one-line purpose for Sidebar.tsx> |
+| [`Sparkline.tsx`](../components/sparkline) | <FILL: one-line purpose for Sparkline.tsx> |
+| [`StatusDot.tsx`](../components/statusdot) | <FILL: one-line purpose for StatusDot.tsx> |
+| [`TopBar.tsx`](../components/topbar) | <FILL: one-line purpose for TopBar.tsx> |
+
+## Dependencies
+
+### Module dependency subgraph
+
+```mermaid
+%% Subgraph for frontend/components
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
+flowchart LR
+  components_AgentCard_tsx["components/AgentCard.tsx"]
+  components_AgentGrid_tsx["components/AgentGrid.tsx"]
+  components_FeaturedAgent_tsx["components/FeaturedAgent.tsx"]
+  components_KpiStrip_tsx["components/KpiStrip.tsx"]
+  components_PipelinesPanel_tsx["components/PipelinesPanel.tsx"]
+  components_PromptBar_tsx["components/PromptBar.tsx"]
+  components_Sidebar_tsx["components/Sidebar.tsx"]
+  components_Sparkline_tsx["components/Sparkline.tsx"]
+  components_StatusDot_tsx["components/StatusDot.tsx"]
+  components_TopBar_tsx["components/TopBar.tsx"]
+  components_icons_tsx["components/icons.tsx"]
+  data_agents_ts["external: data/agents.ts"]
+  data_kpis_ts["external: data/kpis.ts"]
+  lib_api_ts["external: lib/api.ts"]
+  lib_filterAgents_ts["external: lib/filterAgents.ts"]
+  lib_sortAgents_ts["external: lib/sortAgents.ts"]
+  lib_useFetch_ts["external: lib/useFetch.ts"]
+  lib_usePersistentState_ts["external: lib/usePersistentState.ts"]
+  components_AgentCard_tsx --> data_agents_ts
+  components_AgentCard_tsx --> components_StatusDot_tsx
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> lib_filterAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_usePersistentState_ts
+  components_AgentGrid_tsx --> components_AgentCard_tsx
+  components_AgentGrid_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> data_agents_ts
+  components_FeaturedAgent_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> components_StatusDot_tsx
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> components_icons_tsx
+  components_KpiStrip_tsx --> components_Sparkline_tsx
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_useFetch_ts
+  components_PromptBar_tsx --> components_icons_tsx
+  components_Sidebar_tsx --> components_icons_tsx
+  components_StatusDot_tsx --> data_agents_ts
+  components_TopBar_tsx --> components_icons_tsx
+```
+
+## Key flows
+
+<!-- fill:folder:flows -->
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+<!-- /fill:folder:flows -->

@@ -1,164 +1,143 @@
 ---
-title: Frontend overview
+title: frontend
+description: React + Vite single-page application. Renders the Agent Console dashboard.
 ---
 
-The frontend is a single-page application (SPA) built with **Vite 8**, **React 19**, **TypeScript 6**, and **Tailwind CSS v4**. It runs entirely in the browser and communicates with the backend over a single REST endpoint (`GET /api/pipelines`). All other data is static seed data bundled at build time.
+**Section root:** `src`
 
-## Technology stack
+> React + Vite single-page application. Renders the Agent Console dashboard.
 
-| Layer | Technology | Version |
-|---|---|---|
-| Bundler / dev server | Vite | 8 |
-| UI framework | React | 19 |
-| Language | TypeScript | 6 |
-| Styling | Tailwind CSS | v4 |
-| Unit testing | Vitest + React Testing Library | — |
-| Test DOM environment | jsdom | — |
+<!-- fill:overview:summary -->
+<FILL: 3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.>
+<!-- /fill:overview:summary -->
 
-## Entry points
+## Top-level structure
 
-The application boots through a three-file chain:
+| Folder | Purpose |
+| --- | --- |
+| [`components/`](./frontend/components/overview/) | <FILL: one line on what lives in components/ and when to add a file here.> |
+| [`data/`](./frontend/data/overview/) | <FILL: one line on what lives in data/ and when to add a file here.> |
+| [`lib/`](./frontend/lib/overview/) | <FILL: one line on what lives in lib/ and when to add a file here.> |
+| [`test/`](./frontend/test/overview/) | <FILL: one line on what lives in test/ and when to add a file here.> |
 
-```
-index.html
-  └── <script type="module" src="/src/main.tsx">
-        └── main.tsx   (createRoot + StrictMode)
-              └── App.tsx  (root component — full-page layout)
-```
+### Files at the root of this section
 
-1. **`index.html`** — The HTML shell served by Vite. Contains the `<div id="root">` mount point, the module-script tag that loads `main.tsx`, a pink SVG favicon, and `<link rel="preconnect">` hints for loading the Geist and Geist Mono fonts from Google Fonts. Sets `class="dark"` and `color-scheme: dark` on `<html>`.
-2. **`src/main.tsx`** — Bootstraps React with `createRoot` wrapped in `<StrictMode>`. See [main.tsx](./main).
-3. **`src/App.tsx`** — Composes the full page layout from seven child components. Splits the agent catalogue into the featured agent and the grid. See [App.tsx](./app).
+| File | Hint |
+| --- | --- |
+| [`App.tsx`](./app) | <FILL: one-line purpose for App.tsx> |
+| [`main.tsx`](./main) | <FILL: one-line purpose for main.tsx> |
 
-## Component tree
+## Architecture
+
+### Module dependency graph
 
 ```mermaid
+%% Module dependency graph for frontend
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
+flowchart LR
+  App_tsx["App.tsx"]
+  components_AgentCard_tsx["components/AgentCard.tsx"]
+  components_AgentGrid_tsx["components/AgentGrid.tsx"]
+  components_FeaturedAgent_tsx["components/FeaturedAgent.tsx"]
+  components_KpiStrip_tsx["components/KpiStrip.tsx"]
+  components_PipelinesPanel_tsx["components/PipelinesPanel.tsx"]
+  components_PromptBar_tsx["components/PromptBar.tsx"]
+  components_Sidebar_tsx["components/Sidebar.tsx"]
+  components_Sparkline_tsx["components/Sparkline.tsx"]
+  components_StatusDot_tsx["components/StatusDot.tsx"]
+  components_TopBar_tsx["components/TopBar.tsx"]
+  components_icons_tsx["components/icons.tsx"]
+  data_agents_ts["data/agents.ts"]
+  data_kpis_ts["data/kpis.ts"]
+  lib_api_ts["lib/api.ts"]
+  lib_filterAgents_ts["lib/filterAgents.ts"]
+  lib_sortAgents_ts["lib/sortAgents.ts"]
+  lib_useFetch_ts["lib/useFetch.ts"]
+  lib_usePersistentState_ts["lib/usePersistentState.ts"]
+  main_tsx["main.tsx"]
+  App_tsx --> data_agents_ts
+  App_tsx --> components_Sidebar_tsx
+  App_tsx --> components_TopBar_tsx
+  App_tsx --> components_KpiStrip_tsx
+  App_tsx --> components_FeaturedAgent_tsx
+  App_tsx --> components_PipelinesPanel_tsx
+  App_tsx --> components_AgentGrid_tsx
+  App_tsx --> components_PromptBar_tsx
+  main_tsx --> App_tsx
+  components_AgentCard_tsx --> data_agents_ts
+  components_AgentCard_tsx --> components_StatusDot_tsx
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> lib_filterAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_usePersistentState_ts
+  components_AgentGrid_tsx --> components_AgentCard_tsx
+  components_AgentGrid_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> data_agents_ts
+  components_FeaturedAgent_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> components_StatusDot_tsx
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> components_icons_tsx
+  components_KpiStrip_tsx --> components_Sparkline_tsx
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_useFetch_ts
+  components_PromptBar_tsx --> components_icons_tsx
+  components_Sidebar_tsx --> components_icons_tsx
+  components_StatusDot_tsx --> data_agents_ts
+  components_TopBar_tsx --> components_icons_tsx
+  lib_filterAgents_ts --> data_agents_ts
+  lib_sortAgents_ts --> data_agents_ts
+```
+
+### React component tree
+
+```mermaid
+%% React component tree (parent renders child)
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
 flowchart TD
-    App --> Sidebar
-    App --> TopBar
-    App --> KpiStrip
-    App --> FeaturedAgent
-    App --> PipelinesPanel
-    App --> AgentGrid
-    App --> PromptBar
+  AgentCard["AgentCard"]
+  AgentGrid["AgentGrid"]
+  App["App"]
+  FeaturedAgent["FeaturedAgent"]
+  KpiStrip["KpiStrip"]
+  PipelinesPanel["PipelinesPanel"]
+  PromptBar["PromptBar"]
+  Sidebar["Sidebar"]
+  Sparkline["Sparkline"]
+  StatusDot["StatusDot"]
+  TopBar["TopBar"]
+  icons["icons"]
+  main["main"]
+  App --> Sidebar
+  App --> TopBar
+  App --> KpiStrip
+  App --> FeaturedAgent
+  App --> PipelinesPanel
+  App --> AgentGrid
+  App --> PromptBar
+  main --> App
+  AgentCard --> StatusDot
+  AgentGrid --> icons
+  AgentGrid --> AgentCard
+  FeaturedAgent --> icons
+  FeaturedAgent --> StatusDot
+  KpiStrip --> Sparkline
+  PromptBar --> icons
+  Sidebar --> icons
+  TopBar --> icons
 ```
 
-All components live under `src/components/`. See [Components overview](./components) for a full table and per-component reference links.
+## Key flows
 
-## Build tooling
+<!-- fill:overview:flows -->
+<FILL: 2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).>
+<!-- /fill:overview:flows -->
 
-Vite is configured in `vite.config.ts` with two plugins:
+## When to add code here
 
-- **`@vitejs/plugin-react`** — Babel-based Fast Refresh and JSX transform. No need to `import React` in every file.
-- **`@tailwindcss/vite`** — Processes `@import "tailwindcss"` and the `@theme` block at build time. No separate PostCSS config is required.
-
-TypeScript compilation uses project references (`tsconfig.json` references both `tsconfig.app.json` and `tsconfig.node.json`). Application source is checked under the browser lib set; `vite.config.ts` itself is checked under the Node lib set. The `build` script runs `tsc -b` before `vite build` so that a type error fails the build before any output files are written.
-
-## Development server
-
-Start with:
-
-```bash
-npm run dev
-```
-
-Vite starts on **`http://localhost:5173`** by default with Hot Module Replacement (HMR) enabled. The backend must be running on `:3001` (or `VITE_API_URL`) for the Pipelines panel to load data.
-
-### Environment variables
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `VITE_API_URL` | `http://localhost:3001` | Base URL for the backend REST API |
-
-Variables must be prefixed `VITE_` to be included in the browser bundle. Variables without the prefix are stripped by Vite as a security measure. Set overrides in `.env.local` at the repository root.
-
-## npm scripts
-
-| Script | Command | Purpose |
-|---|---|---|
-| `dev` | `vite` | Start dev server with HMR on :5173 |
-| `build` | `tsc -b && vite build` | Type-check then produce optimised `dist/` |
-| `preview` | `vite preview` | Serve `dist/` locally to validate the production build |
-| `lint` | `eslint .` | Lint all source files |
-| `test` | `vitest` | Run unit tests in watch mode |
-| `test:run` | `vitest run` | Single-pass test run (for CI) |
-| `test:ui` | `vitest --ui` | Open the Vitest browser UI |
-
-:::note
-`tsc -b` in the `build` script runs a full TypeScript project-references build. A type error in any source file will abort the build before Vite writes any output, so `dist/` is never produced from a type-unsafe codebase.
-:::
-
-## Data flow
-
-| Panel | Data source | Makes a network call? |
-|---|---|---|
-| KpiStrip | `src/data/kpis.ts` | No |
-| FeaturedAgent | `src/data/agents.ts` | No |
-| PipelinesPanel | `GET /api/pipelines` via `useFetch` | **Yes** |
-| AgentGrid | `src/data/agents.ts` | No |
-
-## Directory structure
-
-```
-src/
-├── components/              # All React UI components
-│   ├── AgentCard.tsx
-│   ├── AgentGrid.tsx
-│   ├── FeaturedAgent.tsx
-│   ├── icons.tsx
-│   ├── KpiCard.tsx
-│   ├── KpiStrip.tsx
-│   ├── PipelinesPanel.tsx
-│   ├── PromptBar.tsx
-│   ├── Sidebar.tsx
-│   ├── Sparkline.tsx
-│   ├── StatusDot.tsx
-│   └── TopBar.tsx
-├── data/
-│   ├── agents.ts            # Static agent catalogue + domain types
-│   └── kpis.ts              # KPI seed data + domain types
-├── lib/
-│   ├── api.ts               # fetchPipelines REST client
-│   ├── filterAgents.ts      # Pure category + query filter
-│   ├── sortAgents.ts        # Pure four-strategy sort
-│   ├── useFetch.ts          # Generic data-fetching hook
-│   └── usePersistentState.ts  # localStorage-backed useState
-├── test/
-│   └── setup.ts             # Vitest global setup (jest-dom + localStorage clear)
-├── App.tsx                  # Root layout component
-├── index.css                # Design tokens + Tailwind v4 base
-├── main.tsx                 # React bootstrap (createRoot + StrictMode)
-└── vite-env.d.ts            # ImportMeta type augmentation for VITE_API_URL
-```
-
-## Per-file reference
-
-### Entry points
-
-- [App.tsx](./app) — root component and dashboard layout
-- [main.tsx](./main) — React root creation and mount
-- [Styling — design tokens](./styling) — `index.css`, Tailwind v4 `@theme`, color and font tokens
-- [vite.config.ts](./vite-config) — build and Vitest configuration
-- [vite-env.d.ts](./vite-env) — TypeScript declarations for `import.meta.env`
-- [test/setup.ts](./test-setup) — jest-dom matchers and localStorage isolation
-
-### Components (`src/components/`)
-
-See [Components overview](./components) for the full table and dependency diagram.
-
-### Library (`src/lib/`)
-
-See [Library overview](./lib) for a quick-reference table, or navigate directly:
-
-- [api.ts](./lib/api) — typed HTTP client
-- [filterAgents.ts](./lib/filteragents) — category + query filter
-- [sortAgents.ts](./lib/sortagents) — four sort strategies
-- [useFetch](./lib/usefetch) — data-fetching hook with abort and reload
-- [usePersistentState](./lib/usepersistentstate) — localStorage-backed state hook
-
-### Data (`src/data/`)
-
-See [Data overview](./data), or navigate directly:
-
-- [agents.ts](./data/agents) — 12-agent catalogue, types, and constants
-- [kpis.ts](./data/kpis) — 4-KPI catalogue and types
+<!-- fill:overview:when-to-add -->
+<FILL: practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.>
+<!-- /fill:overview:when-to-add -->

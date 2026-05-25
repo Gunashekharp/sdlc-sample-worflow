@@ -1,14 +1,44 @@
 ---
-title: main.tsx — application entry
+title: main
+description: Reference for `src/main.tsx`
 ---
 
-**File:** `src/main.tsx`
+**File:** `src/main.tsx` · **Lines:** 11
 
-The browser-side entry point. Creates the React root and renders the entire application tree inside React's `StrictMode`.
+<!-- fill:file:summary -->
+<FILL: 2-4 sentence plain-language summary of what `main.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+<!-- /fill:file:summary -->
 
-## Full source
+## Imports
 
-```tsx
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `StrictMode` | external |
+| `react-dom/client` | `createRoot` | external |
+| `./index.css` | _side-effect only_ | internal |
+| `./App.tsx` | `default as App` | internal |
+
+
+:::caution
+No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.
+:::
+
+## Diagrams
+
+<!-- fill:file:diagrams -->
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+<!-- /fill:file:diagrams -->
+
+## Source
+
+Full file source for `src/main.tsx` (11 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (11 lines)</summary>
+
+````tsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -19,111 +49,7 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
-```
 
-## Line-by-line walkthrough
+````
 
-### React imports
-
-```ts
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-```
-
-- `StrictMode` — a React component that enables development-time safety checks (see below).
-- `createRoot` — the React 18+ concurrent-mode API for mounting a React tree into a DOM node. Replaces the legacy `ReactDOM.render`.
-
-### CSS side-effect import
-
-```ts
-import './index.css'
-```
-
-Vite processes this as a CSS side-effect import. `index.css` is the sole CSS entry point for the application — it declares the Tailwind v4 `@import` and all design tokens via `@theme`. Importing it here ensures styles are bundled and applied to the page before the first React render.
-
-### Root creation
-
-```ts
-createRoot(document.getElementById('root')!)
-```
-
-`document.getElementById('root')` queries the `<div id="root"></div>` element declared in `index.html`. The non-null assertion (`!`) is safe: `index.html` always provides this element, and the module script that loads `main.tsx` is placed at the bottom of `<body>`, guaranteeing the element exists in the DOM when this line runs.
-
-If the element were somehow absent, `createRoot` would throw a clear error at startup rather than silently producing a blank page — making the failure immediately visible during development.
-
-`createRoot` returns a `Root` object whose `.render()` method is called immediately in the same expression.
-
-### StrictMode
-
-```tsx
-.render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-```
-
-`StrictMode` wraps the entire component tree. Its effects are development-only — it is compiled out in production builds and adds zero runtime overhead in production.
-
-In development, `StrictMode` activates:
-
-- **Double-invocation** of function component bodies, state initializer functions, and `useEffect` / `useLayoutEffect` / `useMemo` / `useReducer` callbacks. React runs each twice (discarding the first result) to surface side-effect bugs — for example, effects that produce incorrect results when not properly idempotent.
-- **Deprecation warnings** for unsafe lifecycle methods and legacy React APIs (e.g. `findDOMNode`, legacy context).
-- **State preservation warnings** — React warns if you accidentally rely on state that should have been reset.
-
-#### StrictMode and `useFetch`
-
-The double-invocation is why the `AbortController` guard in `useFetch` matters:
-
-```ts
-useEffect(() => {
-  const controller = new AbortController()
-  // ...
-  fetcher(controller.signal).then((result) => {
-    if (controller.signal.aborted) return   // <- this guard
-    setData(result)
-    setLoading(false)
-  })
-  return () => controller.abort()
-}, [fetcher, nonce])
-```
-
-In development (with `StrictMode`), React mounts the component, runs the effect, immediately unmounts it (triggering the cleanup which calls `controller.abort()`), then remounts and runs the effect again. The `signal.aborted` guard ensures that the result from the first (aborted) fetch is discarded rather than setting state after unmount.
-
-## The DOM anchor — `index.html`
-
-`index.html` provides the mount point:
-
-```html
-<div id="root"></div>
-```
-
-And loads this file as the Vite entry point:
-
-```html
-<script type="module" src="/src/main.tsx"></script>
-```
-
-At build time (`npm run build`), Vite replaces this script tag with the hashed, minified bundle and inlines critical CSS into the output `dist/index.html`.
-
-## Module graph
-
-```mermaid
-flowchart LR
-  html["index.html\n#root div"]
-  main["main.tsx\n(entry point)"]
-  css["index.css\n(design tokens)"]
-  app["App.tsx\n(root component)"]
-  reactDom["react-dom/client\ncreateRoot"]
-  react["react\nStrictMode"]
-
-  html -->|"<script type=module>"| main
-  main --> css
-  main --> app
-  main --> reactDom
-  main --> react
-```
-
-## Used by
-
-`index.html` — the only file that references `main.tsx`. No other source file imports it.
+</details>
