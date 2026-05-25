@@ -108,7 +108,6 @@ interface FileDoc {
   headerSummary: string
   imports: ImportRow[]
   totalLines: number
-  fullSource: string
 }
 
 const skipSet = new Set(configFilePatterns)
@@ -590,7 +589,7 @@ function renderWalk(sym: SymbolDoc, preserved?: Map<string, string>): string {
   })
   if (sym.walk.length === maxStatementsPerFunction) {
     lines.push(':::note')
-    lines.push(`Walkthrough truncated at ${maxStatementsPerFunction} statements. The full function body is in the [source appendix](#source).`)
+    lines.push(`Walkthrough truncated at ${maxStatementsPerFunction} statements. Open the source file at \`${sym.name}\` to see the full body.`)
     lines.push(':::')
     lines.push('')
   }
@@ -699,30 +698,6 @@ function renderSymbol(sym: SymbolDoc, preserved?: Map<string, string>): string {
   return lines.join('\n')
 }
 
-/**
- * Wrap the full file source in a Starlight-friendly collapsible block.
- * Uses a 4-backtick fence so 3-backtick fences inside the source (rare in
- * TS, but possible in template strings) do not terminate the block early.
- */
-function renderSourceAppendix(doc: FileDoc): string {
-  const lines: string[] = []
-  lines.push('## Source')
-  lines.push('')
-  lines.push(`Full file source for \`${doc.relPath}\` (${doc.totalLines} lines). The line-by-line walkthroughs above reference these line numbers.`)
-  lines.push('')
-  lines.push('<details>')
-  lines.push(`<summary>View source (${doc.totalLines} lines)</summary>`)
-  lines.push('')
-  const lang = doc.relInRoot.endsWith('.tsx') ? 'tsx' : doc.relInRoot.endsWith('.jsx') ? 'jsx' : doc.relInRoot.endsWith('.js') ? 'js' : 'ts'
-  lines.push('````' + lang)
-  lines.push(doc.fullSource.replace(/````/g, '\\`\\`\\`\\`'))
-  lines.push('````')
-  lines.push('')
-  lines.push('</details>')
-  lines.push('')
-  return lines.join('\n')
-}
-
 function renderFileDoc(doc: FileDoc, preserved?: Map<string, string>): string {
   const fm: string[] = ['---']
   const title = path.basename(doc.relInRoot).replace(/\.[^.]+$/, '')
@@ -791,7 +766,6 @@ function renderFileDoc(doc: FileDoc, preserved?: Map<string, string>): string {
     preserved,
   ))
   lines.push('')
-  lines.push(renderSourceAppendix(doc))
   return lines.join('\n')
 }
 
@@ -858,7 +832,7 @@ async function run(): Promise<void> {
       const relPath = path.relative(repoRoot, fp)
       const outRel = relInRoot.replace(/\.(tsx?|jsx?|mjs)$/, '.md').toLowerCase()
       const outPath = path.join(docsContentRoot, root.outDir, outRel)
-      const fullSource = fs.readFileSync(fp, 'utf-8')
+      const totalLines = fs.readFileSync(fp, 'utf-8').split('\n').length
       const doc: FileDoc = {
         sourceRoot: root,
         sourceFile,
@@ -869,8 +843,7 @@ async function run(): Promise<void> {
         tests: [],
         headerSummary: summarizeFile(sourceFile),
         imports: collectImports(sourceFile),
-        totalLines: fullSource.split('\n').length,
-        fullSource,
+        totalLines,
       }
       const testPath = findTestFile(sourceFile)
       if (testPath) doc.tests = parseTests(testPath)

@@ -31,36 +31,3 @@ No exported symbols detected by the AST. This file is likely a side-effect entry
 <!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/index.ts` (21 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (21 lines)</summary>
-
-````ts
-import { Pool } from 'pg'
-import { config } from './config'
-import { createApp } from './app'
-import { createPostgresStore } from './postgresStore'
-import { getCicdProvider } from './integrations/cicd'
-
-const pool = new Pool({ connectionString: config.databaseUrl })
-const store = createPostgresStore(pool)
-const cicd = getCicdProvider({
-  githubToken: config.githubToken,
-  githubRepo: config.githubRepo,
-})
-
-const app = createApp({ store, cicd })
-
-app.listen(config.port, () => {
-  console.log(
-    `Snabbit API listening on http://localhost:${config.port}  ·  CI/CD provider: ${cicd.name}`,
-  )
-})
-
-````
-
-</details>

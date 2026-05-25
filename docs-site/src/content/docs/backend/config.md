@@ -39,29 +39,3 @@ const config: { port: number; databaseUrl: any; githubToken: any; githubRepo: an
 <!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/config.ts` (14 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (14 lines)</summary>
-
-````ts
-/*
- * Runtime configuration, read from environment variables.
- * Sensible defaults keep local development zero-config.
- */
-export const config = {
-  port: Number(process.env.PORT ?? 3001),
-  databaseUrl:
-    process.env.DATABASE_URL ?? 'postgres://localhost:5432/snabbit_dash',
-  /** When set together with githubRepo, the CI/CD adapter goes live. */
-  githubToken: process.env.GITHUB_TOKEN ?? '',
-  /** owner/repo, e.g. "snabbit/changelog-automation". */
-  githubRepo: process.env.GITHUB_REPO ?? '',
-}
-
-````
-
-</details>

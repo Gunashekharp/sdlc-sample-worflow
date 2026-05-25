@@ -30,26 +30,3 @@ No exported symbols detected by the AST. This file is likely a side-effect entry
 <!-- fill:file:diagrams -->
 <FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/main.tsx` (11 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (11 lines)</summary>
-
-````tsx
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-````
-
-</details>
