@@ -1,90 +1,129 @@
 ---
 title: TopBar
-description: The header bar at the top of the main content column.
+description: Reference for `src/components/TopBar.tsx`
 ---
 
-**File:** `src/components/TopBar.tsx`
+**File:** `src/components/TopBar.tsx` · **Lines:** 32
 
-The 56px (`h-14`) header bar rendered above the main scrollable area. Shows a
-breadcrumb, a global search button, and an environment switcher. All interactive
-elements are currently visual-only stubs.
+<FILL: 2-4 sentence plain-language summary of what `components/TopBar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Component
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `./icons` | `IconChevronDown`, `IconSearch` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| TopBar | component | yes |
+
+## TopBar (default export)
+
+**Kind:** `component`
 
 ```ts
-export default function TopBar()
+export default function TopBar() { ... }
 ```
 
-**Parameters:** None — pure layout component with no props.
+<FILL: 2-4 sentences explaining what TopBar does and why it exists. Ground every claim in the signature and source.>
 
-**Returns:** A `<header>` element.
+### Line-by-line walkthrough
 
-**Side effects:** None.
+Each top-level statement of `TopBar`, in execution order. The line numbers reference the source file as it appears today.
 
-## Layout structure
+**Line 4 — `ReturnStatement`**
 
-```
-<header h-14>
-  ├── Breadcrumb  "Agent Console / Overview"
-  ├── Search button  (⌘K)  [ml-auto, w-72]
-  └── Environment switcher  "● Production  ˅"
-```
+```ts
+return (
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-bg px-4">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="font-semibold">Agent Console</span>
+        <span className="text-text-faint">/</span>
+        <span className="text-text-muted">Overview</span>
+      </div>
 
-### Breadcrumb
+      <button
+        type="button"
+        className="ml-auto flex w-72 items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-sm text-text-faint hover:border-border-strong"
+      >
+        <IconSearch />
+        <span className="flex-1 text-left">Search agents, runs, sessions…</span>
+        <kbd className="font-mono text-xs">⌘K</kbd>
+      </button>
 
-```tsx
-<div className="flex items-center gap-2 text-sm">
-  <span className="font-semibold">Agent Console</span>
-  <span className="text-text-faint">/</span>
-  <span className="text-text-muted">Overview</span>
-</div>
-```
-
-Static text showing the current section path. The active page ("Overview") is
-rendered in `text-text-muted` (secondary color) to distinguish it from the
-app name.
-
-### Search button
-
-```tsx
-<button
-  type="button"
-  className="ml-auto flex w-72 items-center gap-2 rounded-md border border-border
-             bg-surface px-2.5 py-1.5 text-sm text-text-faint hover:border-border-strong"
->
-  <IconSearch />
-  <span className="flex-1 text-left">Search agents, runs, sessions…</span>
-  <kbd className="font-mono text-xs">⌘K</kbd>
-</button>
+      <button
+        type="button"
+        className="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-sm hover:border-border-strong"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+        Production
+        <IconChevronDown className="text-text-faint" />
+      </button>
+    </header>
+  )
 ```
 
-A button styled as a search input. The `ml-auto` pushes it to the right of the
-breadcrumb. Not wired to any search functionality.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-### Environment switcher
+### Examples
 
-```tsx
-<button
-  type="button"
-  className="flex items-center gap-2 rounded-md border border-border bg-surface
-             px-2.5 py-1.5 text-sm hover:border-border-strong"
->
-  <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-  Production
-  <IconChevronDown className="text-text-faint" />
-</button>
-```
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
 
-A button showing a green status dot (`bg-ok`, `#3fb950`) and the label
-"Production". Not wired to environment switching.
+### Used by
 
-## Styling
+- `src/App.tsx`
 
-The bar sits on `bg-bg` (`#0a0a0b`) with a `border-b border-border` bottom
-divider. `shrink-0` prevents it from being compressed when the content area
-below overflows.
+## Diagrams
 
-## Used by
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 
-`App.tsx` — rendered as the first element inside the right-hand flex column,
-above the scrollable `<main>` region.
+## Source
+
+Full file source for `src/components/TopBar.tsx` (32 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (32 lines)</summary>
+
+````tsx
+import { IconChevronDown, IconSearch } from './icons'
+
+export default function TopBar() {
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-bg px-4">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="font-semibold">Agent Console</span>
+        <span className="text-text-faint">/</span>
+        <span className="text-text-muted">Overview</span>
+      </div>
+
+      <button
+        type="button"
+        className="ml-auto flex w-72 items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-sm text-text-faint hover:border-border-strong"
+      >
+        <IconSearch />
+        <span className="flex-1 text-left">Search agents, runs, sessions…</span>
+        <kbd className="font-mono text-xs">⌘K</kbd>
+      </button>
+
+      <button
+        type="button"
+        className="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-sm hover:border-border-strong"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+        Production
+        <IconChevronDown className="text-text-faint" />
+      </button>
+    </header>
+  )
+}
+
+````
+
+</details>

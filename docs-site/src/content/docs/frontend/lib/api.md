@@ -1,37 +1,180 @@
 ---
-title: api.ts
-description: Typed HTTP client for the backend REST API.
+title: api
+description: Reference for `src/lib/api.ts`
 ---
 
-**File:** `src/lib/api.ts`
+**File:** `src/lib/api.ts` · **Lines:** 44
 
-The typed client for the Snabbit Agent Console backend. Currently exports types
-and one fetch function for the pipelines endpoint.
+<FILL: 2-4 sentence plain-language summary of what `lib/api.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Configuration
+## Symbols
+
+This file exports 5 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| fetchPipelines | function | no |
+| PipelineStatus | type | no |
+| Pipeline | interface | no |
+| PipelineSummary | interface | no |
+| PipelinesResponse | interface | no |
+
+## fetchPipelines
+
+**Kind:** `function`
 
 ```ts
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+export async function fetchPipelines(
+  signal?: AbortSignal,
+): Promise<PipelinesResponse> { ... }
 ```
 
-The base URL is read from the Vite environment at build time. Vite exposes
-`import.meta.env.VITE_*` variables during development (from `.env` files) and
-replaces them at build time. If `VITE_API_URL` is not set, the client targets
-`http://localhost:3001` (the backend's default port).
+<FILL: 2-4 sentences explaining what fetchPipelines does and why it exists. Ground every claim in the signature and source.>
 
-## Types
+### Parameters
 
-### `PipelineStatus`
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| signal | `AbortSignal` | — | no | <FILL: purpose of signal> |
+
+**Returns:** `Promise<PipelinesResponse>`
+
+<FILL: describe the return value of fetchPipelines — what it represents, when it can be null/undefined, units.>
+
+### Line-by-line walkthrough
+
+Each top-level statement of `fetchPipelines`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 38 — `FirstStatement`**
+
+```ts
+const res = await fetch(`${API_URL}/api/pipelines`, { signal })
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 39 — `IfStatement`**
+
+```ts
+if (!res.ok) {
+    throw new Error(`API responded ${res.status}`)
+  }
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 42 — `ReturnStatement`**
+
+```ts
+return res.json() as Promise<PipelinesResponse>
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/components/PipelinesPanel.tsx`
+
+## PipelineStatus
+
+**Kind:** `type`
 
 ```ts
 export type PipelineStatus = 'passing' | 'failing' | 'running'
 ```
 
-The three possible states for a CI/CD pipeline run.
+<FILL: 2-4 sentences explaining what PipelineStatus does and why it exists. Ground every claim in the signature and source.>
 
-### `Pipeline`
+## Pipeline
+
+**Kind:** `interface`
 
 ```ts
+export interface Pipeline { ... }
+```
+
+<FILL: 2-4 sentences explaining what Pipeline does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
+| branch | `string` | <FILL: branch> |
+| status | `PipelineStatus` | <FILL: status> |
+| durationSeconds | `number` | <FILL: durationSeconds> |
+| triggeredBy | `string` | <FILL: triggeredBy> |
+| updatedAt | `string` | <FILL: updatedAt> |
+
+### Used by
+
+- `src/components/PipelinesPanel.tsx`
+
+## PipelineSummary
+
+**Kind:** `interface`
+
+```ts
+export interface PipelineSummary { ... }
+```
+
+<FILL: 2-4 sentences explaining what PipelineSummary does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| total | `number` | <FILL: total> |
+| passing | `number` | <FILL: passing> |
+| failing | `number` | <FILL: failing> |
+| running | `number` | <FILL: running> |
+| passRate | `number` | <FILL: passRate> |
+
+## PipelinesResponse
+
+**Kind:** `interface`
+
+```ts
+export interface PipelinesResponse { ... }
+```
+
+<FILL: 2-4 sentences explaining what PipelinesResponse does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| provider | `string` | <FILL: provider> |
+| summary | `PipelineSummary` | <FILL: summary> |
+| pipelines | `Pipeline[]` | <FILL: pipelines> |
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/lib/api.ts` (44 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (44 lines)</summary>
+
+````ts
+/*
+ * Typed client for the Snabbit Agent Console API.
+ * The base URL can be overridden with the VITE_API_URL env var.
+ */
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
+
+export type PipelineStatus = 'passing' | 'failing' | 'running'
+
 export interface Pipeline {
   id: string
   name: string
@@ -42,25 +185,7 @@ export interface Pipeline {
   triggeredBy: string
   updatedAt: string
 }
-```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Unique run ID (e.g. `'p-1041'` for mock, numeric string for GitHub) |
-| `name` | `string` | Workflow or pipeline display name |
-| `provider` | `'github-actions' \| 'jenkins'` | Source CI/CD system |
-| `branch` | `string` | Git branch the run was triggered on |
-| `status` | `PipelineStatus` | Current run status |
-| `durationSeconds` | `number` | Elapsed or final run duration in seconds |
-| `triggeredBy` | `string` | Actor who triggered the run (username or system name) |
-| `updatedAt` | `string` | ISO 8601 timestamp of the last status update |
-
-This type mirrors `Pipeline` in `server/src/integrations/cicd.ts`. The two are
-kept in sync by hand — there is no shared package.
-
-### `PipelineSummary`
-
-```ts
 export interface PipelineSummary {
   total: number
   passing: number
@@ -68,61 +193,23 @@ export interface PipelineSummary {
   running: number
   passRate: number
 }
-```
 
-Aggregate counts returned alongside the pipeline list. `passRate` is 0–100
-computed over finished (passing + failing) pipelines only.
-
-### `PipelinesResponse`
-
-```ts
 export interface PipelinesResponse {
   provider: string
   summary: PipelineSummary
   pipelines: Pipeline[]
 }
-```
 
-The complete shape returned by `GET /api/pipelines`. `provider` is the active
-provider's name string (`'mock'` or `'github-actions'`).
-
-## `fetchPipelines`
-
-```ts
 export async function fetchPipelines(
   signal?: AbortSignal,
-): Promise<PipelinesResponse>
-```
-
-**Parameters:**
-
-| Param | Type | Purpose |
-|-------|------|---------|
-| `signal` | `AbortSignal?` | Optional abort signal. Passed to `fetch()` so the request can be cancelled (e.g. on component unmount via `useFetch`). |
-
-**Returns:** `Promise<PipelinesResponse>` — resolves to the parsed JSON response.
-
-**Throws:** `Error("API responded <status>")` if the HTTP response status is
-not in the 2xx range.
-
-**Implementation:**
-
-```ts
-const res = await fetch(`${API_URL}/api/pipelines`, { signal })
-if (!res.ok) {
-  throw new Error(`API responded ${res.status}`)
+): Promise<PipelinesResponse> {
+  const res = await fetch(`${API_URL}/api/pipelines`, { signal })
+  if (!res.ok) {
+    throw new Error(`API responded ${res.status}`)
+  }
+  return res.json() as Promise<PipelinesResponse>
 }
-return res.json() as Promise<PipelinesResponse>
-```
 
-The function is a module-level named export (not an arrow function inside a
-component). This is intentional — `useFetch` requires a **referentially stable**
-fetcher to avoid re-triggering the effect on every render, and module-level
-functions are always stable.
+````
 
-## Used by
-
-- `PipelinesPanel` — passes `fetchPipelines` to `useFetch`:
-  ```ts
-  const { data, loading, error, reload } = useFetch(fetchPipelines)
-  ```
+</details>

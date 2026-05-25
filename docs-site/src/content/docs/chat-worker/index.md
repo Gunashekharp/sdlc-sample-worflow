@@ -1,97 +1,170 @@
 ---
-title: Chat worker overview
+title: index
+description: Reference for `chat-worker/src/index.js`
 ---
 
-The `chat-worker/` directory contains a stateless **Cloudflare Worker** that
-powers the "Ask the docs" AI chatbot embedded on every page of this
-documentation site. It also contains the build script that produces the search
-index the worker uses.
+**File:** `chat-worker/src/index.js` · **Lines:** 130
 
-## Architecture
+> Cloudflare Worker — the chatbot backend for the Snabbit docs site.
+> Stateless: it receives a question (plus recent chat history for context),
+> keyword-searches the bundled docs index, asks Cloudflare Workers AI to
+> answer using only the matched docs, and returns the answer + source links.
 
-```mermaid
-flowchart TD
-  subgraph Browser
-    Widget["ChatWidget.astro\n(docs site)"]
-  end
+## Imports
 
-  subgraph Cloudflare["Cloudflare Edge"]
-    Worker["chat-worker/src/index.js\nCloudflare Worker"]
-    AI["Workers AI\n@cf/meta/llama-3.1-8b-instruct"]
-  end
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-  subgraph Build["Build step (CI)"]
-    Builder["build-index.mjs"]
-    Docs["docs-site/src/content/docs/**/*.md"]
-    Index["docs-index.json\n(bundled into Worker)"]
-  end
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../docs-index.json` | `default as INDEX` | internal |
 
-  Widget -->|"POST { question, history }"| Worker
-  Worker -->|"keyword search"| Index
-  Worker -->|"AI.run(model, messages)"| AI
-  AI -->>Worker: answer string
-  Worker -->>Widget: "{ answer, sources }"
 
-  Docs -->|"walk + chunk"| Builder
-  Builder -->|"writes"| Index
-```
+:::caution
+No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.
+:::
 
-## How it works
+## Diagrams
 
-1. **Build time**: `build-index.mjs` reads every Markdown page in the docs,
-   splits each into heading-level chunks, and writes a JSON search index
-   (`docs-index.json`) into the worker directory. This index is bundled into
-   the deployed Worker.
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 
-2. **Request time**: The browser sends `POST { question, history }` to the
-   deployed Worker. The Worker:
-   - Tokenizes the question and keyword-searches the index.
-   - Selects the top-6 most relevant document chunks as grounding context.
-   - Calls Cloudflare Workers AI (`llama-3.1-8b-instruct`) with a system
-     prompt, the context, recent chat history, and the user's question.
-   - Returns the AI answer plus deduplicated source links.
+## Source
 
-3. **Session memory**: The conversation history is kept entirely in the browser
-   (session storage in `ChatWidget.astro`). The worker is fully stateless —
-   recent turns are sent with each request (up to 6 turns) and not stored
-   server-side.
+Full file source for `chat-worker/src/index.js` (130 lines). The line-by-line walkthroughs above reference these line numbers.
 
-## Why keyword search, not vector embeddings?
+<details>
+<summary>View source (130 lines)</summary>
 
-The worker intentionally uses a simple TF-style keyword scorer rather than
-vector embeddings. The Cloudflare Workers AI free tier does not include an
-embedding API, and the documentation corpus is small enough that keyword
-matching over chunk titles and text gives acceptable relevance at zero extra
-cost.
+````js
+/**
+ * Cloudflare Worker — the chatbot backend for the Snabbit docs site.
+ *
+ * Stateless: it receives a question (plus recent chat history for context),
+ * keyword-searches the bundled docs index, asks Cloudflare Workers AI to
+ * answer using only the matched docs, and returns the answer + source links.
+ *
+ * The conversation is NOT stored here — the browser keeps it (session memory)
+ * and sends recent turns with each request. The only secret-ish thing, the AI
+ * access, is the Workers AI binding, which never reaches the browser.
+ *
+ * Deploy:  npm install && npm run deploy
+ */
+import INDEX from '../docs-index.json';
 
-Title / heading matches are weighted 4× more than body text matches to prefer
-on-topic pages over pages that merely mention a term in passing.
+// Cloudflare Workers AI model — free within the daily Neuron allowance.
+const MODEL = '@cf/meta/llama-3.1-8b-instruct';
 
-## Deployment
+// How many doc chunks to feed the model as grounding context.
+const TOP_K = 6;
 
-```bash
-cd chat-worker
-npm install
-node build-index.mjs   # rebuild the search index from current docs
-npm run deploy         # deploys via Wrangler
-```
+const SYSTEM_PROMPT = `You are the documentation assistant for the Snabbit Agent Console.
+Answer the user's question using ONLY the documentation excerpts provided below.
+If the answer is not in the excerpts, say you could not find it in the docs and
+suggest rephrasing. Be concise and accurate. Never invent APIs or behaviour.`;
 
-After deploying, set `WORKER_URL` in the docs site environment to the deployed
-Worker's URL so `ChatWidget.astro` knows where to send requests.
+const STOP_WORDS = new Set(
+  'a an the of to in is are and or for on at it this that with as be by from how what when which do does'.split(' '),
+);
 
-See `chat-worker/README.md` for detailed wiring instructions.
+function tokenize(s) {
+  return (s.toLowerCase().match(/[a-z0-9]+/g) || []).filter(
+    (w) => w.length > 1 && !STOP_WORDS.has(w),
+  );
+}
 
-## Source files
+/** Keyword-score every chunk against the question; return the best TOP_K. */
+function search(question) {
+  const terms = tokenize(question);
+  if (!terms.length) return [];
+  const scored = INDEX.map((chunk) => {
+    const text = (chunk.title + ' ' + chunk.heading + ' ' + chunk.text).toLowerCase();
+    const titleText = (chunk.title + ' ' + chunk.heading).toLowerCase();
+    let score = 0;
+    for (const t of terms) {
+      score += text.split(t).length - 1; // matches anywhere
+      score += (titleText.split(t).length - 1) * 4; // weight title/heading
+    }
+    return { chunk, score };
+  });
+  return scored
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, TOP_K)
+    .map((s) => s.chunk);
+}
 
-| File | Purpose |
-|------|---------|
-| `chat-worker/src/index.js` | Cloudflare Worker — the chatbot request handler |
-| `chat-worker/build-index.mjs` | Build script — produces `docs-index.json` |
-| `chat-worker/docs-index.json` | Generated search index (committed for deploy) |
-| `chat-worker/wrangler.toml` | Wrangler deploy configuration |
-| `chat-worker/package.json` | npm scripts and Wrangler dependency |
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
 
-## Per-file reference
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...CORS },
+  });
+}
 
-- [Worker (src/index.js)](/sdlc-sample-worflow/chat-worker/worker/) — request handler, search, AI call
-- [build-index.mjs](/sdlc-sample-worflow/chat-worker/build-index/) — docs indexer
+export default {
+  async fetch(request, env) {
+    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
+    if (request.method !== 'POST') return json({ error: 'POST only' }, 405);
+
+    let payload;
+    try {
+      payload = await request.json();
+    } catch {
+      return json({ error: 'Invalid JSON body' }, 400);
+    }
+
+    const question = (payload.question || '').toString().trim();
+    if (!question) return json({ error: 'Missing "question"' }, 400);
+
+    // Recent conversation turns sent by the browser (session memory).
+    const history = Array.isArray(payload.history) ? payload.history.slice(-6) : [];
+
+    const hits = search(question);
+    if (!hits.length) {
+      return json({
+        answer:
+          "I couldn't find anything about that in the documentation. Try rephrasing your question.",
+        sources: [],
+      });
+    }
+
+    const context = hits
+      .map((c, i) => `[Doc ${i + 1}] ${c.title} — ${c.heading}\n${c.text}\n(URL: ${c.url})`)
+      .join('\n\n');
+
+    const messages = [
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\nDOCUMENTATION EXCERPTS:\n${context}` },
+      ...history
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+        .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) })),
+      { role: 'user', content: question },
+    ];
+
+    let answer;
+    try {
+      const result = await env.AI.run(MODEL, { messages, max_tokens: 600 });
+      answer = (result.response || '').trim() || "I couldn't generate an answer just now.";
+    } catch (err) {
+      return json({ error: 'AI request failed', detail: String(err) }, 502);
+    }
+
+    // De-duplicate sources by URL, preserving relevance order.
+    const seen = new Set();
+    const sources = [];
+    for (const c of hits) {
+      if (seen.has(c.url)) continue;
+      seen.add(c.url);
+      sources.push({ title: c.title, url: c.url });
+    }
+
+    return json({ answer, sources });
+  },
+};
+
+````
+
+</details>

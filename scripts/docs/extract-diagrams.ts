@@ -1,188 +1,155 @@
 /**
  * extract-diagrams.ts
  *
- * Generates architecture diagrams from the source code itself — no LLM.
+ * Library + CLI for deterministic architecture diagrams. Used by the
+ * overview generator and by `npm run extract:diagrams` (debug). Same
+ * code path for both, so the rendered diagrams in the docs cannot drift
+ * from the debug output.
  *
- *   - Module dependency graph (per source root) via dependency-cruiser.
- *   - React component tree (frontend only) via ts-morph JSX walking.
- *   - Folder-level subgraphs that drop into each folder's overview.md.
+ *   - Module dependency graph (per source root)
+ *   - Per-folder dependency subgraphs
+ *   - React component tree (frontend only)
  *
- * Output: .mmd Mermaid files under _docs-out/<root>/_diagrams/. The LLM
- * pipeline includes these via Markdown ```mermaid blocks; it never edits
- * the .mmd files directly. They are auto-regenerated on every run, so the
- * diagrams are always current with the code.
+ * All extraction is done via the TypeScript compiler API (ts-morph).
+ * Imports are resolved with the project's own tsconfig, so bundler-mode
+ * resolution and JSX extensions work out of the box. No LLM, ever.
  */
 
-import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { Project, Node, type SourceFile, SyntaxKind } from 'ts-morph'
+import { Project, Node, SyntaxKind, type SourceFile } from 'ts-morph'
 
-import { repoRoot, sourceRoots, outputRoot } from './config.ts'
+import { repoRoot, sourceRoots, type SourceRoot } from './config.ts'
 
-function ensureDir(dir: string): void {
-  fs.mkdirSync(dir, { recursive: true })
+interface ResolvedDep {
+  from: string  // relative to source root
+  to: string    // relative to source root
 }
 
-interface DepCruiseModule {
-  source: string
-  dependencies: Array<{ resolved: string; module: string; coreModule?: boolean; couldNotResolve?: boolean }>
+const projectCache = new Map<string, Project>()
+
+function projectFor(root: SourceRoot): Project {
+  const key = root.name
+  const cached = projectCache.get(key)
+  if (cached) return cached
+  const absSourceDir = path.resolve(repoRoot, root.sourceDir)
+  const tsConfigPath = root.tsConfig ? path.resolve(repoRoot, root.tsConfig) : undefined
+  const project = new Project({
+    tsConfigFilePath: tsConfigPath,
+    skipAddingFilesFromTsConfig: !!tsConfigPath ? false : true,
+  })
+  project.addSourceFilesAtPaths([
+    path.join(absSourceDir, '**/*.ts'),
+    path.join(absSourceDir, '**/*.tsx'),
+    path.join(absSourceDir, '**/*.js'),
+    path.join(absSourceDir, '**/*.mjs'),
+  ])
+  projectCache.set(key, project)
+  return project
 }
 
-interface DepCruiseResult {
-  modules: DepCruiseModule[]
+function isInternalSource(sf: SourceFile, absSourceDir: string): boolean {
+  const fp = sf.getFilePath()
+  if (!fp.startsWith(absSourceDir + path.sep)) return false
+  const base = path.basename(fp)
+  if (
+    base.endsWith('.test.ts') ||
+    base.endsWith('.test.tsx') ||
+    base.endsWith('.spec.ts') ||
+    base.endsWith('.spec.tsx') ||
+    base.endsWith('.d.ts')
+  ) return false
+  if (fp.includes('/__tests__/')) return false
+  return true
 }
 
-function runDepCruise(absSourceDir: string): DepCruiseResult | null {
-  // Invoke dependency-cruiser as a subprocess so we don't pull its
-  // (large) public API into this module's type surface.
-  const bin = path.resolve(repoRoot, 'scripts', 'docs', 'node_modules', '.bin', 'depcruise')
-  if (!fs.existsSync(bin)) {
-    console.warn(`dependency-cruiser binary not found at ${bin}; run npm install in scripts/docs first.`)
-    return null
+function collectInternalDeps(root: SourceRoot): ResolvedDep[] {
+  const absSourceDir = path.resolve(repoRoot, root.sourceDir)
+  const project = projectFor(root)
+  const deps: ResolvedDep[] = []
+  for (const sf of project.getSourceFiles()) {
+    if (!isInternalSource(sf, absSourceDir)) continue
+    const from = path.relative(absSourceDir, sf.getFilePath())
+    for (const imp of sf.getImportDeclarations()) {
+      const resolved = imp.getModuleSpecifierSourceFile()
+      if (!resolved) continue
+      if (!isInternalSource(resolved, absSourceDir)) continue
+      const to = path.relative(absSourceDir, resolved.getFilePath())
+      if (to === from) continue
+      deps.push({ from, to })
+    }
   }
-  // depcruise needs an explicit glob; a bare directory yields zero modules.
-  const relSource = path.relative(repoRoot, absSourceDir)
-  const result = spawnSync(
-    bin,
-    [
-      '--output-type', 'json',
-      '--no-config',
-      '--ts-pre-compilation-deps',
-      '--exclude', '(node_modules|\\.test\\.|\\.spec\\.|__tests__)',
-      `${relSource}/**/*`,
-    ],
-    { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024, cwd: repoRoot },
-  )
-  if (result.status !== 0) {
-    console.warn(`dependency-cruiser failed for ${absSourceDir}:\n${result.stderr}`)
-    return null
-  }
-  try {
-    return JSON.parse(result.stdout) as DepCruiseResult
-  } catch (err) {
-    console.warn(`Could not parse dependency-cruiser output for ${absSourceDir}: ${(err as Error).message}`)
-    return null
-  }
+  return deps
 }
 
 function mermaidId(p: string): string {
-  // Mermaid node IDs cannot have slashes, dots, or hyphens at certain positions.
   return p.replace(/[^a-zA-Z0-9_]/g, '_')
 }
 
-function renderDepGraph(rootName: string, absSourceDir: string, modules: DepCruiseModule[]): string {
-  const lines: string[] = []
-  lines.push(`%% Module dependency graph for ${rootName}`)
-  lines.push(`%% Auto-generated by scripts/docs/extract-diagrams.ts. Do not edit.`)
-  lines.push('flowchart LR')
-  const seen = new Set<string>()
-  const edges: string[] = []
-  for (const m of modules) {
-    const src = path.relative(absSourceDir, path.resolve(repoRoot, m.source))
-    if (src.startsWith('..')) continue
-    const srcId = mermaidId(src)
-    if (!seen.has(srcId)) {
-      lines.push(`  ${srcId}["${src}"]`)
-      seen.add(srcId)
-    }
-    for (const dep of m.dependencies) {
-      if (dep.coreModule || dep.couldNotResolve) continue
-      const depResolved = path.relative(absSourceDir, path.resolve(repoRoot, dep.resolved))
-      if (depResolved.startsWith('..')) continue
-      const depId = mermaidId(depResolved)
-      if (!seen.has(depId)) {
-        lines.push(`  ${depId}["${depResolved}"]`)
-        seen.add(depId)
-      }
-      edges.push(`  ${srcId} --> ${depId}`)
-    }
+const DO_NOT_EDIT_BANNER =
+  '%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.'
+
+/** Full dependency graph for an entire source root. */
+export function buildRootDepGraph(root: SourceRoot): string | null {
+  const deps = collectInternalDeps(root)
+  if (deps.length === 0) return null
+  const nodes = new Set<string>()
+  for (const d of deps) {
+    nodes.add(d.from)
+    nodes.add(d.to)
   }
-  lines.push(...edges)
-  return lines.join('\n') + '\n'
+  const lines: string[] = []
+  lines.push(`%% Module dependency graph for ${root.name}`)
+  lines.push(DO_NOT_EDIT_BANNER)
+  lines.push('flowchart LR')
+  for (const n of [...nodes].sort()) lines.push(`  ${mermaidId(n)}["${n}"]`)
+  for (const d of deps) lines.push(`  ${mermaidId(d.from)} --> ${mermaidId(d.to)}`)
+  return lines.join('\n')
 }
 
-function renderFolderSubgraph(
-  rootName: string,
-  folder: string,
-  absSourceDir: string,
-  modules: DepCruiseModule[],
-): string | null {
+/** Sub-graph showing dependencies of files inside one folder. */
+export function buildFolderDepGraph(root: SourceRoot, folder: string): string | null {
+  const all = collectInternalDeps(root)
   const inFolder = (rel: string) => rel === folder || rel.startsWith(folder + path.sep)
-  const relevant = modules
-    .map((m) => ({
-      source: path.relative(absSourceDir, path.resolve(repoRoot, m.source)),
-      deps: m.dependencies
-        .filter((d) => !d.coreModule && !d.couldNotResolve)
-        .map((d) => path.relative(absSourceDir, path.resolve(repoRoot, d.resolved))),
-    }))
-    .filter((m) => inFolder(m.source))
+  const relevant = all.filter((d) => inFolder(d.from))
   if (relevant.length === 0) return null
-  const lines: string[] = []
-  lines.push(`%% Subgraph for ${rootName}/${folder}`)
-  lines.push(`%% Auto-generated by scripts/docs/extract-diagrams.ts. Do not edit.`)
-  lines.push('flowchart LR')
-  const seen = new Set<string>()
-  for (const m of relevant) {
-    const id = mermaidId(m.source)
-    if (!seen.has(id)) {
-      lines.push(`  ${id}["${m.source}"]`)
-      seen.add(id)
-    }
-    for (const dep of m.deps) {
-      const depId = mermaidId(dep)
-      if (!seen.has(depId)) {
-        const label = inFolder(dep) ? dep : `external: ${dep}`
-        lines.push(`  ${depId}["${label}"]`)
-        seen.add(depId)
-      }
-      lines.push(`  ${id} --> ${depId}`)
-    }
+  const nodes = new Set<string>()
+  for (const d of relevant) {
+    nodes.add(d.from)
+    nodes.add(d.to)
   }
-  return lines.join('\n') + '\n'
+  const lines: string[] = []
+  lines.push(`%% Subgraph for ${root.name}/${folder}`)
+  lines.push(DO_NOT_EDIT_BANNER)
+  lines.push('flowchart LR')
+  for (const n of [...nodes].sort()) {
+    const label = inFolder(n) ? n : `external: ${n}`
+    lines.push(`  ${mermaidId(n)}["${label}"]`)
+  }
+  for (const d of relevant) lines.push(`  ${mermaidId(d.from)} --> ${mermaidId(d.to)}`)
+  return lines.join('\n')
 }
 
-/**
- * React component tree. We look for JSX usage of locally-imported identifiers
- * to build a parent → child graph. Heuristic but deterministic and matches
- * real component composition closely enough to be valuable.
- */
-function renderComponentTree(absSourceDir: string): string | null {
-  const tsxFiles: string[] = []
-  function walk(dir: string): void {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name)
-      if (entry.isDirectory()) {
-        if (entry.name === 'node_modules' || entry.name === '__tests__') continue
-        walk(full)
-      } else if (
-        entry.name.endsWith('.tsx') &&
-        !entry.name.endsWith('.test.tsx') &&
-        !entry.name.endsWith('.spec.tsx')
-      ) {
-        tsxFiles.push(full)
-      }
-    }
-  }
+/** React component tree. Parent renders child, derived from JSX usage. */
+export function buildComponentTree(root: SourceRoot): string | null {
+  const absSourceDir = path.resolve(repoRoot, root.sourceDir)
   if (!fs.existsSync(absSourceDir)) return null
-  walk(absSourceDir)
+  const project = projectFor(root)
+  const tsxFiles = project
+    .getSourceFiles()
+    .filter((sf) => sf.getFilePath().endsWith('.tsx') && isInternalSource(sf, absSourceDir))
   if (tsxFiles.length === 0) return null
 
-  const project = new Project({ skipAddingFilesFromTsConfig: true })
-  for (const f of tsxFiles) project.addSourceFileAtPath(f)
-
   function fileComponentName(filePath: string): string {
-    const base = path.basename(filePath).replace(/\.tsx$/, '')
-    return base
+    return path.basename(filePath).replace(/\.tsx$/, '')
   }
 
   const edges = new Set<string>()
   const nodes = new Set<string>()
-  for (const sf of project.getSourceFiles()) {
+  for (const sf of tsxFiles) {
     const parent = fileComponentName(sf.getFilePath())
     nodes.add(parent)
-    // Local imports: capture default + named imports from relative paths.
-    const localImports = new Map<string, string>() // local-name -> imported file basename
+    const localImports = new Map<string, string>()
     for (const imp of sf.getImportDeclarations()) {
       const mod = imp.getModuleSpecifierValue()
       if (!mod.startsWith('.')) continue
@@ -196,7 +163,6 @@ function renderComponentTree(absSourceDir: string): string | null {
         localImports.set(ni.getName(), importedFromBase)
       }
     }
-    // Find JSX element usages.
     sf.forEachDescendant((node) => {
       if (
         node.getKind() === SyntaxKind.JsxOpeningElement ||
@@ -216,56 +182,57 @@ function renderComponentTree(absSourceDir: string): string | null {
   if (edges.size === 0) return null
   const lines: string[] = []
   lines.push('%% React component tree (parent renders child)')
-  lines.push('%% Auto-generated by scripts/docs/extract-diagrams.ts. Do not edit.')
+  lines.push(DO_NOT_EDIT_BANNER)
   lines.push('flowchart TD')
-  for (const n of nodes) lines.push(`  ${mermaidId(n)}["${n}"]`)
+  for (const n of [...nodes].sort()) lines.push(`  ${mermaidId(n)}["${n}"]`)
   for (const e of edges) {
     const [from, to] = e.split('-->')
     lines.push(`  ${mermaidId(from)} --> ${mermaidId(to)}`)
   }
-  return lines.join('\n') + '\n'
+  return lines.join('\n')
 }
 
-function topLevelFolders(absSourceDir: string): string[] {
+/** Top-level folders inside a source root, used to drive subgraph generation. */
+export function topLevelFolders(root: SourceRoot): string[] {
+  const absSourceDir = path.resolve(repoRoot, root.sourceDir)
   if (!fs.existsSync(absSourceDir)) return []
   return fs
     .readdirSync(absSourceDir, { withFileTypes: true })
     .filter((e) => e.isDirectory() && !e.name.startsWith('.') && e.name !== 'node_modules' && e.name !== '__tests__')
     .map((e) => e.name)
+    .sort()
 }
 
-async function run(): Promise<void> {
+/* ------------------------------------------------------------------ */
+/* CLI: `npm run extract:diagrams` writes debug copies of the same artifacts */
+
+const isCli = import.meta.url === `file://${process.argv[1]}`
+if (isCli) {
+  const debugDir = path.resolve(repoRoot, 'scripts', 'docs', '_diagrams')
+  fs.rmSync(debugDir, { recursive: true, force: true })
+  fs.mkdirSync(debugDir, { recursive: true })
   for (const root of sourceRoots) {
-    const absSourceDir = path.resolve(repoRoot, root.sourceDir)
-    if (!fs.existsSync(absSourceDir)) continue
-    const outDir = path.join(outputRoot, root.outDir, '_diagrams')
-    ensureDir(outDir)
-    const cruise = runDepCruise(absSourceDir)
-    if (cruise) {
-      const fullGraph = renderDepGraph(root.name, absSourceDir, cruise.modules)
-      fs.writeFileSync(path.join(outDir, 'deps.mmd'), fullGraph, 'utf-8')
-      console.log(`✓ ${root.name}/deps.mmd  (${cruise.modules.length} modules)`)
-      for (const folder of topLevelFolders(absSourceDir)) {
-        const sub = renderFolderSubgraph(root.name, folder, absSourceDir, cruise.modules)
-        if (sub) {
-          const folderOut = path.join(outputRoot, root.outDir, folder, '_diagrams')
-          ensureDir(folderOut)
-          fs.writeFileSync(path.join(folderOut, 'deps.mmd'), sub, 'utf-8')
-          console.log(`✓ ${root.name}/${folder}/deps.mmd`)
-        }
+    const full = buildRootDepGraph(root)
+    if (full) {
+      fs.writeFileSync(path.join(debugDir, `${root.name}.deps.mmd`), full, 'utf-8')
+      const edges = full.split('\n').filter((l) => l.includes(' --> ')).length
+      console.log(`✓ ${root.name}.deps.mmd  (${edges} edges)`)
+    }
+    for (const folder of topLevelFolders(root)) {
+      const sub = buildFolderDepGraph(root, folder)
+      if (sub) {
+        fs.writeFileSync(path.join(debugDir, `${root.name}.${folder}.deps.mmd`), sub, 'utf-8')
+        console.log(`✓ ${root.name}.${folder}.deps.mmd`)
       }
     }
     if (root.name === 'frontend') {
-      const tree = renderComponentTree(absSourceDir)
+      const tree = buildComponentTree(root)
       if (tree) {
-        fs.writeFileSync(path.join(outDir, 'component-tree.mmd'), tree, 'utf-8')
-        console.log(`✓ ${root.name}/component-tree.mmd`)
+        fs.writeFileSync(path.join(debugDir, `${root.name}.component-tree.mmd`), tree, 'utf-8')
+        console.log(`✓ ${root.name}.component-tree.mmd`)
       }
     }
   }
+  console.log(`\nDebug copies in ${path.relative(repoRoot, debugDir)}/`)
+  console.log(`The docs build inlines the same diagrams into overview pages.`)
 }
-
-run().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})

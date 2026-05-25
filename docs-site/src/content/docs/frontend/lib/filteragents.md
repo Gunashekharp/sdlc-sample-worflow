@@ -1,53 +1,152 @@
 ---
 title: filterAgents
-description: Pure function for filtering the agent list by category and search query.
+description: Reference for `src/lib/filterAgents.ts`
 ---
 
-**File:** `src/lib/filterAgents.ts`
+**File:** `src/lib/filterAgents.ts` · **Lines:** 33
 
-A pure, side-effect-free function that filters an array of `Agent` objects by
-category and free-text query. Kept in `src/lib/` (not inside a component) so
-it can be unit-tested directly.
+<FILL: 2-4 sentence plain-language summary of what `lib/filterAgents.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Types
+## Imports
 
-### `AgentFilter`
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../data/agents` | `Agent` | type-only · internal |
+
+
+## Symbols
+
+This file exports 2 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| filterAgents | function | no |
+| AgentFilter | interface | no |
+
+## filterAgents
+
+**Kind:** `function`
 
 ```ts
+export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ... }
+```
+
+> Filter the agent list by category and free-text query.
+> Pure and side-effect free so it can be unit tested directly.
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
+
+**Returns:** `Agent[]`
+
+<FILL: describe the return value of filterAgents — what it represents, when it can be null/undefined, units.>
+
+### Line-by-line walkthrough
+
+Each top-level statement of `filterAgents`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 15 — `FirstStatement`**
+
+```ts
+const query = filter.query.trim().toLowerCase()
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 17 — `ReturnStatement`**
+
+```ts
+return agents.filter((agent) => {
+    const matchesCategory =
+      filter.category === 'All' ||
+      (filter.category === 'Popular'
+        ? agent.popular
+        : agent.category === filter.category)
+
+    if (!matchesCategory) return false
+    if (!query) return true
+
+    return (
+      agent.name.toLowerCase().includes(query) ||
+      agent.description.toLowerCase().includes(query)
+    )
+  })
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/components/AgentGrid.tsx`
+- `src/lib/filterAgents.test.ts`
+
+## AgentFilter
+
+**Kind:** `interface`
+
+```ts
+export interface AgentFilter { ... }
+```
+
+<FILL: 2-4 sentences explaining what AgentFilter does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| query | `string` | Free-text query matched against agent name and description. |
+| category | `string` | 'All', 'Popular', or one of the AgentCategory values. |
+
+## Tests
+
+| Suite | Test | Asserts |
+| --- | --- | --- |
+| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
+| filterAgents | filters by an exact category | <FILL: assertion summary> |
+| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
+| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
+| filterAgents | matches the query against the description | <FILL: assertion summary> |
+| filterAgents | is case-insensitive | <FILL: assertion summary> |
+| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
+| filterAgents | applies category and query together | <FILL: assertion summary> |
+| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
+| filterAgents | does not mutate the input array | <FILL: assertion summary> |
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/lib/filterAgents.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (33 lines)</summary>
+
+````ts
+import type { Agent } from '../data/agents'
+
 export interface AgentFilter {
+  /** Free-text query matched against agent name and description. */
   query: string
+  /** 'All', 'Popular', or one of the AgentCategory values. */
   category: string
 }
-```
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `query` | `string` | Free-text search string. Matched against agent name and description. Leading/trailing whitespace is ignored. Empty string matches everything. |
-| `category` | `string` | One of: `'All'` (no filter), `'Popular'` (matches `agent.popular === true`), or an `AgentCategory` value (`'Review'`, `'Deploy'`, etc.) matched against `agent.category`. |
-
-## `filterAgents`
-
-```ts
-export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[]
-```
-
-**Parameters:**
-
-| Param | Type | Purpose |
-|-------|------|---------|
-| `agents` | `Agent[]` | The source array to filter. Not mutated. |
-| `filter` | `AgentFilter` | Category and query to apply. |
-
-**Returns:** A new array containing only the agents that pass both the category
-filter and the query filter.
-
-**Side effects:** None — pure function.
-
-**Mutations:** None — does not modify the input `agents` array.
-
-## Implementation walkthrough
-
-```ts
+/**
+ * Filter the agent list by category and free-text query.
+ * Pure and side-effect free so it can be unit tested directly.
+ */
 export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] {
   const query = filter.query.trim().toLowerCase()
 
@@ -67,116 +166,7 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] {
     )
   })
 }
-```
 
-### Step 1: Normalize the query
+````
 
-```ts
-const query = filter.query.trim().toLowerCase()
-```
-
-Trimming removes leading/trailing whitespace (so `'  bot  '` matches `'deploy-bot'`).
-Lowercasing enables case-insensitive matching without calling `toLowerCase()`
-on each agent's name and description inside the loop.
-
-### Step 2: Category filter
-
-```ts
-const matchesCategory =
-  filter.category === 'All' ||
-  (filter.category === 'Popular'
-    ? agent.popular
-    : agent.category === filter.category)
-```
-
-Three branches:
-- `'All'` → always passes.
-- `'Popular'` → passes when `agent.popular === true`.
-- Any other value → exact match against `agent.category`.
-
-### Step 3: Early return on category mismatch
-
-```ts
-if (!matchesCategory) return false
-```
-
-Category check comes first. If the agent fails the category filter, the query
-check is skipped entirely (short-circuit).
-
-### Step 4: Early return when query is empty
-
-```ts
-if (!query) return true
-```
-
-An empty (or whitespace-only) query string matches all agents that passed the
-category filter.
-
-### Step 5: Query match
-
-```ts
-return (
-  agent.name.toLowerCase().includes(query) ||
-  agent.description.toLowerCase().includes(query)
-)
-```
-
-Substring match against name **or** description. Both are lowercased at match
-time; the `query` was already lowercased in step 1.
-
-## Filter decision flowchart
-
-```mermaid
-flowchart TD
-  A[Agent]
-  B{"category === 'All'?"}
-  C{"category === 'Popular'?"}
-  D{"agent.popular?"}
-  E{"agent.category === category?"}
-  F{"query empty?"}
-  G{"name or description\ncontains query?"}
-  INCLUDE[Include agent]
-  EXCLUDE[Exclude agent]
-
-  A --> B
-  B -->|Yes| F
-  B -->|No| C
-  C -->|Yes| D
-  C -->|No| E
-  D -->|Yes| F
-  D -->|No| EXCLUDE
-  E -->|Yes| F
-  E -->|No| EXCLUDE
-  F -->|Yes| INCLUDE
-  F -->|No| G
-  G -->|Yes| INCLUDE
-  G -->|No| EXCLUDE
-```
-
-## Tests
-
-`src/lib/filterAgents.test.ts` — 10 tests covering:
-
-| Test | Asserts |
-|------|---------|
-| `'All'` + empty query | All 3 agents returned |
-| Exact category | `'Review'` → only PR Reviewer |
-| `'Popular'` | The 2 popular agents |
-| Name match | `'deploy'` → Deploy Bot only |
-| Description match | `'root cause'` → RCA Analyst only |
-| Case-insensitive | `'REVIEWER'` → PR Reviewer |
-| Whitespace trimming | `'  bot  '` → Deploy Bot |
-| Category + query combined | `'Popular'` + `'reviewer'` → PR Reviewer only |
-| No match | `'nonexistent'` → `[]` |
-| Input not mutated | Source array unchanged |
-
-## Used by
-
-`AgentGrid` — composed with `sortAgents` inside a `useMemo`:
-
-```ts
-const visible = useMemo(
-  () => sortAgents(filterAgents(agents, { query, category }), sort),
-  [agents, query, category, sort],
-)
-```
+</details>

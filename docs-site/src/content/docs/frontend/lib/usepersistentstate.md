@@ -1,112 +1,147 @@
 ---
 title: usePersistentState
-description: localStorage-backed useState hook.
+description: Reference for `src/lib/usePersistentState.ts`
 ---
 
-**File:** `src/lib/usePersistentState.ts`
+**File:** `src/lib/usePersistentState.ts` · **Lines:** 31
 
-A drop-in replacement for `useState` that mirrors its value to `localStorage`
-and restores it on the next mount. Storage failures are silently swallowed —
-persistence is best-effort.
+<FILL: 2-4 sentence plain-language summary of what `lib/usePersistentState.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Hook
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `useEffect`, `useState` | external |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| usePersistentState | hook | no |
+
+## usePersistentState
+
+**Kind:** `hook`
 
 ```ts
 export function usePersistentState<T>(
   key: string,
   initial: T,
-): [T, (value: T) => void]
+): [T, (value: T) => void] { ... }
 ```
 
-**Type parameter:** `T` — the state value type. Must be JSON-serializable.
+> Like useState, but the value is mirrored to localStorage under `key` and
+> restored on the next mount. Storage failures (disabled storage, quota,
+> malformed JSON) fall back to `initial` rather than throwing.
 
-**Parameters:**
+### Parameters
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `key` | `string` | `localStorage` key. Should be unique per usage to prevent cross-component collisions. The convention in this codebase is `'snabbit.<component>.<field>'`. |
-| `initial` | `T` | Default value used when no stored value exists or when the stored value cannot be parsed. |
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| key | `string` | — | yes | <FILL: purpose of key> |
+| initial | `T` | — | yes | <FILL: purpose of initial> |
 
-**Returns:** A tuple `[value, setValue]` identical in shape to `useState`'s
-return. The setter does not accept a function updater — it only accepts a new
-value directly.
+**Returns:** `[T, (value: T) => void]`
 
-## Implementation
+<FILL: describe the return value of usePersistentState — what it represents, when it can be null/undefined, units.>
 
-### Initial value (lazy initializer)
+### Line-by-line walkthrough
+
+Each top-level statement of `usePersistentState`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 12 — `FirstStatement`**
 
 ```ts
 const [value, setValue] = useState<T>(() => {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw !== null ? (JSON.parse(raw) as T) : initial
-  } catch {
-    return initial
-  }
-})
+    try {
+      const raw = localStorage.getItem(key)
+      return raw !== null ? (JSON.parse(raw) as T) : initial
+    } catch {
+      return initial
+    }
+  })
 ```
 
-The state is initialized with a **lazy initializer function** passed to
-`useState`. React calls this function only on the first render, not on
-subsequent renders — this matters because `localStorage.getItem` is a
-synchronous DOM operation that should not run on every render.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-Two failure modes are caught and fall back to `initial`:
-- `localStorage` is not available (private browsing, storage quota exceeded,
-  or disabled) — the `getItem` throws.
-- The stored value is malformed JSON — `JSON.parse` throws.
-
-### Sync effect
+**Line 21 — `ExpressionStatement`**
 
 ```ts
 useEffect(() => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    // Ignore write failures — persistence is best-effort.
-  }
-}, [key, value])
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+    } catch {
+      // Ignore write failures — persistence is best-effort.
+    }
+  }, [key, value])
 ```
 
-Runs after every render where `key` or `value` changed. Serializes `value` to
-JSON and writes it. Write failures are silently ignored (e.g. storage quota
-exceeded, private browsing that allows reads but not writes).
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-:::caution
-The effect depends on `key`. If `key` changes between renders, the new key
-will be written but the old key will not be deleted. In practice `key` is
-always a string literal at the call site, so this cannot happen.
-:::
-
-## Serialization contract
-
-`T` must be JSON-serializable. The hook uses `JSON.stringify` to write and
-`JSON.parse` to read. Types with `undefined` values, `Date` objects, or
-functions will not round-trip correctly — but `string` (used for `category` and
-`sort`) serializes perfectly.
-
-## Used by
-
-`AgentGrid` with two keys:
+**Line 29 — `ReturnStatement`**
 
 ```ts
-const [category, setCategory] = usePersistentState<string>(
-  'snabbit.agentGrid.category', 'All',
-)
-const [sort, setSort] = usePersistentState<SortKey>(
-  'snabbit.agentGrid.sort', 'runs',
-)
+return [value, setValue]
 ```
 
-## Tests
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-The test setup (`src/test/setup.ts`) calls `localStorage.clear()` after each
-test case to prevent state leakage between tests. `AgentGrid.test.tsx` has a
-test that explicitly verifies persistence:
+### Examples
 
-```
-it('remembers the selected category across remounts')
-```
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
 
-The test mounts the grid, clicks the "Deploy" tab, unmounts, remounts, and
-asserts that the "Deploy" tab still has `aria-pressed="true"`.
+### Used by
+
+- `src/components/AgentGrid.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/lib/usePersistentState.ts` (31 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (31 lines)</summary>
+
+````ts
+import { useEffect, useState } from 'react'
+
+/**
+ * Like useState, but the value is mirrored to localStorage under `key` and
+ * restored on the next mount. Storage failures (disabled storage, quota,
+ * malformed JSON) fall back to `initial` rather than throwing.
+ */
+export function usePersistentState<T>(
+  key: string,
+  initial: T,
+): [T, (value: T) => void] {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key)
+      return raw !== null ? (JSON.parse(raw) as T) : initial
+    } catch {
+      return initial
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+    } catch {
+      // Ignore write failures — persistence is best-effort.
+    }
+  }, [key, value])
+
+  return [value, setValue]
+}
+
+````
+
+</details>

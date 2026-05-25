@@ -1,63 +1,177 @@
 ---
 title: Sidebar
-description: The fixed left navigation column.
+description: Reference for `src/components/Sidebar.tsx`
 ---
 
-**File:** `src/components/Sidebar.tsx`
+**File:** `src/components/Sidebar.tsx` · **Lines:** 117
 
-The 240px (`w-60`) fixed left navigation column. Renders the workspace
-switcher, a New Session button, the primary navigation list, recent sessions,
-and a user footer.
+<FILL: 2-4 sentence plain-language summary of what `components/Sidebar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Component
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `ComponentType`, `SVGProps` | type-only · external |
+| `./icons` | `IconAgents`, `IconChevronDown`, `IconDashboard`, `IconIntegrations`, `IconPlus`, `IconRuns`, `IconSessions`, `IconSettings` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| Sidebar | component | yes |
+
+## Sidebar (default export)
+
+**Kind:** `component`
 
 ```ts
-export default function Sidebar()
+export default function Sidebar() { ... }
 ```
 
-**Parameters:** None.
+<FILL: 2-4 sentences explaining what Sidebar does and why it exists. Ground every claim in the signature and source.>
 
-**Returns:** An `<aside>` element.
+### Line-by-line walkthrough
 
-**Side effects:** None.
+Each top-level statement of `Sidebar`, in execution order. The line numbers reference the source file as it appears today.
 
-## Internal data
-
-### `NavItem` interface
+**Line 37 — `ReturnStatement`**
 
 ```ts
+return (
+    <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-bg">
+      <button
+        type="button"
+        className="flex h-14 items-center gap-2.5 border-b border-border px-3 text-left hover:bg-surface"
+      >
+        <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-sm font-bold text-white">
+          S
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold leading-tight">Snabbit</span>
+          <span className="block text-xs leading-tight text-text-faint">Agent Console</span>
+        </span>
+        <IconChevronDown className="text-text-faint" />
+      </button>
+
+      <div className="p-3">
+        <button
+          type="button"
+          className="flex w-full items-center gap-2 rounded-md border border-border-strong bg-surface-2 px-2.5 py-2 text-sm font-medium text-text-muted hover:border-accent hover:text-text"
+        >
+          <IconPlus className="text-accent" />
+          New session
+          <kbd className="ml-auto font-mono text-xs text-text-faint">⌘N</kbd>
+        </button>
+      </div>
+
+      <nav className="flex flex-col gap-0.5 px-2">
+        {NAV.map((item) => {
+          const Icon = item.icon
+          return (
+            <button
+              key={item.label}
+              type="button"
+              aria-current={item.active ? 'page' : undefined}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm ${
+                item.active
+                  ? 'bg-surface-2 font-medium text-text'
+                  : 'text-text-muted hover:bg-surface hover:text-text'
+              }`}
+            >
+              <Icon className={item.active ? 'text-accent' : ''} />
+              {item.label}
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-3">
+        <p className="px-1 pb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-faint">
+          Recent sessions
+        </p>
+        <ul className="flex flex-col gap-0.5">
+          {RECENT_SESSIONS.map((session) => (
+            <li key={session}>
+              <button
+                type="button"
+                className="block w-full truncate rounded px-2 py-1.5 text-left text-sm text-text-muted hover:bg-surface hover:text-text"
+              >
+                {session}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="flex h-14 items-center gap-2.5 border-t border-border px-3">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-surface-3 text-xs font-semibold uppercase">
+          g
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium leading-tight">guna</span>
+          <span className="block truncate text-xs leading-tight text-text-faint">
+            int-gunashekhar.p@snabbit.com
+          </span>
+        </span>
+      </div>
+    </aside>
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/App.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/components/Sidebar.tsx` (117 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (117 lines)</summary>
+
+````tsx
+import type { ComponentType, SVGProps } from 'react'
+import {
+  IconAgents,
+  IconChevronDown,
+  IconDashboard,
+  IconIntegrations,
+  IconPlus,
+  IconRuns,
+  IconSessions,
+  IconSettings,
+} from './icons'
+
 interface NavItem {
   label: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   active?: boolean
 }
-```
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `label` | `string` | Nav label text |
-| `icon` | `ComponentType<SVGProps<SVGSVGElement>>` | Icon component from `icons.tsx` |
-| `active` | `boolean?` | Whether this item is the current page |
-
-### `NAV` (module-level constant)
-
-```ts
 const NAV: NavItem[] = [
   { label: 'Dashboard', icon: IconDashboard, active: true },
-  { label: 'Sessions',  icon: IconSessions },
-  { label: 'Agents',    icon: IconAgents },
-  { label: 'Runs',      icon: IconRuns },
+  { label: 'Sessions', icon: IconSessions },
+  { label: 'Agents', icon: IconAgents },
+  { label: 'Runs', icon: IconRuns },
   { label: 'Integrations', icon: IconIntegrations },
-  { label: 'Settings',  icon: IconSettings },
+  { label: 'Settings', icon: IconSettings },
 ]
-```
 
-Six navigation items. Dashboard is the only active item — the rest are
-unimplemented stubs. Navigation clicks are not wired to routing.
-
-### `RECENT_SESSIONS` (module-level constant)
-
-```ts
 const RECENT_SESSIONS = [
   'Fix flaky checkout test',
   'Q2 dependency sweep',
@@ -65,71 +179,89 @@ const RECENT_SESSIONS = [
   'Release 4.19 changelog',
   'Migration lock review',
 ]
-```
 
-Five static recent-session labels. Clicking has no effect.
-
-## Layout structure
-
-```
-<aside w-60>
-  ├── Workspace switcher button  (h-14, border-b)
-  │     ├── "S" avatar  (accent background)
-  │     ├── "Snabbit" / "Agent Console" text stack
-  │     └── IconChevronDown
-  ├── New session button  (p-3 section)
-  │     ├── IconPlus (accent)
-  │     ├── "New session" text
-  │     └── ⌘N kbd hint
-  ├── Primary nav  (px-2, gap-0.5)
-  │     └── 6× nav buttons (icons + labels)
-  ├── Recent sessions (mt-5, overflow-y-auto)
-  │     ├── "RECENT SESSIONS" label
-  │     └── 5× session buttons
-  └── User footer  (h-14, border-t)
-        ├── "g" avatar (surface-3 background)
-        └── "guna" / email text stack
-```
-
-## Implementation details
-
-### Nav item rendering
-
-```tsx
-{NAV.map((item) => {
-  const Icon = item.icon
+export default function Sidebar() {
   return (
-    <button
-      key={item.label}
-      type="button"
-      aria-current={item.active ? 'page' : undefined}
-      className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm ${
-        item.active
-          ? 'bg-surface-2 font-medium text-text'
-          : 'text-text-muted hover:bg-surface hover:text-text'
-      }`}
-    >
-      <Icon className={item.active ? 'text-accent' : ''} />
-      {item.label}
-    </button>
+    <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-bg">
+      <button
+        type="button"
+        className="flex h-14 items-center gap-2.5 border-b border-border px-3 text-left hover:bg-surface"
+      >
+        <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-sm font-bold text-white">
+          S
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold leading-tight">Snabbit</span>
+          <span className="block text-xs leading-tight text-text-faint">Agent Console</span>
+        </span>
+        <IconChevronDown className="text-text-faint" />
+      </button>
+
+      <div className="p-3">
+        <button
+          type="button"
+          className="flex w-full items-center gap-2 rounded-md border border-border-strong bg-surface-2 px-2.5 py-2 text-sm font-medium text-text-muted hover:border-accent hover:text-text"
+        >
+          <IconPlus className="text-accent" />
+          New session
+          <kbd className="ml-auto font-mono text-xs text-text-faint">⌘N</kbd>
+        </button>
+      </div>
+
+      <nav className="flex flex-col gap-0.5 px-2">
+        {NAV.map((item) => {
+          const Icon = item.icon
+          return (
+            <button
+              key={item.label}
+              type="button"
+              aria-current={item.active ? 'page' : undefined}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm ${
+                item.active
+                  ? 'bg-surface-2 font-medium text-text'
+                  : 'text-text-muted hover:bg-surface hover:text-text'
+              }`}
+            >
+              <Icon className={item.active ? 'text-accent' : ''} />
+              {item.label}
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-3">
+        <p className="px-1 pb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-faint">
+          Recent sessions
+        </p>
+        <ul className="flex flex-col gap-0.5">
+          {RECENT_SESSIONS.map((session) => (
+            <li key={session}>
+              <button
+                type="button"
+                className="block w-full truncate rounded px-2 py-1.5 text-left text-sm text-text-muted hover:bg-surface hover:text-text"
+              >
+                {session}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="flex h-14 items-center gap-2.5 border-t border-border px-3">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-surface-3 text-xs font-semibold uppercase">
+          g
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium leading-tight">guna</span>
+          <span className="block truncate text-xs leading-tight text-text-faint">
+            int-gunashekhar.p@snabbit.com
+          </span>
+        </span>
+      </div>
+    </aside>
   )
-})}
-```
+}
 
-The active item (`Dashboard`) receives `aria-current="page"` for accessibility,
-`bg-surface-2` background, `font-medium` weight, and `text-accent` (pink) icon
-color. Inactive items show `text-text-muted` and get hover styles.
+````
 
-Icon components are stored in `item.icon` as `ComponentType`, so they must be
-assigned to a capitalized variable (`const Icon = item.icon`) before use in JSX,
-otherwise React treats them as HTML elements.
-
-### Recent sessions scroll
-
-The recent sessions section has `min-h-0 flex-1 overflow-y-auto` — `min-h-0`
-and `flex-1` allow the section to grow to fill available space in the flex
-column while `overflow-y-auto` adds a scrollbar if the session list grows long.
-
-## Used by
-
-`App.tsx` — rendered as the leftmost element in the top-level flex row.
+</details>

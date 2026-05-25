@@ -1,101 +1,143 @@
 ---
 title: AgentCard
-description: Individual agent tile in the filterable grid.
+description: Reference for `src/components/AgentCard.tsx`
 ---
 
-**File:** `src/components/AgentCard.tsx`
+**File:** `src/components/AgentCard.tsx` · **Lines:** 38
 
-A single agent tile rendered inside `AgentGrid`. A `<button>` with selection
-state exposed via `aria-pressed`. Displays the agent's status, name, category,
-description, run statistics, and last-run time.
+<FILL: 2-4 sentence plain-language summary of what `components/AgentCard.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Props
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../data/agents` | `Agent` | type-only · internal |
+| `./StatusDot` | `default as StatusDot` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| AgentCard | component | yes |
+
+## AgentCard (default export)
+
+**Kind:** `component`
 
 ```ts
+export default function AgentCard({ agent, selected, onSelect }: AgentCardProps) { ... }
+```
+
+<FILL: 2-4 sentences explaining what AgentCard does and why it exists. Ground every claim in the signature and source.>
+
+### Props
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
+| selected | `boolean` | yes | <FILL: what does selected control?> |
+| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
+
+### Line-by-line walkthrough
+
+Each top-level statement of `AgentCard`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 11 — `ReturnStatement`**
+
+```ts
+return (
+    <button
+      type="button"
+      onClick={() => onSelect(agent.id)}
+      aria-pressed={selected}
+      className={`flex h-full flex-col gap-2 rounded-lg border bg-surface p-3.5 text-left transition-colors ${
+        selected
+          ? 'border-accent ring-1 ring-accent'
+          : 'border-border hover:border-border-strong hover:bg-surface-2'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <StatusDot status={agent.status} />
+        <span className="truncate text-sm font-semibold">{agent.name}</span>
+        <span className="ml-auto shrink-0 rounded border border-border px-1.5 py-0.5 text-[11px] text-text-muted">
+          {agent.category}
+        </span>
+      </div>
+      <p className="line-clamp-2 text-xs text-text-muted">{agent.description}</p>
+      <div className="mt-auto flex items-center gap-3 pt-1 font-mono text-[11px] text-text-faint">
+        <span>{agent.runsPerWeek.toLocaleString()} runs/wk</span>
+        <span>{agent.successRate}% ok</span>
+        <span className="ml-auto">{agent.lastRun}</span>
+      </div>
+    </button>
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/components/AgentGrid.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/components/AgentCard.tsx` (38 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (38 lines)</summary>
+
+````tsx
+import type { Agent } from '../data/agents'
+import StatusDot from './StatusDot'
+
 interface AgentCardProps {
   agent: Agent
   selected: boolean
   onSelect: (id: string) => void
 }
-```
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `agent` | `Agent` | The agent data to display. See [`Agent`](/sdlc-sample-worflow/frontend/data/agents/) for the full type. |
-| `selected` | `boolean` | Whether this card is currently selected. Controls the accent border and ring. |
-| `onSelect` | `(id: string) => void` | Callback invoked with `agent.id` when the button is clicked. |
+export default function AgentCard({ agent, selected, onSelect }: AgentCardProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(agent.id)}
+      aria-pressed={selected}
+      className={`flex h-full flex-col gap-2 rounded-lg border bg-surface p-3.5 text-left transition-colors ${
+        selected
+          ? 'border-accent ring-1 ring-accent'
+          : 'border-border hover:border-border-strong hover:bg-surface-2'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <StatusDot status={agent.status} />
+        <span className="truncate text-sm font-semibold">{agent.name}</span>
+        <span className="ml-auto shrink-0 rounded border border-border px-1.5 py-0.5 text-[11px] text-text-muted">
+          {agent.category}
+        </span>
+      </div>
+      <p className="line-clamp-2 text-xs text-text-muted">{agent.description}</p>
+      <div className="mt-auto flex items-center gap-3 pt-1 font-mono text-[11px] text-text-faint">
+        <span>{agent.runsPerWeek.toLocaleString()} runs/wk</span>
+        <span>{agent.successRate}% ok</span>
+        <span className="ml-auto">{agent.lastRun}</span>
+      </div>
+    </button>
+  )
+}
 
-## Component
+````
 
-```ts
-export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
-```
-
-**Returns:** A `<button>` element.
-
-**Side effects:** None — calls `onSelect` on click but does not manage its own
-selection state.
-
-## Layout structure
-
-```
-<button aria-pressed={selected} onClick={() => onSelect(agent.id)}>
-  <div row>
-    ├── StatusDot (status)
-    ├── <span name> (truncate)
-    └── <span category chip>  (ml-auto)
-  </div>
-  <p description> (line-clamp-2)
-  <div footer stats>
-    ├── "342 runs/wk"
-    ├── "96% ok"
-    └── "3m ago"  (ml-auto)
-  </div>
-</button>
-```
-
-## Selection styles
-
-```tsx
-className={`flex h-full flex-col gap-2 rounded-lg border bg-surface p-3.5 text-left
-  transition-colors ${
-    selected
-      ? 'border-accent ring-1 ring-accent'
-      : 'border-border hover:border-border-strong hover:bg-surface-2'
-  }`}
-```
-
-When `selected` is true: the border becomes `--color-accent` (pink) and a 1px
-accent ring is added inside the border, creating a double-highlight effect.
-
-When `selected` is false: normal border with hover-state upgrades to a stronger
-border and slightly raised surface.
-
-`transition-colors` ensures the border color change is animated smoothly.
-
-## Accessibility
-
-`aria-pressed={selected}` exposes the toggle semantics to assistive technology —
-screen readers announce the button as "pressed" or "not pressed" based on
-`selected`. The `text-left` class overrides the default button center alignment
-so the content reads naturally.
-
-## Stats row
-
-```tsx
-<div className="mt-auto flex items-center gap-3 pt-1 font-mono text-[11px] text-text-faint">
-  <span>{agent.runsPerWeek.toLocaleString()} runs/wk</span>
-  <span>{agent.successRate}% ok</span>
-  <span className="ml-auto">{agent.lastRun}</span>
-</div>
-```
-
-`mt-auto` pushes the stats row to the bottom of the card regardless of how tall
-the description is, keeping cards in a grid row visually aligned at the bottom.
-`toLocaleString()` formats `runsPerWeek` with thousands separators (e.g. `1,284`).
-
-## Used by
-
-`AgentGrid` — mapped over the visible agents after filtering and sorting.
-`AgentGrid` owns the `selectedId` state and passes `selected={agent.id === selectedId}`
-and `onSelect={setSelectedId}` to each card.
+</details>

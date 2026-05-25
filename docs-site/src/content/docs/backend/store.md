@@ -1,133 +1,164 @@
 ---
-title: store.ts
-description: Store interface and in-memory implementation.
+title: store
+description: Reference for `server/src/store.ts`
 ---
 
-**File:** `server/src/store.ts`
+**File:** `server/src/store.ts` · **Lines:** 33
 
-Defines the `Store` abstraction for data access and provides the in-memory
-implementation. The interface is the key seam that enables test isolation —
-tests inject `createMemoryStore`; the running server injects `createPostgresStore`.
+<FILL: 2-4 sentence plain-language summary of what `store.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Interfaces
+## Imports
 
-### `AgentStore`
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `./domain` | `Agent`, `Kpi` | type-only · internal |
+
+
+## Symbols
+
+This file exports 4 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| createMemoryStore | function | no |
+| AgentStore | interface | no |
+| KpiStore | interface | no |
+| Store | type | no |
+
+## createMemoryStore
+
+**Kind:** `function`
 
 ```ts
-export interface AgentStore {
-  listAgents(): Promise<Agent[]>
-  getAgent(id: string): Promise<Agent | null>
-}
+export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store { ... }
 ```
 
-| Method | Signature | Returns |
-|--------|-----------|---------|
-| `listAgents` | `() => Promise<Agent[]>` | All agents |
-| `getAgent` | `(id: string) => Promise<Agent \| null>` | The agent with matching `id`, or `null` if not found |
+> In-memory store. Used by the test suite (so `npm test` needs no database)
+> and as a fallback for quick local runs.
 
-### `KpiStore`
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| kpis | `Kpi[]` | — | yes | <FILL: purpose of kpis> |
+
+**Returns:** `Store`
+
+<FILL: describe the return value of createMemoryStore — what it represents, when it can be null/undefined, units.>
+
+### Line-by-line walkthrough
+
+Each top-level statement of `createMemoryStore`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 21 — `ReturnStatement`**
 
 ```ts
-export interface KpiStore {
-  listKpis(): Promise<Kpi[]>
-}
+return {
+    async listAgents() {
+      return [...agents]
+    },
+    async getAgent(id: string) {
+      return agents.find((a) => a.id === id) ?? null
+    },
+    async listKpis() {
+      return [...kpis]
+    },
+  }
 ```
 
-| Method | Signature | Returns |
-|--------|-----------|---------|
-| `listKpis` | `() => Promise<Kpi[]>` | All KPIs |
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-### `Store`
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `server/src/__tests__/api.test.ts`
+
+## AgentStore
+
+**Kind:** `interface`
+
+```ts
+export interface AgentStore { ... }
+```
+
+> Read access to the agent catalogue.
+
+## KpiStore
+
+**Kind:** `interface`
+
+```ts
+export interface KpiStore { ... }
+```
+
+> Read access to the KPI list.
+
+## Store
+
+**Kind:** `type`
 
 ```ts
 export type Store = AgentStore & KpiStore
 ```
 
-The combined store type. Both interfaces are always implemented together —
-there is no scenario where agents and KPIs come from different sources.
+<FILL: 2-4 sentences explaining what Store does and why it exists. Ground every claim in the signature and source.>
 
-All methods are `async` (return `Promise`) so the in-memory and Postgres
-implementations share identical call sites, even though the memory store has
-no I/O.
+### Used by
 
-## `createMemoryStore`
+- `server/src/app.ts`
+- `server/src/postgresStore.ts`
 
-```ts
-export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store
-```
+## Diagrams
 
-**Parameters:**
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `agents` | `Agent[]` | The agents to serve. Typically `SEED_AGENTS` from `seed.ts`. |
-| `kpis` | `Kpi[]` | The KPIs to serve. Typically `SEED_KPIS` from `seed.ts`. |
+## Source
 
-**Returns:** A `Store` backed by the provided arrays.
+Full file source for `server/src/store.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
 
-**Side effects:** None.
+<details>
+<summary>View source (33 lines)</summary>
 
-### Implementation
+````ts
+import type { Agent, Kpi } from './domain'
 
-```ts
-return {
-  async listAgents() {
-    return [...agents]
-  },
-  async getAgent(id: string) {
-    return agents.find((a) => a.id === id) ?? null
-  },
-  async listKpis() {
-    return [...kpis]
-  },
+/** Read access to the agent catalogue. */
+export interface AgentStore {
+  listAgents(): Promise<Agent[]>
+  getAgent(id: string): Promise<Agent | null>
 }
-```
 
-`listAgents` and `listKpis` return **shallow copies** (`[...agents]`) so callers
-cannot accidentally mutate the backing array. This prevents test cross-
-contamination without requiring deep cloning.
+/** Read access to the KPI list. */
+export interface KpiStore {
+  listKpis(): Promise<Kpi[]>
+}
 
-`getAgent` uses `Array.find` and returns `null` (not `undefined`) on a miss,
-matching the Postgres implementation's behavior.
+export type Store = AgentStore & KpiStore
 
-## Store implementation comparison
-
-```mermaid
-classDiagram
-  class Store {
-    <<interface>>
-    +listAgents() Promise~Agent[]~
-    +getAgent(id) Promise~Agent|null~
-    +listKpis() Promise~Kpi[]~
+/**
+ * In-memory store. Used by the test suite (so `npm test` needs no database)
+ * and as a fallback for quick local runs.
+ */
+export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store {
+  return {
+    async listAgents() {
+      return [...agents]
+    },
+    async getAgent(id: string) {
+      return agents.find((a) => a.id === id) ?? null
+    },
+    async listKpis() {
+      return [...kpis]
+    },
   }
+}
 
-  class MemoryStore {
-    -agents: Agent[]
-    -kpis: Kpi[]
-    +listAgents() Promise~Agent[]~
-    +getAgent(id) Promise~Agent|null~
-    +listKpis() Promise~Kpi[]~
-  }
+````
 
-  class PostgresStore {
-    -pool: Pool
-    +listAgents() Promise~Agent[]~
-    +getAgent(id) Promise~Agent|null~
-    +listKpis() Promise~Kpi[]~
-  }
-
-  Store <|.. MemoryStore : implements
-  Store <|.. PostgresStore : implements
-```
-
-## Used by
-
-- `server/src/__tests__/api.test.ts`:
-  ```ts
-  createApp({
-    store: createMemoryStore(SEED_AGENTS, SEED_KPIS),
-    cicd: createMockCicdProvider(),
-  })
-  ```
-- `server/src/app.ts` — receives `Store` via `AppDeps`.
-- `server/src/routes.ts` — calls `store.listAgents()`, `store.getAgent()`, `store.listKpis()`.
+</details>

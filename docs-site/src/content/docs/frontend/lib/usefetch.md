@@ -1,155 +1,218 @@
 ---
 title: useFetch
-description: Generic data-fetching hook with abort, error and reload support.
+description: Reference for `src/lib/useFetch.ts`
 ---
 
-**File:** `src/lib/useFetch.ts`
+**File:** `src/lib/useFetch.ts` · **Lines:** 47
 
-A generic React hook that runs an async fetcher on mount, manages loading /
-error / data state, and provides a `reload()` function. Cancels in-flight
-requests on unmount via `AbortController`.
+<FILL: 2-4 sentence plain-language summary of what `lib/useFetch.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Types
+## Imports
 
-### `FetchState<T>`
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `useCallback`, `useEffect`, `useState` | external |
+
+
+## Symbols
+
+This file exports 2 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| useFetch | hook | no |
+| FetchState | interface | no |
+
+## useFetch
+
+**Kind:** `hook`
 
 ```ts
+export function useFetch<T>(
+  fetcher: (signal: AbortSignal) => Promise<T>,
+): FetchState<T> { ... }
+```
+
+> Run an async fetcher on mount and expose loading/error/data state.
+> The `fetcher` must be referentially stable (e.g. a module-level function),
+> otherwise the effect re-runs every render.
+
+### Parameters
+
+| Name | Type | Default | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
+
+**Returns:** `FetchState<T>`
+
+<FILL: describe the return value of useFetch — what it represents, when it can be null/undefined, units.>
+
+### Line-by-line walkthrough
+
+Each top-level statement of `useFetch`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 18 — `FirstStatement`**
+
+```ts
+const [data, setData] = useState<T | null>(null)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 19 — `FirstStatement`**
+
+```ts
+const [loading, setLoading] = useState(true)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 20 — `FirstStatement`**
+
+```ts
+const [error, setError] = useState<string | null>(null)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 21 — `FirstStatement`**
+
+```ts
+const [nonce, setNonce] = useState(0)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 23 — `FirstStatement`**
+
+```ts
+const reload = useCallback(() => setNonce((n) => n + 1), [])
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 25 — `ExpressionStatement`**
+
+```ts
+useEffect(() => {
+    const controller = new AbortController()
+    setLoading(true)
+    setError(null)
+
+    fetcher(controller.signal)
+      .then((result) => {
+        if (controller.signal.aborted) return
+        setData(result)
+        setLoading(false)
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return
+        setError(err instanceof Error ? err.message : 'Request failed')
+        setLoading(false)
+      })
+
+    return () => controller.abort()
+  }, [fetcher, nonce])
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 45 — `ReturnStatement`**
+
+```ts
+return { data, loading, error, reload }
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/components/PipelinesPanel.tsx`
+
+## FetchState
+
+**Kind:** `interface`
+
+```ts
+export interface FetchState<T> { ... }
+```
+
+<FILL: 2-4 sentences explaining what FetchState does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| data | `T` | <FILL: data> |
+| loading | `boolean` | <FILL: loading> |
+| error | `string` | <FILL: error> |
+| reload | `() => void` | <FILL: reload> |
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/lib/useFetch.ts` (47 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (47 lines)</summary>
+
+````ts
+import { useCallback, useEffect, useState } from 'react'
+
 export interface FetchState<T> {
   data: T | null
   loading: boolean
   error: string | null
   reload: () => void
 }
-```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `data` | `T \| null` | The resolved response value, or `null` before the first successful fetch |
-| `loading` | `boolean` | `true` while a fetch is in progress |
-| `error` | `string \| null` | Error message string, or `null` when no error |
-| `reload` | `() => void` | Triggers a fresh fetch (increments internal nonce) |
-
-## Hook
-
-```ts
+/**
+ * Run an async fetcher on mount and expose loading/error/data state.
+ * The `fetcher` must be referentially stable (e.g. a module-level function),
+ * otherwise the effect re-runs every render.
+ */
 export function useFetch<T>(
   fetcher: (signal: AbortSignal) => Promise<T>,
-): FetchState<T>
-```
+): FetchState<T> {
+  const [data, setData] = useState<T | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [nonce, setNonce] = useState(0)
 
-**Parameters:**
+  const reload = useCallback(() => setNonce((n) => n + 1), [])
 
-| Param | Type | Purpose |
-|-------|------|---------|
-| `fetcher` | `(signal: AbortSignal) => Promise<T>` | The async function to call. Must accept an `AbortSignal` so the hook can cancel it on unmount. **Must be referentially stable** — a module-level function, not an inline arrow. |
+  useEffect(() => {
+    const controller = new AbortController()
+    setLoading(true)
+    setError(null)
 
-**Returns:** `FetchState<T>`.
+    fetcher(controller.signal)
+      .then((result) => {
+        if (controller.signal.aborted) return
+        setData(result)
+        setLoading(false)
+      })
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return
+        setError(err instanceof Error ? err.message : 'Request failed')
+        setLoading(false)
+      })
 
-:::caution
-The `fetcher` must be **referentially stable** (e.g. a module-level function).
-An inline arrow function recreated on every render would re-trigger the effect
-infinitely, since `fetcher` is in the effect's dependency array.
-:::
+    return () => controller.abort()
+  }, [fetcher, nonce])
 
-## Internal state
+  return { data, loading, error, reload }
+}
 
-```ts
-const [data,    setData]    = useState<T | null>(null)
-const [loading, setLoading] = useState(true)
-const [error,   setError]   = useState<string | null>(null)
-const [nonce,   setNonce]   = useState(0)
-```
+````
 
-`nonce` is an integer counter that starts at 0. `reload()` increments it:
-
-```ts
-const reload = useCallback(() => setNonce((n) => n + 1), [])
-```
-
-Because `nonce` is in the `useEffect` dependency array, incrementing it
-re-runs the effect. This is a simple way to trigger a refetch without
-exposing internal state to the caller.
-
-## Effect walkthrough
-
-```ts
-useEffect(() => {
-  const controller = new AbortController()
-  setLoading(true)
-  setError(null)
-
-  fetcher(controller.signal)
-    .then((result) => {
-      if (controller.signal.aborted) return
-      setData(result)
-      setLoading(false)
-    })
-    .catch((err: unknown) => {
-      if (controller.signal.aborted) return
-      setError(err instanceof Error ? err.message : 'Request failed')
-      setLoading(false)
-    })
-
-  return () => controller.abort()
-}, [fetcher, nonce])
-```
-
-**Step by step:**
-
-1. A fresh `AbortController` is created for each effect run. This ensures
-   each fetch has its own independent abort signal.
-
-2. `setLoading(true)` and `setError(null)` are called synchronously before
-   the fetch. This clears any previous error and shows the loading state
-   immediately.
-
-3. `fetcher(controller.signal)` starts the request. The signal is passed so
-   the fetch can be cancelled.
-
-4. On resolution: `controller.signal.aborted` is checked before setting state.
-   If the component unmounted (or `reload()` was called again), the controller
-   was already aborted — stale results are discarded to prevent setting state
-   on an unmounted component.
-
-5. On rejection: the error message is extracted from the `Error` instance if
-   available, otherwise the fallback `'Request failed'` is used.
-
-6. Cleanup: the effect returns `() => controller.abort()`. React calls this
-   when the component unmounts **or** before the next effect run (when `nonce`
-   or `fetcher` changes). Aborting signals the in-flight fetch to cancel.
-
-## State transitions
-
-```mermaid
-stateDiagram-v2
-  [*] --> Loading : mount (loading=true, error=null)
-  Loading --> Data : fetch resolves (data set, loading=false)
-  Loading --> Error : fetch rejects (error set, loading=false)
-  Data --> Loading : reload() called
-  Error --> Loading : reload() called
-  Loading --> Loading : abort + restart (nonce changed before fetch settled)
-```
-
-## Stale result protection
-
-The `controller.signal.aborted` guard in both `.then()` and `.catch()` handles
-the race condition where:
-
-1. A fetch is in flight.
-2. `reload()` is called (or component unmounts).
-3. The cleanup runs: `controller.abort()`.
-4. The original fetch resolves or rejects.
-
-Without the guard, the stale result would overwrite the newer state. With it,
-the aborted result is silently dropped.
-
-## Used by
-
-`PipelinesPanel`:
-
-```ts
-const { data, loading, error, reload } = useFetch(fetchPipelines)
-```
-
-`fetchPipelines` is a module-level function in `api.ts`, ensuring referential
-stability.
+</details>

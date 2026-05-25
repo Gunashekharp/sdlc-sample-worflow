@@ -1,206 +1,315 @@
 ---
 title: AgentGrid
-description: Filterable, sortable grid of agent cards.
+description: Reference for `src/components/AgentGrid.tsx`
 ---
 
-**File:** `src/components/AgentGrid.tsx`
+**File:** `src/components/AgentGrid.tsx` · **Lines:** 100
 
-The main agent catalogue — a filterable, sortable grid of `AgentCard` tiles.
-Manages category tabs, sort order, free-text search, and single-card selection.
-Category and sort preferences persist to `localStorage` via `usePersistentState`.
+<FILL: 2-4 sentence plain-language summary of what `components/AgentGrid.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Props
+## Imports
+
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `react` | `useMemo`, `useState` | external |
+| `../data/agents` | `Agent` | type-only · internal |
+| `../data/agents` | `AGENT_CATEGORIES` | internal |
+| `../lib/filterAgents` | `filterAgents` | internal |
+| `../lib/sortAgents` | `sortAgents`, `SORT_LABELS` | internal |
+| `../lib/sortAgents` | `SortKey` | type-only · internal |
+| `../lib/usePersistentState` | `usePersistentState` | internal |
+| `./AgentCard` | `default as AgentCard` | internal |
+| `./icons` | `IconSearch` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| AgentGrid | component | yes |
+
+## AgentGrid (default export)
+
+**Kind:** `component`
 
 ```ts
-{ agents: Agent[] }
+export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 ```
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `agents` | `Agent[]` | The agent list to display. `App.tsx` passes all agents except the featured one. |
+<FILL: 2-4 sentences explaining what AgentGrid does and why it exists. Ground every claim in the signature and source.>
 
-## State
+### Props
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+
+### Line-by-line walkthrough
+
+Each top-level statement of `AgentGrid`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 14 — `FirstStatement`**
 
 ```ts
 const [category, setCategory] = usePersistentState<string>(
-  'snabbit.agentGrid.category', 'All',
-)
+    'snabbit.agentGrid.category',
+    'All',
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 18 — `FirstStatement`**
+
+```ts
 const [sort, setSort] = usePersistentState<SortKey>(
-  'snabbit.agentGrid.sort', 'runs',
-)
+    'snabbit.agentGrid.sort',
+    'runs',
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 22 — `FirstStatement`**
+
+```ts
 const [query, setQuery] = useState('')
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 23 — `FirstStatement`**
+
+```ts
 const [selectedId, setSelectedId] = useState<string | null>(null)
 ```
 
-| State | Initial | Persisted? | Purpose |
-|-------|---------|-----------|---------|
-| `category` | `'All'` | Yes (`localStorage`) | Active category tab |
-| `sort` | `'runs'` | Yes (`localStorage`) | Active sort key |
-| `query` | `''` | No | Free-text filter input |
-| `selectedId` | `null` | No | Currently selected agent card ID |
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-`category` and `sort` use `usePersistentState` so the user's selections survive
-page refreshes and component remounts. The `localStorage` keys are namespaced
-(`snabbit.agentGrid.*`) to avoid collisions.
-
-`query` is intentionally transient — a search term is not worth restoring
-across sessions.
-
-## Derived state
+**Line 25 — `FirstStatement`**
 
 ```ts
 const visible = useMemo(
-  () => sortAgents(filterAgents(agents, { query, category }), sort),
-  [agents, query, category, sort],
-)
+    () => sortAgents(filterAgents(agents, { query, category }), sort),
+    [agents, query, category, sort],
+  )
 ```
 
-`visible` is the final list of agents to render. It chains `filterAgents` →
-`sortAgents` and is memoized so the potentially expensive sort + filter only
-re-runs when its inputs change.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-```mermaid
-flowchart LR
-  agents["agents prop"]
-  query["query state"]
-  category["category state"]
-  sort["sort state"]
-  filter["filterAgents()"]
-  sortFn["sortAgents()"]
-  visible["visible\n(memoized)"]
-
-  agents --> filter
-  query --> filter
-  category --> filter
-  filter --> sortFn
-  sort --> sortFn
-  sortFn --> visible
-```
-
-## Tab system
+**Line 30 — `ReturnStatement`**
 
 ```ts
-const TABS: string[] = ['All', 'Popular', ...AGENT_CATEGORIES]
-// → ['All', 'Popular', 'Review', 'Deploy', 'Reliability', 'Quality', 'Docs']
+return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 className="text-sm font-semibold">
+          Agents <span className="text-text-faint">{visible.length}</span>
+        </h2>
+
+        <div className="flex flex-wrap gap-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setCategory(tab)}
+              aria-pressed={category === tab}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                category === tab
+                  ? 'bg-surface-3 text-text'
+                  : 'text-text-muted hover:bg-surface hover:text-text'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          aria-label="Sort agents"
+          className="ml-auto rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text-muted outline-none hover:border-border-strong focus:border-border-strong"
+        >
+          {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+            <option key={key} value={key}>
+              {SORT_LABELS[key]}
+            </option>
+          ))}
+        </select>
+
+        <label className="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 focus-within:border-border-strong">
+          <IconSearch className="text-text-faint" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter agents…"
+            aria-label="Filter agents"
+            className="w-40 bg-transparent text-sm outline-none placeholder:text-text-faint"
+          />
+        </label>
+      </div>
+
+      {visible.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              selected={agent.id === selectedId}
+              onSelect={setSelectedId}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-sm text-text-faint">
+          No agents match {query ? `“${query}”` : 'this filter'}.
+        </div>
+      )}
+    </section>
+  )
 ```
 
-The `All` and `Popular` tabs are prepended to the category list. `AGENT_CATEGORIES`
-is imported from `src/data/agents.ts` and defines the canonical category order.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-Each tab is a `<button>` with `aria-pressed` and distinct active/inactive styles:
+### Examples
 
-```tsx
-<button
-  key={tab}
-  type="button"
-  onClick={() => setCategory(tab)}
-  aria-pressed={category === tab}
-  className={`rounded-md px-2.5 py-1 text-xs font-medium ${
-    category === tab
-      ? 'bg-surface-3 text-text'
-      : 'text-text-muted hover:bg-surface hover:text-text'
-  }`}
->
-  {tab}
-</button>
-```
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
 
-## Sort select
+### Used by
 
-```tsx
-<select
-  value={sort}
-  onChange={(e) => setSort(e.target.value as SortKey)}
-  aria-label="Sort agents"
->
-  {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
-    <option key={key} value={key}>{SORT_LABELS[key]}</option>
-  ))}
-</select>
-```
-
-The `<select>` is driven by the `SORT_LABELS` record from `sortAgents.ts`,
-which defines four options: `runs` (Most runs), `success` (Success rate),
-`name` (Name A–Z), `recent` (Recently run). The cast `as SortKey` is safe
-because `Object.keys` iterates only over `SORT_LABELS`'s own keys.
-
-## Search input
-
-```tsx
-<label className="flex items-center gap-2 rounded-md border border-border
-                  bg-surface px-2.5 py-1.5 focus-within:border-border-strong">
-  <IconSearch className="text-text-faint" />
-  <input
-    type="text"
-    value={query}
-    onChange={(e) => setQuery(e.target.value)}
-    placeholder="Filter agents…"
-    aria-label="Filter agents"
-    className="w-40 bg-transparent text-sm outline-none placeholder:text-text-faint"
-  />
-</label>
-```
-
-The icon and input are wrapped in a `<label>` so clicking the icon focuses the
-input. `focus-within:border-border-strong` upgrades the border when the input
-is focused, without needing a separate focus handler. `bg-transparent` lets the
-input inherit the panel background.
-
-## Grid and empty state
-
-```tsx
-{visible.length > 0 ? (
-  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-    {visible.map((agent) => (
-      <AgentCard
-        key={agent.id}
-        agent={agent}
-        selected={agent.id === selectedId}
-        onSelect={setSelectedId}
-      />
-    ))}
-  </div>
-) : (
-  <div className="rounded-lg border border-dashed border-border px-4 py-12 text-center
-                  text-sm text-text-faint">
-    No agents match {query ? `"${query}"` : 'this filter'}.
-  </div>
-)}
-```
-
-The responsive grid is 1 / 2 / 3 columns. The empty state names the active
-query in quotes, or falls back to "this filter" when the empty state is caused
-by a category tab with no agents.
-
-## Selection
-
-`AgentGrid` owns `selectedId`. It passes `selected={agent.id === selectedId}`
-and `onSelect={setSelectedId}` to each `AgentCard`. Cards call `onSelect(id)`,
-which always sets `selectedId` to the clicked card's ID — clicking the already-
-selected card deselects would require a toggle, which is not implemented.
+- `src/App.tsx`
+- `src/components/AgentGrid.test.tsx`
 
 ## Tests
 
-`src/components/AgentGrid.test.tsx` — 7 tests:
+| Suite | Test | Asserts |
+| --- | --- | --- |
+| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
+| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
+| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
+| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
+| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
 
-| Test | Asserts |
-|------|---------|
-| renders a card for every agent | All 12 agent names present |
-| filters agents by the search query | Typing "deploy" hides PR Reviewer |
-| shows an empty state when nothing matches | "zzznotanagent" → empty state message |
-| filters agents by category tab | "Deploy" tab hides RCA Analyst |
-| marks a card as selected when clicked | `aria-pressed` flips `false` → `true` |
-| keeps every agent visible after changing sort | Sort change preserves all 12 agents |
-| remembers the selected category across remounts | "Deploy" tab survives unmount/remount |
+## Diagrams
 
-## Used by
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 
-`App.tsx`:
+## Source
 
-```ts
-const rest = AGENTS.filter((a) => a.id !== featured.id)
-// ...
-<AgentGrid agents={rest} />
-```
+Full file source for `src/components/AgentGrid.tsx` (100 lines). The line-by-line walkthroughs above reference these line numbers.
 
-The featured agent (PR Reviewer) is excluded so it does not appear twice.
+<details>
+<summary>View source (100 lines)</summary>
+
+````tsx
+import { useMemo, useState } from 'react'
+import type { Agent } from '../data/agents'
+import { AGENT_CATEGORIES } from '../data/agents'
+import { filterAgents } from '../lib/filterAgents'
+import { sortAgents, SORT_LABELS } from '../lib/sortAgents'
+import type { SortKey } from '../lib/sortAgents'
+import { usePersistentState } from '../lib/usePersistentState'
+import AgentCard from './AgentCard'
+import { IconSearch } from './icons'
+
+const TABS: string[] = ['All', 'Popular', ...AGENT_CATEGORIES]
+
+export default function AgentGrid({ agents }: { agents: Agent[] }) {
+  const [category, setCategory] = usePersistentState<string>(
+    'snabbit.agentGrid.category',
+    'All',
+  )
+  const [sort, setSort] = usePersistentState<SortKey>(
+    'snabbit.agentGrid.sort',
+    'runs',
+  )
+  const [query, setQuery] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  const visible = useMemo(
+    () => sortAgents(filterAgents(agents, { query, category }), sort),
+    [agents, query, category, sort],
+  )
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 className="text-sm font-semibold">
+          Agents <span className="text-text-faint">{visible.length}</span>
+        </h2>
+
+        <div className="flex flex-wrap gap-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setCategory(tab)}
+              aria-pressed={category === tab}
+              className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                category === tab
+                  ? 'bg-surface-3 text-text'
+                  : 'text-text-muted hover:bg-surface hover:text-text'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          aria-label="Sort agents"
+          className="ml-auto rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text-muted outline-none hover:border-border-strong focus:border-border-strong"
+        >
+          {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+            <option key={key} value={key}>
+              {SORT_LABELS[key]}
+            </option>
+          ))}
+        </select>
+
+        <label className="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 focus-within:border-border-strong">
+          <IconSearch className="text-text-faint" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter agents…"
+            aria-label="Filter agents"
+            className="w-40 bg-transparent text-sm outline-none placeholder:text-text-faint"
+          />
+        </label>
+      </div>
+
+      {visible.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              selected={agent.id === selectedId}
+              onSelect={setSelectedId}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed border-border px-4 py-12 text-center text-sm text-text-faint">
+          No agents match {query ? `“${query}”` : 'this filter'}.
+        </div>
+      )}
+    </section>
+  )
+}
+
+````
+
+</details>

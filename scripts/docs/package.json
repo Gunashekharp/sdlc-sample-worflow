@@ -7,11 +7,11 @@
   "scripts": {
     "extract:skeleton": "tsx extract-skeleton.ts",
     "extract:diagrams": "tsx extract-diagrams.ts",
-    "extract:all": "npm run extract:skeleton && npm run extract:diagrams",
+    "extract:overviews": "tsx extract-overviews.ts",
+    "extract:all": "npm run extract:skeleton && npm run extract:overviews",
     "check:coverage": "tsx check-coverage.ts"
   },
   "dependencies": {
-    "dependency-cruiser": "^16.10.4",
     "ts-morph": "^25.0.1",
     "tsx": "^4.19.2"
   }

@@ -1,33 +1,132 @@
 ---
-title: domain.ts
-description: Backend domain types — Agent and Kpi.
+title: domain
+description: Reference for `server/src/domain.ts`
 ---
 
-**File:** `server/src/domain.ts`
+**File:** `server/src/domain.ts` · **Lines:** 33
 
-The backend's core domain types. Mirrors the shapes the frontend expects.
-There is no shared type package — the frontend (`src/data/agents.ts`) and
-backend maintain structurally identical types by convention.
+<FILL: 2-4 sentence plain-language summary of what `domain.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## `AgentStatus`
+## Symbols
+
+This file exports 4 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| AgentStatus | type | no |
+| AgentCategory | type | no |
+| Agent | interface | no |
+| Kpi | interface | no |
+
+## AgentStatus
+
+**Kind:** `type`
 
 ```ts
 export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
-The three operational states of an agent.
+<FILL: 2-4 sentences explaining what AgentStatus does and why it exists. Ground every claim in the signature and source.>
 
-## `AgentCategory`
+### Used by
+
+- `server/src/postgresStore.ts`
+
+## AgentCategory
+
+**Kind:** `type`
 
 ```ts
 export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
 ```
 
-The five agent categories.
+<FILL: 2-4 sentences explaining what AgentCategory does and why it exists. Ground every claim in the signature and source.>
 
-## `Agent`
+### Used by
+
+- `server/src/postgresStore.ts`
+
+## Agent
+
+**Kind:** `interface`
 
 ```ts
+export interface Agent { ... }
+```
+
+<FILL: 2-4 sentences explaining what Agent does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
+| runsPerWeek | `number` | <FILL: runsPerWeek> |
+| successRate | `number` | <FILL: successRate> |
+| avgDuration | `string` | <FILL: avgDuration> |
+| lastRun | `string` | <FILL: lastRun> |
+| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
+| popular | `boolean` | <FILL: popular> |
+
+### Used by
+
+- `server/src/store.ts`
+- `server/src/postgresStore.ts`
+- `server/src/seed.ts`
+
+## Kpi
+
+**Kind:** `interface`
+
+```ts
+export interface Kpi { ... }
+```
+
+<FILL: 2-4 sentences explaining what Kpi does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
+
+### Used by
+
+- `server/src/store.ts`
+- `server/src/postgresStore.ts`
+- `server/src/seed.ts`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `server/src/domain.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (33 lines)</summary>
+
+````ts
+/*
+ * Domain types for the Snabbit Agent Console API.
+ * Mirrors the shapes the frontend expects.
+ */
+
+export type AgentStatus = 'running' | 'idle' | 'attention'
+
+export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
+
 export interface Agent {
   id: string
   name: string
@@ -41,25 +140,7 @@ export interface Agent {
   lastRunMinutes: number
   popular: boolean
 }
-```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Stable kebab-case slug, primary key in Postgres |
-| `name` | `string` | Display name |
-| `category` | `AgentCategory` | Stored as `TEXT` in Postgres, cast to `AgentCategory` by `rowToAgent` |
-| `description` | `string` | One-sentence summary |
-| `status` | `AgentStatus` | Stored as `TEXT`, cast to `AgentStatus` by `rowToAgent` |
-| `runsPerWeek` | `number` | Maps to `runs_per_week INTEGER` in Postgres |
-| `successRate` | `number` | Maps to `success_rate INTEGER` (0–100) |
-| `avgDuration` | `string` | Maps to `avg_duration TEXT`, human-readable |
-| `lastRun` | `string` | Maps to `last_run TEXT`, human-readable |
-| `lastRunMinutes` | `number` | Maps to `last_run_minutes INTEGER`, for sorting |
-| `popular` | `boolean` | Maps to `popular BOOLEAN` |
-
-## `Kpi`
-
-```ts
 export interface Kpi {
   id: string
   label: string
@@ -69,32 +150,7 @@ export interface Kpi {
   hint: string
   trend: number[]
 }
-```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Stable identifier, primary key in Postgres |
-| `label` | `string` | Metric name |
-| `value` | `string` | Pre-formatted display value |
-| `delta` | `string` | Pre-formatted period change |
-| `positive` | `boolean` | Whether the delta is a good outcome |
-| `hint` | `string` | Sub-label for the sparkline |
-| `trend` | `number[]` | 7-point series, stored as JSONB in Postgres |
+````
 
-The `Kpi` type does not include `sort_order` — that is a Postgres-only
-ordering column, read by the store but not exposed in the domain type.
-
-## Relationship to the frontend types
-
-Both the frontend (`src/data/agents.ts`) and backend (`server/src/domain.ts`)
-define `AgentStatus`, `AgentCategory`, `Agent`, and `Kpi`. The two sets are
-kept structurally identical by hand. Any change to one must be mirrored in the
-other.
-
-## Used by
-
-- `server/src/store.ts` — defines `AgentStore`, `KpiStore`, `Store` in terms
-  of `Agent` and `Kpi`.
-- `server/src/postgresStore.ts` — maps Postgres rows to these types.
-- `server/src/seed.ts` — typed seed data arrays.
-- `server/src/routes.ts` — implicit through `Store` usage.
+</details>

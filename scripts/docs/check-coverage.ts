@@ -15,7 +15,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Project } from 'ts-morph'
 
-import { repoRoot, sourceRoots, outputRoot } from './config.ts'
+import { repoRoot, sourceRoots, docsContentRoot } from './config.ts'
+
+const outputRoot = docsContentRoot
 
 interface Missing {
   file: string
@@ -124,8 +126,9 @@ async function run(): Promise<void> {
     console.error(`    → missing: ${m.symbols.join(', ')}`)
   }
   // Emit a machine-readable file the workflow can feed back to the agent.
-  const reportPath = path.join(outputRoot, '_coverage-report.json')
-  fs.mkdirSync(outputRoot, { recursive: true })
+  // Kept outside the docs content tree so Astro never picks it up as a page.
+  const reportPath = path.resolve(repoRoot, 'scripts', 'docs', '_coverage-report.json')
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true })
   fs.writeFileSync(reportPath, JSON.stringify(missing, null, 2), 'utf-8')
   console.error(`\n  (structured report: ${path.relative(repoRoot, reportPath)})`)
   process.exit(1)

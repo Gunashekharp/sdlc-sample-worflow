@@ -1,18 +1,80 @@
 ---
-title: kpis.ts
-description: Frontend KPI catalogue — types and seed data.
+title: kpis
+description: Reference for `src/data/kpis.ts`
 ---
 
-**File:** `src/data/kpis.ts`
+**File:** `src/data/kpis.ts` · **Lines:** 56
 
-The frontend's static KPI (key performance indicator) catalogue. Four metrics
-for the dashboard header strip.
+<FILL: 2-4 sentence plain-language summary of what `data/kpis.ts` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Types
+## Symbols
 
-### `Kpi`
+This file exports 2 symbols. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| Kpi | interface | no |
+| KPIS | const | no |
+
+## Kpi
+
+**Kind:** `interface`
 
 ```ts
+export interface Kpi { ... }
+```
+
+<FILL: 2-4 sentences explaining what Kpi does and why it exists. Ground every claim in the signature and source.>
+
+### Shape
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
+
+### Used by
+
+- `src/components/KpiStrip.tsx`
+
+## KPIS
+
+**Kind:** `const`
+
+```ts
+const KPIS: Kpi[]
+```
+
+<FILL: 2-4 sentences explaining what KPIS does and why it exists. Ground every claim in the signature and source.>
+
+### Used by
+
+- `src/components/KpiStrip.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/data/kpis.ts` (56 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (56 lines)</summary>
+
+````ts
+/*
+ * Headline metrics shown in the KPI strip.
+ * `positive` indicates whether the delta is a good outcome, independent of
+ * its sign — e.g. a falling time-to-merge is positive.
+ * `trend` is a 7-point series (oldest first) rendered as a sparkline.
+ */
+
 export interface Kpi {
   id: string
   label: string
@@ -22,66 +84,46 @@ export interface Kpi {
   hint: string
   trend: number[]
 }
-```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Stable identifier (e.g. `'agent-runs'`) |
-| `label` | `string` | Metric name shown above the value |
-| `value` | `string` | Pre-formatted current value (e.g. `'1,284'`, `'4h 12m'`, `'97.4%'`) |
-| `delta` | `string` | Pre-formatted period-over-period change (e.g. `'+18%'`, `'-22%'`) |
-| `positive` | `boolean` | Whether the delta represents a **good** outcome, regardless of its arithmetic sign |
-| `hint` | `string` | Descriptive sub-label shown below the sparkline |
-| `trend` | `number[]` | 7-point time series, **oldest first**, rendered as a `Sparkline` |
+export const KPIS: Kpi[] = [
+  {
+    id: 'agent-runs',
+    label: 'Agent runs · 7d',
+    value: '1,284',
+    delta: '+18%',
+    positive: true,
+    hint: 'Total agent executions in the last 7 days.',
+    trend: [980, 1010, 1060, 1040, 1120, 1180, 1284],
+  },
+  {
+    id: 'prs-reviewed',
+    label: 'PRs reviewed',
+    value: '342',
+    delta: '+9%',
+    positive: true,
+    hint: 'Pull requests reviewed by agents this week.',
+    trend: [290, 300, 285, 310, 320, 330, 342],
+  },
+  {
+    id: 'time-to-merge',
+    label: 'Mean time to merge',
+    value: '4h 12m',
+    delta: '-22%',
+    positive: true,
+    hint: 'Average time from PR open to merge.',
+    trend: [340, 330, 318, 300, 285, 270, 252],
+  },
+  {
+    id: 'suite-pass-rate',
+    label: 'Suite pass rate',
+    value: '97.4%',
+    delta: '+0.6%',
+    positive: true,
+    hint: 'Share of CI runs passing on the first attempt.',
+    trend: [96.2, 96.5, 96.8, 96.6, 97.0, 97.1, 97.4],
+  },
+]
 
-### The `positive` flag
+````
 
-`positive` is deliberately decoupled from the sign of `delta`. A falling metric
-can be a good thing:
-
-```
-time-to-merge: delta = '-22%', positive = true  → green sparkline
-```
-
-All four current KPIs have `positive: true`. The flag drives the sparkline
-color (`--color-ok` green vs `--color-err` red) and the delta text color in
-`KpiCard`.
-
-## `KPIS` export
-
-```ts
-export const KPIS: Kpi[] = [ /* 4 KPIs */ ]
-```
-
-### KPI catalogue
-
-| ID | Label | Value | Delta | Trend (oldest → newest) |
-|----|-------|-------|-------|------------------------|
-| `agent-runs` | Agent runs · 7d | `1,284` | `+18%` | 980, 1010, 1060, 1040, 1120, 1180, 1284 |
-| `prs-reviewed` | PRs reviewed | `342` | `+9%` | 290, 300, 285, 310, 320, 330, 342 |
-| `time-to-merge` | Mean time to merge | `4h 12m` | `-22%` | 340, 330, 318, 300, 285, 270, 252 |
-| `suite-pass-rate` | Suite pass rate | `97.4%` | `+0.6%` | 96.2, 96.5, 96.8, 96.6, 97.0, 97.1, 97.4 |
-
-Notes on the trend data:
-- `agent-runs`: raw execution counts. Minor dip on day 4 (1,040 vs 1,060) then
-  steady growth.
-- `prs-reviewed`: counts; dip on day 3 (285) suggests a lighter review week.
-- `time-to-merge`: values in **minutes** (e.g. 340 = 5h 40m, 252 = 4h 12m).
-  The downward trend reflects the `-22%` delta; the sparkline renders falling
-  values as high because lower y = bottom in SVG, but `positive: true` means
-  the line renders green.
-- `suite-pass-rate`: percentage values (96.2–97.4). Very narrow range, so the
-  sparkline will show a shallow line.
-
-## Used by
-
-`KpiStrip` renders a `KpiCard` for each entry:
-
-```ts
-{KPIS.map((kpi) => (
-  <KpiCard key={kpi.id} kpi={kpi} />
-))}
-```
-
-The backend holds a matching copy in `server/src/seed.ts` (`SEED_KPIS`) for
-the Postgres store.
+</details>

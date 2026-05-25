@@ -1,110 +1,75 @@
 ---
-title: Backend overview
-description: Express 5 + TypeScript API backed by PostgreSQL.
+title: backend
+description: Express + TypeScript API server. Serves agent, KPI, and pipeline data.
 ---
 
-The backend is an **Express 5 + TypeScript** API run with `tsx`. It serves the
-agent catalogue, KPIs and CI/CD pipelines, backed by PostgreSQL and a pluggable
-CI/CD integration. It lives in `server/`.
+**Section root:** `server/src`
+
+> Express + TypeScript API server. Serves agent, KPI, and pipeline data.
+
+<FILL: 3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.>
+
+## Top-level structure
+
+| Folder | Purpose |
+| --- | --- |
+| [`db/`](./backend/db/overview/) | <FILL: one line on what lives in db/ and when to add a file here.> |
+| [`integrations/`](./backend/integrations/overview/) | <FILL: one line on what lives in integrations/ and when to add a file here.> |
+
+### Files at the root of this section
+
+| File | Hint |
+| --- | --- |
+| [`app.ts`](./app) | <FILL: one-line purpose for app.ts> |
+| [`config.ts`](./config) | Runtime configuration, read from environment variables. |
+| [`domain.ts`](./domain) | Domain types for the Snabbit Agent Console API. |
+| [`index.ts`](./index) | <FILL: one-line purpose for index.ts> |
+| [`postgresStore.ts`](./postgresstore) | <FILL: one-line purpose for postgresStore.ts> |
+| [`routes.ts`](./routes) | <FILL: one-line purpose for routes.ts> |
+| [`seed.ts`](./seed) | <FILL: one-line purpose for seed.ts> |
+| [`store.ts`](./store) | <FILL: one-line purpose for store.ts> |
 
 ## Architecture
 
+### Module dependency graph
+
 ```mermaid
-flowchart TD
-  index["index.ts\nServer bootstrap"]
-  config["config.ts\nEnvironment config"]
-  app["app.ts\ncreateApp(deps)"]
-  routes["routes.ts\nREST routes"]
-  store["store.ts\nStore interface"]
-  memory["createMemoryStore()\n(tests)"]
-  postgres["createPostgresStore()\n(production)"]
-  cicd["integrations/cicd.ts\nCicdProvider"]
-  mock["createMockCicdProvider()\n(default)"]
-  github["createGithubActionsProvider()\n(with credentials)"]
-  domain["domain.ts\nAgent, Kpi types"]
-  seed["seed.ts\nSeed data"]
-  schema["db/schema.ts\nCREATE TABLE SQL"]
-  setup["db/setup.ts\nnpm run db:setup"]
-
-  index --> config
-  index --> postgres
-  index --> cicd
-  index --> app
-  app --> routes
-  routes --> store
-  routes --> cicd
-  store --> memory
-  store --> postgres
-  cicd --> mock
-  cicd --> github
-  postgres --> domain
-  memory --> domain
-  setup --> schema
-  setup --> seed
-  setup --> postgres
+%% Module dependency graph for backend
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
+flowchart LR
+  app_ts["app.ts"]
+  config_ts["config.ts"]
+  db_schema_ts["db/schema.ts"]
+  db_setup_ts["db/setup.ts"]
+  domain_ts["domain.ts"]
+  index_ts["index.ts"]
+  integrations_cicd_ts["integrations/cicd.ts"]
+  postgresStore_ts["postgresStore.ts"]
+  routes_ts["routes.ts"]
+  seed_ts["seed.ts"]
+  store_ts["store.ts"]
+  app_ts --> store_ts
+  app_ts --> integrations_cicd_ts
+  app_ts --> routes_ts
+  index_ts --> config_ts
+  index_ts --> app_ts
+  index_ts --> postgresStore_ts
+  index_ts --> integrations_cicd_ts
+  postgresStore_ts --> domain_ts
+  postgresStore_ts --> store_ts
+  routes_ts --> app_ts
+  routes_ts --> integrations_cicd_ts
+  seed_ts --> domain_ts
+  store_ts --> domain_ts
+  db_setup_ts --> config_ts
+  db_setup_ts --> db_schema_ts
+  db_setup_ts --> seed_ts
 ```
 
-## App factory and dependency injection
+## Key flows
 
-The central architectural decision: `createApp({ store, cicd })` takes both
-dependencies by injection:
+<FILL: 2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).>
 
-```ts
-export interface AppDeps {
-  store: Store       // createMemoryStore (tests) | createPostgresStore (prod)
-  cicd: CicdProvider // createMockCicdProvider (default) | createGithubActionsProvider
-}
+## When to add code here
 
-export function createApp(deps: AppDeps) {
-  const app = express()
-  app.use(cors())
-  app.use(express.json())
-  registerRoutes(app, deps)
-  app.use(/* catch-all error handler */)
-  return app
-}
-```
-
-Tests inject the in-memory store + mock provider → `npm test` needs no database,
-no network. The running server injects real dependencies.
-
-## Source structure
-
-| File | Purpose |
-|------|---------|
-| `src/index.ts` | Server bootstrap, wires real dependencies |
-| `src/app.ts` | `createApp` factory + error handler |
-| `src/routes.ts` | REST route registration |
-| `src/config.ts` | Environment configuration |
-| `src/domain.ts` | `Agent` / `Kpi` domain types |
-| `src/store.ts` | Store interfaces + in-memory implementation |
-| `src/postgresStore.ts` | Postgres-backed store |
-| `src/seed.ts` | Seed agents and KPIs |
-| `src/db/schema.ts` | `CREATE TABLE` SQL |
-| `src/db/setup.ts` | `db:setup` script |
-| `src/integrations/cicd.ts` | CI/CD adapter (mock + GitHub Actions) |
-| `src/__tests__/` | Vitest test suites |
-
-## Configuration
-
-| Field | Env var | Default |
-|-------|---------|---------|
-| `port` | `PORT` | `3001` |
-| `databaseUrl` | `DATABASE_URL` | `postgres://localhost:5432/snabbit_dash` |
-| `githubToken` | `GITHUB_TOKEN` | `''` |
-| `githubRepo` | `GITHUB_REPO` | `''` |
-
-## Per-file reference
-
-- [index.ts](/sdlc-sample-worflow/backend/index-ts/) — server entry point
-- [app.ts](/sdlc-sample-worflow/backend/app/) — Express factory
-- [config.ts](/sdlc-sample-worflow/backend/config/) — runtime configuration
-- [domain.ts](/sdlc-sample-worflow/backend/domain/) — domain types
-- [routes.ts](/sdlc-sample-worflow/backend/routes/) — REST routes
-- [store.ts](/sdlc-sample-worflow/backend/store/) — Store interface + in-memory store
-- [postgresStore.ts](/sdlc-sample-worflow/backend/postgresstore/) — Postgres store
-- [seed.ts](/sdlc-sample-worflow/backend/seed/) — seed data
-- [db/schema.ts](/sdlc-sample-worflow/backend/db/schema/) — SQL schema
-- [db/setup.ts](/sdlc-sample-worflow/backend/db/setup/) — setup script
-- [integrations/cicd.ts](/sdlc-sample-worflow/backend/integrations/cicd/) — CI/CD adapter
-- [vitest.config.ts](/sdlc-sample-worflow/backend/vitest-config/) — backend test configuration
+<FILL: practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.>

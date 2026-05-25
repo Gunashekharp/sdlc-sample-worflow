@@ -1,25 +1,48 @@
 ---
-title: db/schema.ts
-description: PostgreSQL schema SQL — idempotent CREATE TABLE statements.
+title: schema
+description: Reference for `server/src/db/schema.ts`
 ---
 
-**File:** `server/src/db/schema.ts`
+**File:** `server/src/db/schema.ts` · **Lines:** 28
 
-Exports the SQL string that creates the `agents` and `kpis` tables.
+> Postgres schema for the Snabbit Agent Console. Idempotent.
 
-## `SCHEMA_SQL`
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| SCHEMA_SQL | const | no |
+
+## SCHEMA_SQL
+
+**Kind:** `const`
 
 ```ts
-export const SCHEMA_SQL: string
+const SCHEMA_SQL: "\nCREATE TABLE IF NOT EXISTS agents (\n id TEXT PRIMARY KEY,\n name TEXT NOT NULL,\n category TEXT NOT NULL,\n description TEXT NOT NULL,\n status TEXT NOT NULL,\n runs_per_week INTEGER NOT NULL,\n success_rate INTEGER NOT NULL,\n avg_duration TEXT NOT NULL,\n last_run TEXT NOT NULL,\n last_run_minutes INTEGER NOT NULL,\n popular BOOLEAN NOT NULL\n);\n\nCREATE TABLE IF NOT EXISTS kpis (\n id TEXT PRIMARY KEY,\n sort_order INTEGER NOT NULL,\n label TEXT NOT NULL,\n value TEXT NOT NULL,\n delta TEXT NOT NULL,\n positive BOOLEAN NOT NULL,\n hint TEXT NOT NULL,\n trend JSONB NOT NULL\n);\n"
 ```
 
-A single SQL string containing two `CREATE TABLE IF NOT EXISTS` statements.
-The `IF NOT EXISTS` clause makes the script idempotent — running it on a
-database that already has the tables is a no-op.
+> Postgres schema for the Snabbit Agent Console. Idempotent.
 
-## Full schema
+### Used by
 
-```sql
+- `server/src/db/setup.ts`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `server/src/db/schema.ts` (28 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (28 lines)</summary>
+
+````ts
+/** Postgres schema for the Snabbit Agent Console. Idempotent. */
+export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS agents (
   id               TEXT PRIMARY KEY,
   name             TEXT NOT NULL,
@@ -44,82 +67,8 @@ CREATE TABLE IF NOT EXISTS kpis (
   hint       TEXT NOT NULL,
   trend      JSONB NOT NULL
 );
-```
+`
 
-## Table: `agents`
+````
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `TEXT PRIMARY KEY` | Stable kebab-case slug |
-| `name` | `TEXT NOT NULL` | Display name |
-| `category` | `TEXT NOT NULL` | One of the 5 categories; stored as plain text |
-| `description` | `TEXT NOT NULL` | One-sentence summary |
-| `status` | `TEXT NOT NULL` | `'running'`, `'idle'`, or `'attention'` |
-| `runs_per_week` | `INTEGER NOT NULL` | Weekly execution count |
-| `success_rate` | `INTEGER NOT NULL` | 0–100 percentage |
-| `avg_duration` | `TEXT NOT NULL` | Human-readable (e.g. `'2m 40s'`) |
-| `last_run` | `TEXT NOT NULL` | Human-readable (e.g. `'3m ago'`) |
-| `last_run_minutes` | `INTEGER NOT NULL` | Numeric minutes for sorting |
-| `popular` | `BOOLEAN NOT NULL` | Popular-tab flag |
-
-`category` and `status` are stored as `TEXT` rather than Postgres `ENUM` types.
-This simplifies schema migrations when new values are added — a `TEXT` column
-does not require `ALTER TYPE ... ADD VALUE`. The application layer (`postgresStore.ts`)
-casts to the TypeScript union types at read time.
-
-## Table: `kpis`
-
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `TEXT PRIMARY KEY` | Stable identifier |
-| `sort_order` | `INTEGER NOT NULL` | Controls `SELECT … ORDER BY sort_order ASC` |
-| `label` | `TEXT NOT NULL` | Metric name |
-| `value` | `TEXT NOT NULL` | Pre-formatted display value |
-| `delta` | `TEXT NOT NULL` | Pre-formatted change string |
-| `positive` | `BOOLEAN NOT NULL` | Outcome sentiment |
-| `hint` | `TEXT NOT NULL` | Sub-label text |
-| `trend` | `JSONB NOT NULL` | JSON array of numbers |
-
-`trend` is stored as `JSONB` (binary JSON) rather than `JSON` for better query
-performance and the ability to index into it in future. `pg` automatically
-parses JSONB columns into JavaScript arrays on read.
-
-`sort_order` is not part of the domain `Kpi` type — it exists only in the
-database to preserve the intended display order independently of `id` ordering.
-
-## ER diagram
-
-```mermaid
-erDiagram
-  agents {
-    TEXT id PK
-    TEXT name
-    TEXT category
-    TEXT description
-    TEXT status
-    INTEGER runs_per_week
-    INTEGER success_rate
-    TEXT avg_duration
-    TEXT last_run
-    INTEGER last_run_minutes
-    BOOLEAN popular
-  }
-  kpis {
-    TEXT id PK
-    INTEGER sort_order
-    TEXT label
-    TEXT value
-    TEXT delta
-    BOOLEAN positive
-    TEXT hint
-    JSONB trend
-  }
-```
-
-## Used by
-
-`server/src/db/setup.ts`:
-
-```ts
-await pool.query(SCHEMA_SQL)
-```
+</details>

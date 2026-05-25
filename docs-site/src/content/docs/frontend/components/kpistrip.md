@@ -1,93 +1,128 @@
 ---
 title: KpiStrip
-description: Responsive grid of headline metric cards.
+description: Reference for `src/components/KpiStrip.tsx`
 ---
 
-**File:** `src/components/KpiStrip.tsx`
+**File:** `src/components/KpiStrip.tsx` · **Lines:** 45
 
-The four-column strip of key performance indicator cards near the top of the
-dashboard. Renders one `KpiCard` for each entry in `src/data/kpis.ts`.
+<FILL: 2-4 sentence plain-language summary of what `components/KpiStrip.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Internal subcomponent: `KpiCard`
+## Imports
 
-```ts
-function KpiCard({ kpi }: { kpi: Kpi })
-```
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-Not exported. Renders a single metric card with label, value, delta, sparkline,
-and hint text.
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../data/kpis` | `KPIS` | internal |
+| `../data/kpis` | `Kpi` | type-only · internal |
+| `./icons` | `IconTrendDown`, `IconTrendUp` | internal |
+| `./Sparkline` | `default as Sparkline` | internal |
 
-### Delta logic
 
-```ts
-const isDown = kpi.delta.trim().startsWith('-')
-const Trend = isDown ? IconTrendDown : IconTrendUp
-const deltaColor = kpi.positive ? 'text-ok' : 'text-err'
-```
+## Symbols
 
-`isDown` determines the trend icon by inspecting the `delta` string's sign
-character. This is purely visual — the **color** (`deltaColor`) comes from
-`kpi.positive`, which is independent of the sign.
+This file exports 1 symbol. Every export is documented below, in declaration order.
 
-This separation handles the case where a falling metric is good (e.g.
-mean time to merge: `delta = '-22%'`, `positive = true` → green).
+| Name | Kind | Default |
+| --- | --- | --- |
+| KpiStrip | component | yes |
 
-| `kpi.positive` | `kpi.delta` | Icon | Color |
-|----------------|-------------|------|-------|
-| `true` | `'+18%'` | `IconTrendUp` | `text-ok` (green) |
-| `true` | `'-22%'` | `IconTrendDown` | `text-ok` (green) |
-| `false` | `'-5%'` | `IconTrendDown` | `text-err` (red) |
-| `false` | `'+3%'` | `IconTrendUp` | `text-err` (red) |
+## KpiStrip (default export)
 
-### KpiCard layout
-
-```
-<div rounded-lg border bg-surface p-3.5>
-  ├── Label  text-[11px] uppercase tracking-wide text-text-faint
-  ├── <div row justify-between>
-  │     ├── Value  text-2xl font-semibold
-  │     └── Delta  <TrendIcon /> + delta string  (text-ok or text-err)
-  ├── <Sparkline points={kpi.trend} positive={kpi.positive} className="mt-2 h-7 w-full" />
-  └── Hint  text-xs text-text-faint
-```
-
-The delta row uses `items-end` so the number and the trend text align at their
-baselines even if the number's larger font makes it taller.
-
-## Component
+**Kind:** `component`
 
 ```ts
-export default function KpiStrip()
+export default function KpiStrip() { ... }
 ```
 
-**Parameters:** None.
+<FILL: 2-4 sentences explaining what KpiStrip does and why it exists. Ground every claim in the signature and source.>
 
-**Returns:** A `<section>` with `aria-label="Key metrics"`.
+### Line-by-line walkthrough
 
-**Side effects:** None.
+Each top-level statement of `KpiStrip`, in execution order. The line numbers reference the source file as it appears today.
 
-## Grid layout
+**Line 34 — `ReturnStatement`**
 
-```tsx
-<section
-  aria-label="Key metrics"
-  className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
->
-  {KPIS.map((kpi) => (
-    <KpiCard key={kpi.id} kpi={kpi} />
-  ))}
-</section>
+```ts
+return (
+    <section
+      aria-label="Key metrics"
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {KPIS.map((kpi) => (
+        <KpiCard key={kpi.id} kpi={kpi} />
+      ))}
+    </section>
+  )
 ```
 
-Responsive grid: 1 column on mobile, 2 on `sm` (640px+), 4 on `lg` (1024px+).
-`aria-label="Key metrics"` creates a landmark region that the App tests assert
-against (`screen.getByRole('region', { name: /key metrics/i })`).
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-## Data source
+### Examples
 
-All four KPIs come from the static `KPIS` array in `src/data/kpis.ts`. There
-is no network call.
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
 
-## Used by
+### Used by
 
-`App.tsx` — rendered as the first panel inside the scrollable `<main>`.
+- `src/App.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/components/KpiStrip.tsx` (45 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (45 lines)</summary>
+
+````tsx
+import { KPIS } from '../data/kpis'
+import type { Kpi } from '../data/kpis'
+import { IconTrendDown, IconTrendUp } from './icons'
+import Sparkline from './Sparkline'
+
+function KpiCard({ kpi }: { kpi: Kpi }) {
+  const isDown = kpi.delta.trim().startsWith('-')
+  const Trend = isDown ? IconTrendDown : IconTrendUp
+  const deltaColor = kpi.positive ? 'text-ok' : 'text-err'
+
+  return (
+    <div className="rounded-lg border border-border bg-surface p-3.5">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-text-faint">
+        {kpi.label}
+      </p>
+      <div className="mt-1.5 flex items-end justify-between gap-2">
+        <span className="text-2xl font-semibold tracking-tight">{kpi.value}</span>
+        <span className={`flex items-center gap-1 text-xs font-medium ${deltaColor}`}>
+          <Trend className="h-3.5 w-3.5" />
+          {kpi.delta}
+        </span>
+      </div>
+      <Sparkline
+        points={kpi.trend}
+        positive={kpi.positive}
+        className="mt-2 h-7 w-full"
+      />
+      <p className="mt-1 text-xs text-text-faint">{kpi.hint}</p>
+    </div>
+  )
+}
+
+export default function KpiStrip() {
+  return (
+    <section
+      aria-label="Key metrics"
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {KPIS.map((kpi) => (
+        <KpiCard key={kpi.id} kpi={kpi} />
+      ))}
+    </section>
+  )
+}
+
+````
+
+</details>

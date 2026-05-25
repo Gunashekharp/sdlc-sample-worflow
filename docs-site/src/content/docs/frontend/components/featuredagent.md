@@ -1,135 +1,178 @@
 ---
 title: FeaturedAgent
-description: Highlighted card for the featured agent.
+description: Reference for `src/components/FeaturedAgent.tsx`
 ---
 
-**File:** `src/components/FeaturedAgent.tsx`
+**File:** `src/components/FeaturedAgent.tsx` · **Lines:** 58
 
-A prominent hero card that showcases the featured agent (PR Reviewer) at the
-top of the main content area. Displays the agent's name, status pill, full
-description, a stat table, and a "Run agent" button. Has an accent gradient
-background overlay.
+<FILL: 2-4 sentence plain-language summary of what `components/FeaturedAgent.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Internal subcomponent: `Stat`
+## Imports
 
-```ts
-function Stat({ label, value }: { label: string; value: string })
-```
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
 
-A simple `<div>` containing a `<dt>` (label) and `<dd>` (value) for use in a
-`<dl>` stat list. Not exported.
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../data/agents` | `Agent` | type-only · internal |
+| `./icons` | `IconArrowUp`, `IconSparkle` | internal |
+| `./StatusDot` | `default as StatusDot`, `STATUS_LABEL` | internal |
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `label` | `string` | Metric label, e.g. `"Runs · 7d"` |
-| `value` | `string` | Formatted metric value, e.g. `"342"` |
 
-## Component
+## Symbols
 
-```ts
-export default function FeaturedAgent({ agent }: { agent: Agent })
-```
+This file exports 1 symbol. Every export is documented below, in declaration order.
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `agent` | `Agent` | The agent to feature. Typically `AGENTS.find(a => a.id === FEATURED_AGENT_ID)`. |
+| Name | Kind | Default |
+| --- | --- | --- |
+| FeaturedAgent | component | yes |
 
-**Returns:** A `<section>` element.
+## FeaturedAgent (default export)
 
-**Side effects:** None.
-
-## Layout structure
-
-```
-<section rounded-lg border bg-surface overflow-hidden>
-  ├── Gradient overlay div  (pointer-events-none, absolute)
-  └── <div relative flex row>
-        ├── Left column (min-w-0 flex-1)
-        │     ├── Eyebrow  "✦ Featured agent"  (text-accent)
-        │     ├── Title  "{agent.name}" + status pill
-        │     │         StatusDot + STATUS_LABEL text
-        │     ├── Description  (max-w-xl text-sm text-text-muted)
-        │     └── <dl stat grid>
-        │           ├── Stat "Runs · 7d" / runsPerWeek
-        │           ├── Stat "Success" / successRate%
-        │           ├── Stat "Avg run" / avgDuration
-        │           └── Stat "Last run" / lastRun
-        └── Right column (shrink-0)
-              └── "Run agent ↑" button  (bg-accent)
-```
-
-## Gradient overlay
-
-```tsx
-<div
-  className="pointer-events-none absolute inset-0"
-  style={{
-    background:
-      'linear-gradient(135deg, var(--color-accent-subtle), transparent 55%)',
-  }}
-/>
-```
-
-An absolutely-positioned, non-interactive `<div>` that spans the full card.
-Uses an inline `style` (not a Tailwind class) because arbitrary gradient values
-cannot be expressed as static Tailwind utilities. `pointer-events-none` ensures
-the overlay does not intercept clicks on the buttons below it.
-
-The gradient uses `--color-accent-subtle` (`#2a0a1c`), a very dark pink,
-fading to transparent toward the bottom-right.
-
-## Status pill
-
-```tsx
-<span className="flex items-center gap-1.5 rounded-full border border-border
-                 bg-bg/60 px-2 py-0.5 text-xs font-normal text-text-muted">
-  <StatusDot status={agent.status} />
-  {STATUS_LABEL[agent.status]}
-</span>
-```
-
-A pill-shaped badge adjacent to the agent name. `bg-bg/60` provides a
-semi-transparent dark background over the gradient overlay. The dot and the
-human-readable label from `STATUS_LABEL` are shown together.
-
-## Stat list
-
-```tsx
-<dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-  <Stat label="Runs · 7d" value={agent.runsPerWeek.toLocaleString()} />
-  <Stat label="Success"   value={`${agent.successRate}%`} />
-  <Stat label="Avg run"   value={agent.avgDuration} />
-  <Stat label="Last run"  value={agent.lastRun} />
-</dl>
-```
-
-Four stats in a wrapping flex row. `flex-wrap` allows them to reflow on narrow
-screens. Uses a semantic `<dl>` (description list) with individual `<dt>` /
-`<dd>` pairs.
-
-## Run button
-
-```tsx
-<button type="button"
-  className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm
-             font-semibold text-white hover:bg-accent-hover">
-  Run agent
-  <IconArrowUp className="h-4 w-4" />
-</button>
-```
-
-Uses the accent color (`#f70f79`) directly as the button background. Not wired
-to any backend action.
-
-## Used by
-
-`App.tsx`:
+**Kind:** `component`
 
 ```ts
-const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-// ...
-<FeaturedAgent agent={featured} />
+export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 ```
 
-The fallback `?? AGENTS[0]` ensures rendering continues even if the
-`FEATURED_AGENT_ID` constant is changed to a non-existent ID.
+<FILL: 2-4 sentences explaining what FeaturedAgent does and why it exists. Ground every claim in the signature and source.>
+
+### Props
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
+
+### Line-by-line walkthrough
+
+Each top-level statement of `FeaturedAgent`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 15 — `ReturnStatement`**
+
+```ts
+return (
+    <section className="relative overflow-hidden rounded-lg border border-border bg-surface">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(135deg, var(--color-accent-subtle), transparent 55%)',
+        }}
+      />
+      <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-accent">
+            <IconSparkle className="h-3.5 w-3.5" />
+            Featured agent
+          </p>
+          <h2 className="mt-1.5 flex flex-wrap items-center gap-2 text-lg font-semibold">
+            {agent.name}
+            <span className="flex items-center gap-1.5 rounded-full border border-border bg-bg/60 px-2 py-0.5 text-xs font-normal text-text-muted">
+              <StatusDot status={agent.status} />
+              {STATUS_LABEL[agent.status]}
+            </span>
+          </h2>
+          <p className="mt-1.5 max-w-xl text-sm text-text-muted">{agent.description}</p>
+          <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+            <Stat label="Runs · 7d" value={agent.runsPerWeek.toLocaleString()} />
+            <Stat label="Success" value={`${agent.successRate}%`} />
+            <Stat label="Avg run" value={agent.avgDuration} />
+            <Stat label="Last run" value={agent.lastRun} />
+          </dl>
+        </div>
+        <div className="shrink-0">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+          >
+            Run agent
+            <IconArrowUp className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/App.tsx`
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/components/FeaturedAgent.tsx` (58 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (58 lines)</summary>
+
+````tsx
+import type { Agent } from '../data/agents'
+import { IconArrowUp, IconSparkle } from './icons'
+import StatusDot, { STATUS_LABEL } from './StatusDot'
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-text-faint">{label}</dt>
+      <dd className="font-mono font-medium">{value}</dd>
+    </div>
+  )
+}
+
+export default function FeaturedAgent({ agent }: { agent: Agent }) {
+  return (
+    <section className="relative overflow-hidden rounded-lg border border-border bg-surface">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(135deg, var(--color-accent-subtle), transparent 55%)',
+        }}
+      />
+      <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-accent">
+            <IconSparkle className="h-3.5 w-3.5" />
+            Featured agent
+          </p>
+          <h2 className="mt-1.5 flex flex-wrap items-center gap-2 text-lg font-semibold">
+            {agent.name}
+            <span className="flex items-center gap-1.5 rounded-full border border-border bg-bg/60 px-2 py-0.5 text-xs font-normal text-text-muted">
+              <StatusDot status={agent.status} />
+              {STATUS_LABEL[agent.status]}
+            </span>
+          </h2>
+          <p className="mt-1.5 max-w-xl text-sm text-text-muted">{agent.description}</p>
+          <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+            <Stat label="Runs · 7d" value={agent.runsPerWeek.toLocaleString()} />
+            <Stat label="Success" value={`${agent.successRate}%`} />
+            <Stat label="Avg run" value={agent.avgDuration} />
+            <Stat label="Last run" value={agent.lastRun} />
+          </dl>
+        </div>
+        <div className="shrink-0">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover"
+          >
+            Run agent
+            <IconArrowUp className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+````
+
+</details>

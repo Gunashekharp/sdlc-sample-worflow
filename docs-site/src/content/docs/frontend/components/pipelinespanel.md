@@ -1,169 +1,224 @@
 ---
 title: PipelinesPanel
-description: Live CI/CD pipeline panel — the only backend-wired component.
+description: Reference for `src/components/PipelinesPanel.tsx`
 ---
 
-**File:** `src/components/PipelinesPanel.tsx`
+**File:** `src/components/PipelinesPanel.tsx` · **Lines:** 93
 
-The only frontend component that makes a network call. Fetches pipeline data
-from `GET /api/pipelines` via `useFetch` and renders one of four states:
-loading, error, empty, or a list of pipeline rows.
+<FILL: 2-4 sentence plain-language summary of what `components/PipelinesPanel.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Internal utilities
+## Imports
 
-### `STATUS_STYLES`
+This file pulls in the following modules. Relative imports point to other documented files; external imports are libraries from `node_modules`.
+
+| Module | Imports | Kind |
+| --- | --- | --- |
+| `../lib/api` | `fetchPipelines` | internal |
+| `../lib/api` | `Pipeline` | type-only · internal |
+| `../lib/useFetch` | `useFetch` | internal |
+
+
+## Symbols
+
+This file exports 1 symbol. Every export is documented below, in declaration order.
+
+| Name | Kind | Default |
+| --- | --- | --- |
+| PipelinesPanel | component | yes |
+
+## PipelinesPanel (default export)
+
+**Kind:** `component`
 
 ```ts
-const STATUS_STYLES: Record<Pipeline['status'], { dot: string; label: string }> = {
-  passing: { dot: 'bg-ok',     label: 'Passing' },
-  failing: { dot: 'bg-err',    label: 'Failing' },
-  running: { dot: 'bg-accent', label: 'Running' },
-}
+export default function PipelinesPanel() { ... }
 ```
 
-Maps each pipeline status to the CSS class for the colored dot and a tooltip
-label. Centralised here so `PipelineRow` avoids a conditional chain.
+> Live CI/CD pipeline panel — data comes from the backend API.
 
-### `formatDuration(seconds)`
+### Line-by-line walkthrough
+
+Each top-level statement of `PipelinesPanel`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 47 — `FirstStatement`**
 
 ```ts
+const { data, loading, error, reload } = useFetch(fetchPipelines)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 49 — `ReturnStatement`**
+
+```ts
+return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h2 className="text-sm font-semibold">CI/CD pipelines</h2>
+        {data && (
+          <span className="text-xs text-text-faint">
+            {data.summary.passRate}% pass rate · {data.summary.running} running ·{' '}
+            {data.provider}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={reload}
+          className="ml-auto rounded-md border border-border px-2 py-1 text-xs text-text-muted hover:border-border-strong hover:text-text"
+        >
+          Refresh
+        </button>
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface">
+        {loading && <PanelMessage>Loading pipelines…</PanelMessage>}
+
+        {error && !loading && (
+          <PanelMessage>
+            Could not reach the API ({error}). Is the server running on port
+            3001?
+          </PanelMessage>
+        )}
+
+        {data && !loading && !error && data.pipelines.length === 0 && (
+          <PanelMessage>No recent pipeline runs.</PanelMessage>
+        )}
+
+        {data && !loading && !error && data.pipelines.length > 0 && (
+          <ul className="divide-y divide-border">
+            {data.pipelines.map((pipeline) => (
+              <PipelineRow key={pipeline.id} pipeline={pipeline} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  )
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+### Examples
+
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+
+### Used by
+
+- `src/App.tsx`
+- `src/components/PipelinesPanel.test.tsx`
+
+## Tests
+
+| Suite | Test | Asserts |
+| --- | --- | --- |
+| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
+
+## Diagrams
+
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
+## Source
+
+Full file source for `src/components/PipelinesPanel.tsx` (93 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (93 lines)</summary>
+
+````tsx
+import { fetchPipelines } from '../lib/api'
+import type { Pipeline } from '../lib/api'
+import { useFetch } from '../lib/useFetch'
+
+const STATUS_STYLES: Record<Pipeline['status'], { dot: string; label: string }> = {
+  passing: { dot: 'bg-ok', label: 'Passing' },
+  failing: { dot: 'bg-err', label: 'Failing' },
+  running: { dot: 'bg-accent', label: 'Running' },
+}
+
 function formatDuration(seconds: number): string {
   const minutes = Math.floor(seconds / 60)
   const rest = seconds % 60
   return minutes > 0 ? `${minutes}m ${rest}s` : `${rest}s`
 }
-```
 
-**Parameters:** `seconds: number` — elapsed seconds as a non-negative integer.
+function PanelMessage({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="px-3.5 py-10 text-center text-sm text-text-faint">{children}</p>
+  )
+}
 
-**Returns:** Human-readable duration string.
+function PipelineRow({ pipeline }: { pipeline: Pipeline }) {
+  const style = STATUS_STYLES[pipeline.status]
+  return (
+    <li className="flex items-center gap-3 px-3.5 py-2.5">
+      <span
+        className={`h-2 w-2 shrink-0 rounded-full ${style.dot}`}
+        title={style.label}
+      />
+      <span className="truncate text-sm font-medium">{pipeline.name}</span>
+      <span className="shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
+        {pipeline.branch}
+      </span>
+      <span className="ml-auto shrink-0 font-mono text-[11px] text-text-faint">
+        {formatDuration(pipeline.durationSeconds)}
+      </span>
+      <span className="hidden shrink-0 text-xs text-text-faint sm:inline">
+        {pipeline.triggeredBy}
+      </span>
+    </li>
+  )
+}
 
-**Examples:**
+/** Live CI/CD pipeline panel — data comes from the backend API. */
+export default function PipelinesPanel() {
+  const { data, loading, error, reload } = useFetch(fetchPipelines)
 
-| Input | Output |
-|-------|--------|
-| `184` | `'3m 4s'` |
-| `47` | `'47s'` |
-| `0` | `'0s'` |
-| `60` | `'1m 0s'` |
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h2 className="text-sm font-semibold">CI/CD pipelines</h2>
+        {data && (
+          <span className="text-xs text-text-faint">
+            {data.summary.passRate}% pass rate · {data.summary.running} running ·{' '}
+            {data.provider}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={reload}
+          className="ml-auto rounded-md border border-border px-2 py-1 text-xs text-text-muted hover:border-border-strong hover:text-text"
+        >
+          Refresh
+        </button>
+      </div>
 
-Outputs `${minutes}m ${rest}s` when `minutes > 0`, otherwise just `${rest}s`.
-Does not handle hours; the longest mock pipeline (`Nightly regression`) is
-`904s = 15m 4s`.
+      <div className="rounded-lg border border-border bg-surface">
+        {loading && <PanelMessage>Loading pipelines…</PanelMessage>}
 
-### `PanelMessage`
+        {error && !loading && (
+          <PanelMessage>
+            Could not reach the API ({error}). Is the server running on port
+            3001?
+          </PanelMessage>
+        )}
 
-```ts
-function PanelMessage({ children }: { children: React.ReactNode })
-```
+        {data && !loading && !error && data.pipelines.length === 0 && (
+          <PanelMessage>No recent pipeline runs.</PanelMessage>
+        )}
 
-A centered, faint-text paragraph used for all three non-data states (loading,
-error, empty). Not exported.
+        {data && !loading && !error && data.pipelines.length > 0 && (
+          <ul className="divide-y divide-border">
+            {data.pipelines.map((pipeline) => (
+              <PipelineRow key={pipeline.id} pipeline={pipeline} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  )
+}
 
-### `PipelineRow`
+````
 
-```ts
-function PipelineRow({ pipeline }: { pipeline: Pipeline })
-```
-
-Renders a single row in the pipeline list. Not exported.
-
-**Layout:**
-```
-<li flex items-center gap-3 px-3.5 py-2.5>
-  ├── Status dot  (h-2 w-2 rounded-full, color from STATUS_STYLES)
-  ├── Pipeline name  (truncate font-medium)
-  ├── Branch chip  (border font-mono text-[11px])
-  ├── Duration  (ml-auto font-mono text-[11px])  (ml-auto)
-  └── Triggered by  (hidden sm:inline text-xs)
-```
-
-`triggeredBy` is hidden on mobile (`hidden sm:inline`) to keep the row compact
-on small screens.
-
-## Component
-
-```ts
-export default function PipelinesPanel()
-```
-
-**Parameters:** None.
-
-**Returns:** A `<section>` element.
-
-**Side effects:** Makes a network request to `GET /api/pipelines` on mount.
-Re-requests when the Refresh button is clicked.
-
-## State machine
-
-```mermaid
-stateDiagram-v2
-  [*] --> Loading : mount / reload
-  Loading --> Data : fetch resolves
-  Loading --> Error : fetch rejects
-  Data --> Loading : reload()
-  Error --> Loading : reload()
-  Data --> Empty : pipelines.length === 0
-```
-
-The four display states are driven by `{ data, loading, error }` from `useFetch`:
-
-| `loading` | `error` | `data` | `data.pipelines.length` | Rendered |
-|-----------|---------|--------|------------------------|----------|
-| `true` | any | any | any | "Loading pipelines…" |
-| `false` | non-null | any | any | Error message with error string |
-| `false` | null | non-null | `0` | "No recent pipeline runs." |
-| `false` | null | non-null | `> 0` | List of `PipelineRow`s |
-
-### Loading state priority
-
-The loading check comes first in the JSX:
-
-```tsx
-{loading && <PanelMessage>Loading pipelines…</PanelMessage>}
-
-{error && !loading && (
-  <PanelMessage>
-    Could not reach the API ({error}). Is the server running on port 3001?
-  </PanelMessage>
-)}
-```
-
-The error message includes the actual error string in parentheses, which
-typically comes from `useFetch`'s `err.message` (e.g. `"Failed to fetch"`).
-`!loading` prevents briefly showing the error while a reload is in progress.
-
-## Header section
-
-```tsx
-<div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-  <h2 className="text-sm font-semibold">CI/CD pipelines</h2>
-  {data && (
-    <span className="text-xs text-text-faint">
-      {data.summary.passRate}% pass rate · {data.summary.running} running · {data.provider}
-    </span>
-  )}
-  <button type="button" onClick={reload} className="ml-auto ...">
-    Refresh
-  </button>
-</div>
-```
-
-The summary line (`{passRate}% pass rate · {running} running · {provider}`) is
-only shown when `data` is available. The Refresh button calls `useFetch`'s
-`reload()`, which increments the nonce, re-triggering the effect.
-
-## Tests
-
-`src/components/PipelinesPanel.test.tsx`:
-
-| Test | Asserts |
-|------|---------|
-| renders pipelines returned by the API | Fetches succeed → pipeline names visible |
-| shows an error state when the API is unreachable | Fetch rejects → error message visible |
-
-Both tests stub `global.fetch` with `vi.stubGlobal`.
-
-## Used by
-
-`App.tsx` — rendered as the third panel inside the scrollable `<main>`.
+</details>

@@ -1,162 +1,137 @@
 ---
-title: Frontend overview
-description: Vite + React 19 + TypeScript + Tailwind CSS v4 SPA.
+title: frontend
+description: React + Vite single-page application. Renders the Agent Console dashboard.
 ---
 
-The frontend is a single-page dashboard built with **Vite + React 19 +
-TypeScript + Tailwind CSS v4**. It lives at the repository root.
+**Section root:** `src`
 
-## Entry points
+> React + Vite single-page application. Renders the Agent Console dashboard.
 
-### `index.html`
+<FILL: 3-5 sentences on what this subsystem owns, the runtime boundaries, and the data it produces or consumes. Reference the diagrams below by name.>
 
-The HTML shell. Sets `class="dark"` and `color-scheme: dark`, embeds an inline
-pink SVG favicon, and loads the Geist / Geist Mono web fonts from Google Fonts
-with `preconnect` hints. Mounts the app into `#root`.
+## Top-level structure
 
-### `src/main.tsx`
+| Folder | Purpose |
+| --- | --- |
+| [`components/`](./frontend/components/overview/) | <FILL: one line on what lives in components/ and when to add a file here.> |
+| [`data/`](./frontend/data/overview/) | <FILL: one line on what lives in data/ and when to add a file here.> |
+| [`lib/`](./frontend/lib/overview/) | <FILL: one line on what lives in lib/ and when to add a file here.> |
+| [`test/`](./frontend/test/overview/) | <FILL: one line on what lives in test/ and when to add a file here.> |
 
-Creates the React root and renders `<App />` inside `<StrictMode>`:
+### Files at the root of this section
 
-```tsx
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-```
+| File | Hint |
+| --- | --- |
+| [`App.tsx`](./app) | <FILL: one-line purpose for App.tsx> |
+| [`main.tsx`](./main) | <FILL: one-line purpose for main.tsx> |
 
-`StrictMode` enables double-invocation of effects in development to surface
-side-effect issues. The non-null assertion on `getElementById('root')` is safe
-because `index.html` always provides the element.
+## Architecture
 
-### `src/App.tsx`
-
-The root component. Splits `AGENTS` into the featured agent and the remainder,
-then composes the dashboard layout:
-
-```tsx
-export default function App() {
-  const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-  const rest = AGENTS.filter((a) => a.id !== featured.id)
-
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5">
-            <KpiStrip />
-            <FeaturedAgent agent={featured} />
-            <PipelinesPanel />
-            <AgentGrid agents={rest} />
-          </div>
-        </main>
-        <PromptBar />
-      </div>
-    </div>
-  )
-}
-```
-
-A 60rem (`max-w-6xl`) centered content column with 20px (`px-5 py-5`) padding
-and 20px (`gap-5`) between panels.
-
-## Layout diagram
+### Module dependency graph
 
 ```mermaid
+%% Module dependency graph for frontend
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
+flowchart LR
+  App_tsx["App.tsx"]
+  components_AgentCard_tsx["components/AgentCard.tsx"]
+  components_AgentGrid_tsx["components/AgentGrid.tsx"]
+  components_FeaturedAgent_tsx["components/FeaturedAgent.tsx"]
+  components_KpiStrip_tsx["components/KpiStrip.tsx"]
+  components_PipelinesPanel_tsx["components/PipelinesPanel.tsx"]
+  components_PromptBar_tsx["components/PromptBar.tsx"]
+  components_Sidebar_tsx["components/Sidebar.tsx"]
+  components_Sparkline_tsx["components/Sparkline.tsx"]
+  components_StatusDot_tsx["components/StatusDot.tsx"]
+  components_TopBar_tsx["components/TopBar.tsx"]
+  components_icons_tsx["components/icons.tsx"]
+  data_agents_ts["data/agents.ts"]
+  data_kpis_ts["data/kpis.ts"]
+  lib_api_ts["lib/api.ts"]
+  lib_filterAgents_ts["lib/filterAgents.ts"]
+  lib_sortAgents_ts["lib/sortAgents.ts"]
+  lib_useFetch_ts["lib/useFetch.ts"]
+  lib_usePersistentState_ts["lib/usePersistentState.ts"]
+  main_tsx["main.tsx"]
+  App_tsx --> data_agents_ts
+  App_tsx --> components_Sidebar_tsx
+  App_tsx --> components_TopBar_tsx
+  App_tsx --> components_KpiStrip_tsx
+  App_tsx --> components_FeaturedAgent_tsx
+  App_tsx --> components_PipelinesPanel_tsx
+  App_tsx --> components_AgentGrid_tsx
+  App_tsx --> components_PromptBar_tsx
+  main_tsx --> App_tsx
+  components_AgentCard_tsx --> data_agents_ts
+  components_AgentCard_tsx --> components_StatusDot_tsx
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> data_agents_ts
+  components_AgentGrid_tsx --> lib_filterAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_sortAgents_ts
+  components_AgentGrid_tsx --> lib_usePersistentState_ts
+  components_AgentGrid_tsx --> components_AgentCard_tsx
+  components_AgentGrid_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> data_agents_ts
+  components_FeaturedAgent_tsx --> components_icons_tsx
+  components_FeaturedAgent_tsx --> components_StatusDot_tsx
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> data_kpis_ts
+  components_KpiStrip_tsx --> components_icons_tsx
+  components_KpiStrip_tsx --> components_Sparkline_tsx
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_api_ts
+  components_PipelinesPanel_tsx --> lib_useFetch_ts
+  components_PromptBar_tsx --> components_icons_tsx
+  components_Sidebar_tsx --> components_icons_tsx
+  components_StatusDot_tsx --> data_agents_ts
+  components_TopBar_tsx --> components_icons_tsx
+  lib_filterAgents_ts --> data_agents_ts
+  lib_sortAgents_ts --> data_agents_ts
+```
+
+### React component tree
+
+```mermaid
+%% React component tree (parent renders child)
+%% Auto-generated from source by scripts/docs/extract-diagrams.ts. Do not edit by hand — changes will be overwritten on the next docs-agent run.
 flowchart TD
-  subgraph Screen["h-screen overflow-hidden — flex row"]
-    Sidebar["Sidebar\nw-60 shrink-0"]
-    subgraph MainCol["flex-1 min-w-0 — flex col"]
-      TopBar["TopBar\nh-14 shrink-0"]
-      subgraph Main["main — flex-1 overflow-y-auto"]
-        KpiStrip["KpiStrip\n4 KPI cards"]
-        FeaturedAgent["FeaturedAgent\nHero card"]
-        PipelinesPanel["PipelinesPanel\nLive from API"]
-        AgentGrid["AgentGrid\nFilterable grid"]
-      end
-      PromptBar["PromptBar\nshrink-0"]
-    end
-  end
-  Sidebar --- MainCol
+  AgentCard["AgentCard"]
+  AgentGrid["AgentGrid"]
+  App["App"]
+  FeaturedAgent["FeaturedAgent"]
+  KpiStrip["KpiStrip"]
+  PipelinesPanel["PipelinesPanel"]
+  PromptBar["PromptBar"]
+  Sidebar["Sidebar"]
+  Sparkline["Sparkline"]
+  StatusDot["StatusDot"]
+  TopBar["TopBar"]
+  icons["icons"]
+  main["main"]
+  App --> Sidebar
+  App --> TopBar
+  App --> KpiStrip
+  App --> FeaturedAgent
+  App --> PipelinesPanel
+  App --> AgentGrid
+  App --> PromptBar
+  main --> App
+  AgentCard --> StatusDot
+  AgentGrid --> icons
+  AgentGrid --> AgentCard
+  FeaturedAgent --> icons
+  FeaturedAgent --> StatusDot
+  KpiStrip --> Sparkline
+  PromptBar --> icons
+  Sidebar --> icons
+  TopBar --> icons
 ```
 
-## Source structure
+## Key flows
 
-| Path | Contents |
-|------|---------|
-| `src/App.tsx` | Root component, dashboard layout |
-| `src/main.tsx` | React root creation |
-| `src/index.css` | Tailwind import + design tokens |
-| `src/components/` | UI components (presentational) |
-| `src/lib/` | API client, hooks, pure logic |
-| `src/data/` | Static seed data and domain types |
-| `src/test/` | Vitest setup (`setup.ts`) |
+<FILL: 2-3 short flow descriptions — the most important runtime sequences in this subsystem. Reference symbols by their documented file (use relative links).>
 
-## Data flow summary
+## When to add code here
 
-| Panel | Data source | Backend call? |
-|-------|------------|---------------|
-| KpiStrip | `src/data/kpis.ts` | No |
-| FeaturedAgent | `src/data/agents.ts` | No |
-| PipelinesPanel | `GET /api/pipelines` via `useFetch` | **Yes** |
-| AgentGrid | `src/data/agents.ts` | No |
-
-## Build tooling
-
-`vite.config.ts` configures Vite for both development and testing:
-
-```ts
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: './src/test/setup.ts',
-    css: true,
-  },
-})
-```
-
-`@tailwindcss/vite` integrates Tailwind v4's CSS engine directly into Vite,
-eliminating a separate PostCSS step. `environment: 'jsdom'` gives tests a
-browser-like DOM; `css: true` enables CSS class resolution in tests.
-
-## Per-file reference
-
-### Entry points
-
-- [App.tsx](/sdlc-sample-worflow/frontend/app/) — root component and dashboard layout
-- [main.tsx](/sdlc-sample-worflow/frontend/main/) — React root creation and mount
-- [vite.config.ts](/sdlc-sample-worflow/frontend/vite-config/) — build and test configuration
-- [vite-env.d.ts](/sdlc-sample-worflow/frontend/vite-env/) — TypeScript declarations for `import.meta.env`
-- [test/setup.ts](/sdlc-sample-worflow/frontend/test-setup/) — jest-dom matchers and localStorage isolation
-
-### Components (`src/components/`)
-
-- [AgentCard](/sdlc-sample-worflow/frontend/components/agentcard/) — individual agent tile
-- [AgentGrid](/sdlc-sample-worflow/frontend/components/agentgrid/) — filterable, sortable catalogue
-- [FeaturedAgent](/sdlc-sample-worflow/frontend/components/featuredagent/) — hero card
-- [KpiStrip](/sdlc-sample-worflow/frontend/components/kpistrip/) — metric cards
-- [PipelinesPanel](/sdlc-sample-worflow/frontend/components/pipelinespanel/) — live CI/CD panel
-- [PromptBar](/sdlc-sample-worflow/frontend/components/promptbar/) — bottom prompt input
-- [Sidebar](/sdlc-sample-worflow/frontend/components/sidebar/) — left navigation
-- [Sparkline](/sdlc-sample-worflow/frontend/components/sparkline/) — trend line SVG
-- [StatusDot](/sdlc-sample-worflow/frontend/components/statusdot/) — colored status indicator
-- [TopBar](/sdlc-sample-worflow/frontend/components/topbar/) — header bar
-- [icons](/sdlc-sample-worflow/frontend/components/icons/) — inline SVG icon set
-
-### Library (`src/lib/`)
-
-- [api.ts](/sdlc-sample-worflow/frontend/lib/api/) — typed HTTP client
-- [filterAgents](/sdlc-sample-worflow/frontend/lib/filteragents/) — category + query filter
-- [sortAgents](/sdlc-sample-worflow/frontend/lib/sortagents/) — four sort strategies
-- [useFetch](/sdlc-sample-worflow/frontend/lib/usefetch/) — data-fetching hook
-- [usePersistentState](/sdlc-sample-worflow/frontend/lib/usepersistentstate/) — localStorage-backed state
-
-### Data (`src/data/`)
-
-- [agents.ts](/sdlc-sample-worflow/frontend/data/agents/) — 12-agent catalogue + types
-- [kpis.ts](/sdlc-sample-worflow/frontend/data/kpis/) — 4-KPI catalogue + types
+<FILL: practical guidance for someone deciding whether a new module belongs in this subsystem or somewhere else.>

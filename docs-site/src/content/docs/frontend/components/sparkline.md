@@ -1,167 +1,213 @@
 ---
 title: Sparkline
-description: Tiny axis-free trend-line component for KPI cards.
+description: Reference for `src/components/Sparkline.tsx`
 ---
 
-**File:** `src/components/Sparkline.tsx`
+**File:** `src/components/Sparkline.tsx` · **Lines:** 47
 
-A minimal SVG sparkline that renders a series of numbers as a trend line.
-Used exclusively inside `KpiCard` (within `KpiStrip`) to visualize each KPI's
-7-point history.
+<FILL: 2-4 sentence plain-language summary of what `components/Sparkline.tsx` is responsible for, what other files it integrates with, and what calls into it.>
 
-## Interface
+## Symbols
 
-```ts
-interface SparklineProps {
-  points: number[]
-  positive: boolean
-  className?: string
-}
-```
+This file exports 1 symbol. Every export is documented below, in declaration order.
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `points` | `number[]` | Data series, **oldest first**. Must have at least two values to render. |
-| `positive` | `boolean` | Controls stroke color. `true` → `--color-ok` (green), `false` → `--color-err` (red). |
-| `className` | `string?` | Optional CSS class applied to the `<svg>`. Defaults to `'h-7 w-full'`. |
+| Name | Kind | Default |
+| --- | --- | --- |
+| Sparkline | component | yes |
 
-## Component
+## Sparkline (default export)
+
+**Kind:** `component`
 
 ```ts
-export default function Sparkline({ points, positive, className }: SparklineProps)
+export default function Sparkline({ points, positive, className }: SparklineProps) { ... }
 ```
 
-**Returns:** An `<svg>` element containing a `<polyline>`, or `null` if
-`points.length < 2`.
+> A tiny, axis-free trend line for KPI cards.
 
-**Side effects:** None. Pure rendering.
+### Props
 
-## Implementation walkthrough
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
+| positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
+| className | `string` | no | <FILL: what does className control?> |
 
-### Early return guard
+### Line-by-line walkthrough
+
+Each top-level statement of `Sparkline`, in execution order. The line numbers reference the source file as it appears today.
+
+**Line 11 — `IfStatement`**
 
 ```ts
 if (points.length < 2) return null
 ```
 
-A single point cannot form a line. Returning `null` avoids a degenerate SVG
-with no visual output and prevents division-by-zero in the normalization step.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-### Coordinate system
+**Line 13 — `FirstStatement`**
 
 ```ts
 const width = 100
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 14 — `FirstStatement`**
+
+```ts
 const height = 28
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 15 — `FirstStatement`**
+
+```ts
 const pad = 3
 ```
 
-The SVG uses a fixed logical coordinate space of 100 × 28 units.
-A 3-unit padding on all sides prevents the line from being clipped at the
-edges of the viewport. The `preserveAspectRatio="none"` attribute on the `<svg>`
-stretches these logical units to fill whatever CSS size is applied.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-### Normalization
+**Line 16 — `FirstStatement`**
 
 ```ts
 const min = Math.min(...points)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 17 — `FirstStatement`**
+
+```ts
 const max = Math.max(...points)
+```
+
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+
+**Line 18 — `FirstStatement`**
+
+```ts
 const range = max - min || 1
 ```
 
-`range` is clamped to 1 when all values are identical (a flat series), which
-would otherwise produce division by zero.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-### Coordinate mapping
+**Line 20 — `FirstStatement`**
 
 ```ts
 const coords = points
-  .map((value, i) => {
-    const x = pad + (i / (points.length - 1)) * (width - pad * 2)
-    const y = height - pad - ((value - min) / range) * (height - pad * 2)
-    return `${x.toFixed(2)},${y.toFixed(2)}`
-  })
-  .join(' ')
+    .map((value, i) => {
+      const x = pad + (i / (points.length - 1)) * (width - pad * 2)
+      const y = height - pad - ((value - min) / range) * (height - pad * 2)
+      return `${x.toFixed(2)},${y.toFixed(2)}`
+    })
+    .join(' ')
 ```
 
-**X axis** — evenly distributes points across `[pad, width - pad]`. The first
-point maps to `x = pad` (3); the last maps to `x = width - pad` (97).
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-**Y axis** — normalized `(value - min) / range` produces 0.0 (min) to 1.0
-(max). This is then scaled and **inverted** because SVG Y increases downward:
-`height - pad - normalised * (height - pad * 2)` maps 0.0 to `height - pad`
-(bottom) and 1.0 to `pad` (top), so higher values are visually higher.
-
-`toFixed(2)` keeps the SVG attribute string compact without sacrificing visual
-quality.
-
-### Polyline element
+**Line 28 — `ReturnStatement`**
 
 ```ts
-<polyline
-  points={coords}
-  fill="none"
-  stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}
-  strokeWidth="1.5"
-  strokeLinecap="round"
-  strokeLinejoin="round"
-  vectorEffect="non-scaling-stroke"
-/>
+return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className={className ?? 'h-7 w-full'}
+    >
+      <polyline
+        points={coords}
+        fill="none"
+        stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  )
 ```
 
-`fill="none"` prevents the area under the line from being filled.
+<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
 
-`vectorEffect="non-scaling-stroke"` is the key detail: because
-`preserveAspectRatio="none"` stretches the SVG to fill its container, the
-stroke width would normally scale with the viewport and look thick or thin
-depending on the container size. `non-scaling-stroke` keeps the visual stroke
-width at a constant 1.5px regardless of the element's rendered dimensions.
+### Examples
 
-`aria-hidden="true"` on the outer `<svg>` excludes the element from the
-accessibility tree — the KpiCard provides a text `hint` beneath the sparkline
-that conveys the same information.
+<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
 
-## Coordinate calculation example
+### Used by
 
-For `points = [10, 20, 15]` with the default 100×28 viewport (pad=3):
-
-| i | value | x | y |
-|---|-------|---|---|
-| 0 | 10 | 3.00 | 25.00 |
-| 1 | 20 | 50.00 | 3.00 |
-| 2 | 15 | 97.00 | 14.00 |
-
-```mermaid
-flowchart LR
-  A["points[]\noldest → newest"]
-  B["normalize x\nevenly spaced"]
-  C["normalize y\ninverted: high value = low y"]
-  D["polyline points string\n'3.00,25.00 50.00,3.00 ...'"]
-  A --> B
-  A --> C
-  B --> D
-  C --> D
-```
-
-## Edge cases
-
-| Scenario | Behavior |
-|----------|----------|
-| `points.length === 0` | Returns `null` (guard fires) |
-| `points.length === 1` | Returns `null` (guard fires) |
-| All values equal | `range` is clamped to 1; produces a flat horizontal line at vertical center |
-| `positive` is `false` | Stroke becomes `var(--color-err)` (red); tested in `Sparkline.test.tsx` |
+- `src/components/KpiStrip.tsx`
+- `src/components/Sparkline.test.tsx`
 
 ## Tests
 
-`src/components/Sparkline.test.tsx` covers three cases:
+| Suite | Test | Asserts |
+| --- | --- | --- |
+| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
+| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
+| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
 
-| Test | Asserts |
-|------|---------|
-| renders a polyline with one coordinate per value | 4-point series → `<polyline>` with 4 whitespace-separated coordinates |
-| renders nothing when given fewer than two points | Single-point series → no `<polyline>` in the DOM |
-| uses the error color when not positive | `positive={false}` → stroke attribute contains `color-err` |
+## Diagrams
 
-## Used by
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 
-- `KpiCard` (internal subcomponent of `KpiStrip`) — passes `kpi.trend` as
-  `points` and `kpi.positive` as `positive`.
+## Source
+
+Full file source for `src/components/Sparkline.tsx` (47 lines). The line-by-line walkthroughs above reference these line numbers.
+
+<details>
+<summary>View source (47 lines)</summary>
+
+````tsx
+interface SparklineProps {
+  /** Series values, oldest first. Needs at least two points to render. */
+  points: number[]
+  /** Drives the line color: ok (green) when true, err (red) when false. */
+  positive: boolean
+  className?: string
+}
+
+/** A tiny, axis-free trend line for KPI cards. */
+export default function Sparkline({ points, positive, className }: SparklineProps) {
+  if (points.length < 2) return null
+
+  const width = 100
+  const height = 28
+  const pad = 3
+  const min = Math.min(...points)
+  const max = Math.max(...points)
+  const range = max - min || 1
+
+  const coords = points
+    .map((value, i) => {
+      const x = pad + (i / (points.length - 1)) * (width - pad * 2)
+      const y = height - pad - ((value - min) / range) * (height - pad * 2)
+      return `${x.toFixed(2)},${y.toFixed(2)}`
+    })
+    .join(' ')
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className={className ?? 'h-7 w-full'}
+    >
+      <polyline
+        points={coords}
+        fill="none"
+        stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  )
+}
+
+````
+
+</details>
