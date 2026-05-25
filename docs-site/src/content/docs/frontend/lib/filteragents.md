@@ -6,7 +6,7 @@ description: Reference for `src/lib/filterAgents.ts`
 **File:** `src/lib/filterAgents.ts` · **Lines:** 33
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `lib/filterAgents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module provides `filterAgents`, a pure helper that narrows an `Agent[]` (from `../data/agents`) down to those matching a category selection and a free-text query. It also exports the `AgentFilter` interface describing those two criteria. `AgentGrid.tsx` uses it to drive the agent list as the user types or switches tabs, and `filterAgents.test.ts` exercises it directly. Because it has no side effects it can be unit tested in isolation.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -42,13 +42,13 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
+| agents | `Agent[]` | — | yes | The full list of agents to filter; left unmodified. |
+| filter | `AgentFilter` | — | yes | The category and free-text query to match against. |
 
 **Returns:** `Agent[]`
 
 <!-- fill:sym:filterAgents:return -->
-<FILL: describe the return value of filterAgents — what it represents, when it can be null/undefined, units.>
+A new `Agent[]` containing only the agents that satisfy both the category and the query, preserving their original order. It is never `null`; when nothing matches it is an empty array. The input array is not mutated — `Array.filter` returns a fresh array.
 <!-- /fill:sym:filterAgents:return -->
 
 ### Line-by-line walkthrough
@@ -62,7 +62,7 @@ const query = filter.query.trim().toLowerCase()
 ```
 
 <!-- fill:sym:filterAgents:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Normalizes the search term once, up front: `trim()` strips surrounding whitespace and `toLowerCase()` folds case so the later `includes` checks are case-insensitive. Computing `query` outside the filter callback avoids redoing this work for every agent.
 <!-- /fill:sym:filterAgents:walk:0 -->
 
 **Line 17 — `ReturnStatement`**
@@ -86,13 +86,30 @@ return agents.filter((agent) => {
 ```
 
 <!-- fill:sym:filterAgents:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the filtered array. Per agent it first computes `matchesCategory`: `'All'` matches everything, `'Popular'` matches when `agent.popular` is true, otherwise the agent's `category` must equal the filter category exactly. Agents failing the category test are dropped immediately. With no query the agent is kept; otherwise it is kept only if the lowercased `name` or `description` contains the normalized `query`. Both checks must pass, so category and query compose as an AND.
 <!-- /fill:sym:filterAgents:walk:1 -->
 
 ### Examples
 
 <!-- fill:sym:filterAgents:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+Given three agents `a` (PR Reviewer, Review, popular), `b` (Deploy Bot, Deploy, popular), and `c` (RCA Analyst, Reliability):
+
+```ts
+filterAgents(agents, { category: 'All', query: '' }).map(a => a.id)
+// → ['a', 'b', 'c']
+
+filterAgents(agents, { category: 'Popular', query: '' }).map(a => a.id)
+// → ['a', 'b']
+
+filterAgents(agents, { category: 'All', query: 'root cause' }).map(a => a.id)
+// → ['c']  (matched against the description)
+
+filterAgents(agents, { category: 'Popular', query: 'reviewer' }).map(a => a.id)
+// → ['a']  (category AND query)
+
+filterAgents(agents, { category: 'All', query: 'nonexistent' })
+// → []
+```
 <!-- /fill:sym:filterAgents:example -->
 
 ### Used by
@@ -109,7 +126,7 @@ export interface AgentFilter { ... }
 ```
 
 <!-- fill:sym:AgentFilter:summary -->
-<FILL: 2-4 sentences explaining what AgentFilter does and why it exists. Ground every claim in the signature and source.>
+`AgentFilter` is the parameter object `filterAgents` accepts. It pairs a free-text `query` with a `category` selector, so callers express both filtering dimensions in one value. It exists to keep the filter signature stable as criteria are added and to mirror the controls rendered in `AgentGrid.tsx`.
 <!-- /fill:sym:AgentFilter:summary -->
 
 ### Shape
@@ -123,21 +140,21 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
-| filterAgents | filters by an exact category | <FILL: assertion summary> |
-| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
-| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
-| filterAgents | matches the query against the description | <FILL: assertion summary> |
-| filterAgents | is case-insensitive | <FILL: assertion summary> |
-| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
-| filterAgents | applies category and query together | <FILL: assertion summary> |
-| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
-| filterAgents | does not mutate the input array | <FILL: assertion summary> |
+| filterAgents | returns every agent for the All category and empty query | All three agents pass through (length 3). |
+| filterAgents | filters by an exact category | `category: 'Review'` keeps only agent `a`. |
+| filterAgents | filters by the Popular pseudo-category | `category: 'Popular'` keeps `['a', 'b']`. |
+| filterAgents | matches the query against the agent name | Query `'deploy'` matches `b` by name. |
+| filterAgents | matches the query against the description | Query `'root cause'` matches `c` by description. |
+| filterAgents | is case-insensitive | Query `'REVIEWER'` still matches `a`. |
+| filterAgents | ignores surrounding whitespace in the query | Query `'  bot  '` is trimmed and matches `b`. |
+| filterAgents | applies category and query together | `'Popular'` + `'reviewer'` keeps only `a`. |
+| filterAgents | returns an empty array when nothing matches | Query `'nonexistent'` yields `[]`. |
+| filterAgents | does not mutate the input array | Input `agents` array is unchanged after filtering. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

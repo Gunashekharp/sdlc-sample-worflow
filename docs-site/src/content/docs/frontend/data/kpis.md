@@ -6,7 +6,7 @@ description: Reference for `src/data/kpis.ts`
 **File:** `src/data/kpis.ts` · **Lines:** 56
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `data/kpis.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module holds the static seed data for the headline metrics shown in the dashboard's KPI strip. It defines the `Kpi` interface and exports the `KPIS` array of four metric cards (agent runs, PRs reviewed, mean time to merge, and suite pass rate). `KpiStrip.tsx` is the sole consumer: it maps over `KPIS` to render each card, including its delta and a sparkline drawn from the `trend` series.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -27,20 +27,20 @@ export interface Kpi { ... }
 ```
 
 <!-- fill:sym:Kpi:summary -->
-<FILL: 2-4 sentences explaining what Kpi does and why it exists. Ground every claim in the signature and source.>
+`Kpi` is the interface describing a single headline metric: its identity (`id`), display text (`label`, `value`, `delta`, `hint`), whether the delta represents a good outcome (`positive`), and a `trend` series for the sparkline. The `positive` flag is decoupled from the delta's sign so that a falling metric — like mean time to merge — can still be marked as good. It is the element type of `KPIS` and is consumed only by `KpiStrip.tsx`.
 <!-- /fill:sym:Kpi:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique identifier for the metric (e.g. `'agent-runs'`); used as the React key. |
+| label | `string` | Short metric name displayed on the card (e.g. `'Agent runs · 7d'`). |
+| value | `string` | Pre-formatted headline figure shown large (e.g. `'1,284'`). |
+| delta | `string` | Pre-formatted period-over-period change with sign (e.g. `'+18%'`). |
+| positive | `boolean` | Whether the delta is a good outcome, independent of its sign; drives the up/down styling. |
+| hint | `string` | Tooltip or caption explaining what the metric measures. |
+| trend | `number[]` | Seven-point series (oldest first) rendered as a sparkline. |
 
 ### Used by
 
@@ -55,7 +55,7 @@ const KPIS: Kpi[]
 ```
 
 <!-- fill:sym:KPIS:summary -->
-<FILL: 2-4 sentences explaining what KPIS does and why it exists. Ground every claim in the signature and source.>
+`KPIS` is the seed array of four `Kpi` records that fills the dashboard's KPI strip: agent runs over 7 days, PRs reviewed, mean time to merge, and suite pass rate. Each entry carries pre-formatted display strings plus a seven-point `trend` series for its sparkline. `KpiStrip.tsx` is the only consumer, mapping over the array to render one card per metric.
 <!-- /fill:sym:KPIS:summary -->
 
 ### Used by
@@ -65,7 +65,7 @@ const KPIS: Kpi[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

@@ -6,7 +6,7 @@ description: Reference for `src/components/TopBar.tsx`
 **File:** `src/components/TopBar.tsx` · **Lines:** 32
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/TopBar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`TopBar.tsx` renders the dashboard's header bar: a breadcrumb ("Agent Console / Overview"), a global search trigger with a `⌘K` shortcut hint, and an environment switcher showing the current environment ("Production"). It uses `IconSearch` and `IconChevronDown` from `./icons`, takes no props, and is mounted by `App.tsx` alongside the `Sidebar`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -35,7 +35,7 @@ export default function TopBar() { ... }
 ```
 
 <!-- fill:sym:TopBar:summary -->
-<FILL: 2-4 sentences explaining what TopBar does and why it exists. Ground every claim in the signature and source.>
+`TopBar` is a zero-prop, stateless presentational component that draws the fixed-height header `<header>`. It shows the page breadcrumb, a search button styled as an input with `IconSearch` and a `⌘K` `<kbd>` hint, and an environment selector with a green status dot, the "Production" label, and `IconChevronDown`. The buttons are visual placeholders (no handlers wired) and the component exists to give every page a consistent top chrome.
 <!-- /fill:sym:TopBar:summary -->
 
 ### Line-by-line walkthrough
@@ -75,13 +75,23 @@ return (
 ```
 
 <!-- fill:sym:TopBar:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The single return renders a flex `<header>` of fixed height (`h-14`) with a bottom border. The leading `<div>` is the breadcrumb ("Agent Console" / "Overview"). An `ml-auto` search `<button>` pushes itself and the following items to the right; it contains `IconSearch`, the "Search agents, runs, sessions…" placeholder text, and a `⌘K` `<kbd>` to advertise the shortcut. The final environment `<button>` shows a green `bg-ok` dot, the "Production" label, and `IconChevronDown` to signal it is a dropdown. The markup is static with no state or handlers.
 <!-- /fill:sym:TopBar:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:TopBar:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import TopBar from './components/TopBar'
+
+// Header of the main content column; takes no props.
+<div className="flex flex-col flex-1">
+  <TopBar />
+  <main>{/* page content */}</main>
+</div>
+```
+
+This renders the "Agent Console / Overview" breadcrumb, the `⌘K` search button, and the "Production" environment switcher.
 <!-- /fill:sym:TopBar:example -->
 
 ### Used by
@@ -91,7 +101,7 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

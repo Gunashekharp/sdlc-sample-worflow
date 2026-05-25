@@ -6,7 +6,7 @@ description: Reference for `src/components/StatusDot.tsx`
 **File:** `src/components/StatusDot.tsx` · **Lines:** 28
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/StatusDot.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+This file renders `StatusDot`, a small colored dot that visualizes an agent's `AgentStatus` (`running`, `idle`, or `attention`). The `running` state shows an animated pinging dot in the accent color, while `attention` and `idle` render a static warn- or faint-colored dot. It also exports the `STATUS_LABEL` map used for the dot's `title` tooltip. The `AgentStatus` type comes from `../data/agents`, and the component is consumed by `FeaturedAgent.tsx` and `AgentCard.tsx`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -41,7 +41,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | <FILL: what does status control?> |
+| status | `AgentStatus` | yes | The agent state to display; selects both the dot's color/animation and its tooltip label (`running` → pulsing accent, `attention` → warn, `idle` → faint). |
 
 ### Line-by-line walkthrough
 
@@ -61,7 +61,7 @@ if (status === 'running') {
 ```
 
 <!-- fill:sym:StatusDot:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Handles the `running` case with an early return. It renders a relatively-positioned wrapper `<span>` holding two stacked dots: an absolutely-positioned `bg-accent` circle with Tailwind's `animate-ping` and `opacity-60` for the expanding pulse, plus a solid `bg-accent` dot on top. The `title` is set from `STATUS_LABEL.running` for a hover tooltip. Returning early keeps this richer, animated markup separate from the simpler static branch below.
 <!-- /fill:sym:StatusDot:walk:0 -->
 
 **Line 20 — `FirstStatement`**
@@ -71,7 +71,7 @@ const color = status === 'attention' ? 'bg-warn' : 'bg-text-faint'
 ```
 
 <!-- fill:sym:StatusDot:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Reached only for the non-running states. A ternary picks the Tailwind background class: `bg-warn` (amber) when the status is `attention`, otherwise `bg-text-faint` (the muted grey used for `idle`). This `color` string is interpolated into the static dot's className below.
 <!-- /fill:sym:StatusDot:walk:1 -->
 
 **Line 21 — `ReturnStatement`**
@@ -86,13 +86,17 @@ return (
 ```
 
 <!-- fill:sym:StatusDot:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the static dot: a single 2×2 `rounded-full` `<span>` whose color comes from the `color` computed above, with `shrink-0` so it keeps its size in flex layouts. The `title` is looked up dynamically via `STATUS_LABEL[status]`, giving an `Idle` or `Needs attention` tooltip depending on the current state.
 <!-- /fill:sym:StatusDot:walk:2 -->
 
 ### Examples
 
 <!-- fill:sym:StatusDot:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<StatusDot status="running" />   // pulsing accent dot, title "Running"
+<StatusDot status="attention" /> // static amber dot, title "Needs attention"
+<StatusDot status="idle" />      // static faint dot, title "Idle"
+```
 <!-- /fill:sym:StatusDot:example -->
 
 ### Used by
@@ -109,7 +113,7 @@ const STATUS_LABEL: Record<AgentStatus, string>
 ```
 
 <!-- fill:sym:STATUS_LABEL:summary -->
-<FILL: 2-4 sentences explaining what STATUS_LABEL does and why it exists. Ground every claim in the signature and source.>
+A `Record<AgentStatus, string>` mapping each status key to a human-readable label: `running` → "Running", `idle` → "Idle", and `attention` → "Needs attention". `StatusDot` uses it to set the dot's `title` tooltip, and it is exported so other components such as `FeaturedAgent.tsx` can show the same label as text. Typing it against `AgentStatus` guarantees every status value has a label.
 <!-- /fill:sym:STATUS_LABEL:summary -->
 
 ### Used by
@@ -119,7 +123,16 @@ const STATUS_LABEL: Record<AgentStatus, string>
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  A[status] --> B{status === 'running'?}
+  B -- yes --> C[pulsing accent dot - two spans, animate-ping]
+  B -- no --> D{status === 'attention'?}
+  D -- yes --> E[color = bg-warn]
+  D -- no --> F[color = bg-text-faint]
+  E --> G[static rounded dot with STATUS_LABEL title]
+  F --> G
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

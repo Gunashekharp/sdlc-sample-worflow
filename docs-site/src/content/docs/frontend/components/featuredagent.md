@@ -6,7 +6,7 @@ description: Reference for `src/components/FeaturedAgent.tsx`
 **File:** `src/components/FeaturedAgent.tsx` · **Lines:** 58
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/FeaturedAgent.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`FeaturedAgent.tsx` renders a single highlighted agent as a hero banner with a gradient backdrop, status pill, description, key stats, and a "Run agent" call-to-action. It consumes the `Agent` type from `../data/agents`, reuses `StatusDot` and its `STATUS_LABEL` map to render the status pill, and pulls `IconSparkle` and `IconArrowUp` from `./icons`. It is placed at the top of the dashboard by `App.tsx`, which passes the agent to feature.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -37,14 +37,14 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 ```
 
 <!-- fill:sym:FeaturedAgent:summary -->
-<FILL: 2-4 sentences explaining what FeaturedAgent does and why it exists. Ground every claim in the signature and source.>
+`FeaturedAgent` is a presentational hero card that showcases one `Agent`. It renders a "Featured agent" eyebrow with `IconSparkle`, the agent's name beside a status pill (`StatusDot` plus the human-readable `STATUS_LABEL[agent.status]`), the description, and a `<dl>` of stats — 7-day runs, success rate, average run, and last run — laid out by the local `Stat` helper. A "Run agent" button with `IconArrowUp` provides the primary action. It exists to give the dashboard a single prominent entry point above the full agent grid.
 <!-- /fill:sym:FeaturedAgent:summary -->
 
 ### Props
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
+| agent | `Agent` | yes | The agent to feature; supplies the name, status, description, and the stats shown in the banner. |
 
 ### Line-by-line walkthrough
 
@@ -98,13 +98,21 @@ return (
 ```
 
 <!-- fill:sym:FeaturedAgent:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The single return builds the banner. A relatively-positioned `<section>` holds an absolutely-positioned, `pointer-events-none` `<div>` whose inline `style` paints the diagonal accent-to-transparent gradient backdrop. Above it, a content column shows the `IconSparkle` "Featured agent" eyebrow, then an `<h2>` with `{agent.name}` followed by a pill combining `<StatusDot status={agent.status} />` and `{STATUS_LABEL[agent.status]}` to render the status in words. `{agent.description}` is shown, and the `<dl>` instantiates four `Stat` components — `agent.runsPerWeek.toLocaleString()`, `${agent.successRate}%`, `agent.avgDuration`, and `agent.lastRun`. A right-aligned, non-shrinking "Run agent" `<button>` with `IconArrowUp` completes the layout. There is no state or branching; the component is a pure function of `agent`.
 <!-- /fill:sym:FeaturedAgent:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:FeaturedAgent:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import FeaturedAgent from './components/FeaturedAgent'
+import { agents } from './data/agents'
+
+// Feature the first agent at the top of the dashboard.
+<FeaturedAgent agent={agents[0]} />
+```
+
+Given an agent, this renders the hero banner with that agent's name, a worded status pill, and its runs/success/avg-run/last-run stats.
 <!-- /fill:sym:FeaturedAgent:example -->
 
 ### Used by
@@ -114,7 +122,7 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

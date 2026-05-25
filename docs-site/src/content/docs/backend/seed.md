@@ -6,7 +6,7 @@ description: Reference for `server/src/seed.ts`
 **File:** `server/src/seed.ts` · **Lines:** 218
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `seed.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This file holds the seed data for the Snabbit Agent Console: the agent catalogue (`SEED_AGENTS`) and the dashboard KPIs (`SEED_KPIS`), both typed against the `Agent` and `Kpi` types imported from `./domain`. `db/setup.ts` reads these constants to upsert rows into Postgres during `npm run db:setup`, and the test suite (`__tests__/api.test.ts`) loads them directly into the in-memory store as fixtures. It contains pure data only — no logic, I/O, or runtime behaviour.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -36,7 +36,7 @@ const SEED_AGENTS: Agent[]
 ```
 
 <!-- fill:sym:SEED_AGENTS:summary -->
-<FILL: 2-4 sentences explaining what SEED_AGENTS does and why it exists. Ground every claim in the signature and source.>
+A static `Agent[]` of twelve sample agents (PR Reviewer, Deploy Bot, RCA Analyst, and so on), each with an id, name, category, description, status, and usage metrics like `runsPerWeek`, `successRate`, `avgDuration`, and `lastRun`. It is the canonical demo dataset: `db/setup.ts` upserts it into the `agents` table and the API tests seed the in-memory store from it so responses are deterministic.
 <!-- /fill:sym:SEED_AGENTS:summary -->
 
 ### Used by
@@ -53,7 +53,7 @@ const SEED_KPIS: Kpi[]
 ```
 
 <!-- fill:sym:SEED_KPIS:summary -->
-<FILL: 2-4 sentences explaining what SEED_KPIS does and why it exists. Ground every claim in the signature and source.>
+A static `Kpi[]` of four headline dashboard metrics — agent runs over 7 days, PRs reviewed, mean time to merge, and suite pass rate — each with a label, formatted value, delta, `positive` flag, hint, and a `trend` sparkline array. Like `SEED_AGENTS`, it is upserted into the `kpis` table by `db/setup.ts` (where its array index becomes the row's `sort_order`) and used as a fixture by the API tests.
 <!-- /fill:sym:SEED_KPIS:summary -->
 
 ### Used by
@@ -64,7 +64,7 @@ const SEED_KPIS: Kpi[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

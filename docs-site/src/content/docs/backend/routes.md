@@ -6,7 +6,7 @@ description: Reference for `server/src/routes.ts`
 **File:** `server/src/routes.ts` · **Lines:** 37
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `routes.ts` is responsible for, what other files it integrates with, and what calls into it.>
+`routes.ts` defines `registerRoutes`, which attaches every REST endpoint of the API onto an Express app: a health check plus read endpoints for agents, a single agent by id, KPIs, and CI/CD pipelines. Handlers read their data through the injected `deps` (the `Store` for agents/KPIs and the `CicdProvider` for pipelines), and the pipelines route uses `summarizePipelines` from `integrations/cicd` to compute aggregate stats. It is called once by `createApp` in `app.ts` during app assembly, and the `AppDeps` type it consumes is also declared there.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -42,13 +42,13 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | <FILL: purpose of app> |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| app | `Express` | — | yes | The Express application instance the routes are mounted on. |
+| deps | `AppDeps` | — | yes | Injected `store` and `cicd` collaborators the handlers read data from. |
 
 **Returns:** `void`
 
 <!-- fill:sym:registerRoutes:return -->
-<FILL: describe the return value of registerRoutes — what it represents, when it can be null/undefined, units.>
+Returns `void`. The function is called purely for its side effect of registering route handlers on the passed-in `app`; it mutates that app in place and produces no value.
 <!-- /fill:sym:registerRoutes:return -->
 
 ### Line-by-line walkthrough
@@ -64,7 +64,7 @@ app.get('/api/health', (_req, res) => {
 ```
 
 <!-- fill:sym:registerRoutes:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Registers a `GET /api/health` handler that responds with a JSON object `{ status: 'ok', time: <ISO timestamp> }`. The handler is synchronous (no store access) and exists as a lightweight liveness probe; the `_req` prefix marks the request argument as unused.
 <!-- /fill:sym:registerRoutes:walk:0 -->
 
 **Line 11 — `ExpressionStatement`**
@@ -76,7 +76,7 @@ app.get('/api/agents', async (_req, res) => {
 ```
 
 <!-- fill:sym:registerRoutes:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Registers a `GET /api/agents` handler that awaits `deps.store.listAgents()` and sends the resulting `Agent[]` as JSON. The handler is `async` because the store method returns a `Promise` (it hits Postgres in production), and `await` is inlined directly into `res.json(...)` since no transformation is needed.
 <!-- /fill:sym:registerRoutes:walk:1 -->
 
 **Line 15 — `ExpressionStatement`**
@@ -93,7 +93,7 @@ app.get('/api/agents/:id', async (req, res) => {
 ```
 
 <!-- fill:sym:registerRoutes:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Registers `GET /api/agents/:id`, reading the `:id` path parameter via `req.params.id` and awaiting `deps.store.getAgent(id)`. Because `getAgent` returns `Agent | null`, the handler guards on `if (!agent)`: a missing agent yields a `404` with `{ error: 'Agent not found' }` and an early `return`, otherwise the found `agent` is sent as JSON. The early return is what prevents falling through to `res.json(agent)` after sending the 404.
 <!-- /fill:sym:registerRoutes:walk:2 -->
 
 **Line 24 — `ExpressionStatement`**
@@ -105,7 +105,7 @@ app.get('/api/kpis', async (_req, res) => {
 ```
 
 <!-- fill:sym:registerRoutes:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Registers `GET /api/kpis`, which awaits `deps.store.listKpis()` and returns the resulting `Kpi[]` as JSON. It mirrors the `/api/agents` handler — async because the store call is a `Promise`, with the awaited result passed straight to `res.json`.
 <!-- /fill:sym:registerRoutes:walk:3 -->
 
 **Line 28 — `ExpressionStatement`**
@@ -122,13 +122,29 @@ app.get('/api/pipelines', async (_req, res) => {
 ```
 
 <!-- fill:sym:registerRoutes:walk:4 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Registers `GET /api/pipelines`. It awaits `deps.cicd.listPipelines()` into `pipelines`, then responds with a composite JSON object: `provider` (the provider's `name`, e.g. `'mock'`), `summary` (aggregate stats computed by `summarizePipelines(pipelines)` from `integrations/cicd`), and the raw `pipelines` array. Building the summary server-side means the client gets both the detail and the rollup in a single round-trip.
 <!-- /fill:sym:registerRoutes:walk:4 -->
 
 ### Examples
 
 <!-- fill:sym:registerRoutes:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+`registerRoutes` is invoked indirectly through `createApp`; the API test suite then exercises the endpoints it wires:
+
+```ts
+// GET /api/agents/:id returns a single agent
+const res = await request(testApp()).get('/api/agents/pr-reviewer')
+// res.status === 200
+// res.body.name === 'PR Reviewer'
+
+// Unknown id -> 404
+const miss = await request(testApp()).get('/api/agents/does-not-exist')
+// miss.status === 404, miss.body.error is defined
+
+// GET /api/pipelines returns provider + matching summary
+const p = await request(testApp()).get('/api/pipelines')
+// p.body.provider === 'mock'
+// p.body.summary.total === p.body.pipelines.length
+```
 <!-- /fill:sym:registerRoutes:example -->
 
 ### Used by
@@ -138,7 +154,22 @@ app.get('/api/pipelines', async (_req, res) => {
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Route as GET /api/agents/:id
+    participant Store as deps.store
+
+    Client->>Route: GET /api/agents/pr-reviewer
+    Route->>Store: getAgent(req.params.id)
+    alt agent found
+        Store-->>Route: Agent
+        Route-->>Client: 200 JSON agent
+    else not found
+        Store-->>Route: null
+        Route-->>Client: 404 { error: 'Agent not found' }
+    end
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

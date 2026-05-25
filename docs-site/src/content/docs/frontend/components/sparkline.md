@@ -6,7 +6,7 @@ description: Reference for `src/components/Sparkline.tsx`
 **File:** `src/components/Sparkline.tsx` · **Lines:** 47
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/Sparkline.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+This file defines `Sparkline`, a tiny axis-free trend line that turns an array of numbers into an inline SVG `<polyline>`. It normalizes the series into a fixed 100×28 viewBox, picks a green or red stroke based on the `positive` flag, and scales to its container via `preserveAspectRatio="none"` and a non-scaling stroke. It is rendered inside the KPI cards of `KpiStrip.tsx`, and its behaviour is exercised by `Sparkline.test.tsx`.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -33,7 +33,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | <FILL: what does className control?> |
+| className | `string` | no | CSS classes applied to the `<svg>`. When omitted, defaults to `h-7 w-full` so the chart fills its container at a 28px height. |
 
 ### Line-by-line walkthrough
 
@@ -46,7 +46,7 @@ if (points.length < 2) return null
 ```
 
 <!-- fill:sym:Sparkline:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+A guard clause: a line needs at least two points, so if `points` has fewer than two entries the component returns `null` and renders nothing. This also protects the later math — `points.length - 1` would be `0` (a divide-by-zero) with a single point — so bailing early keeps the coordinate calculation safe.
 <!-- /fill:sym:Sparkline:walk:0 -->
 
 **Line 13 — `FirstStatement`**
@@ -56,7 +56,7 @@ const width = 100
 ```
 
 <!-- fill:sym:Sparkline:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Sets the SVG coordinate-space width to a fixed `100` units. Because the `<svg>` uses `preserveAspectRatio="none"`, this is just an internal grid — the element stretches to its CSS width regardless — so a round `100` keeps the x-axis math (`width - pad * 2`) simple.
 <!-- /fill:sym:Sparkline:walk:1 -->
 
 **Line 14 — `FirstStatement`**
@@ -66,7 +66,7 @@ const height = 28
 ```
 
 <!-- fill:sym:Sparkline:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Sets the coordinate-space height to `28` units. This feeds the y-axis math (`height - pad - ...`) and matches the default `h-7` (28px) CSS class, so one viewBox unit maps roughly to one pixel of vertical space when the default sizing is used.
 <!-- /fill:sym:Sparkline:walk:2 -->
 
 **Line 15 — `FirstStatement`**
@@ -76,7 +76,7 @@ const pad = 3
 ```
 
 <!-- fill:sym:Sparkline:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Defines a `3`-unit padding inset applied on all sides. It keeps the line and its rounded stroke caps from being clipped at the edges of the viewBox; both the x and y formulas subtract `pad * 2` from the drawable area and offset by `pad`.
 <!-- /fill:sym:Sparkline:walk:3 -->
 
 **Line 16 — `FirstStatement`**
@@ -86,7 +86,7 @@ const min = Math.min(...points)
 ```
 
 <!-- fill:sym:Sparkline:walk:4 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Finds the smallest value in `points` by spreading the array into `Math.min`. `min` becomes the baseline that the y-scaling subtracts from each value, so the lowest point sits at the bottom of the chart.
 <!-- /fill:sym:Sparkline:walk:4 -->
 
 **Line 17 — `FirstStatement`**
@@ -96,7 +96,7 @@ const max = Math.max(...points)
 ```
 
 <!-- fill:sym:Sparkline:walk:5 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Finds the largest value in `points` via `Math.max`. Together with `min` it defines the data range used to normalize each point into the `[0, 1]` band that maps onto the chart height.
 <!-- /fill:sym:Sparkline:walk:5 -->
 
 **Line 18 — `FirstStatement`**
@@ -106,7 +106,7 @@ const range = max - min || 1
 ```
 
 <!-- fill:sym:Sparkline:walk:6 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Computes the data span `max - min`, then uses `|| 1` to substitute `1` when the span is `0` (i.e. every value is identical). This avoids a divide-by-zero in the y formula; a flat series simply renders as a straight horizontal line.
 <!-- /fill:sym:Sparkline:walk:6 -->
 
 **Line 20 — `FirstStatement`**
@@ -122,7 +122,7 @@ const coords = points
 ```
 
 <!-- fill:sym:Sparkline:walk:7 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Builds the `<polyline>` `points` string. Each value is mapped to an `x,y` pair: `x` spreads the index evenly across the padded width (`i / (points.length - 1)` gives `0..1`), and `y` normalizes the value by `(value - min) / range` then inverts it (`height - pad - ...`) because SVG's y-axis grows downward, so higher data values sit higher on screen. Coordinates are rounded to two decimals via `toFixed(2)` and the pairs are joined with spaces into the single attribute string.
 <!-- /fill:sym:Sparkline:walk:7 -->
 
 **Line 28 — `ReturnStatement`**
@@ -149,13 +149,17 @@ return (
 ```
 
 <!-- fill:sym:Sparkline:walk:8 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the SVG. The `viewBox` uses the computed `width`/`height`, `preserveAspectRatio="none"` lets it stretch freely to the CSS box, and `aria-hidden="true"` hides this purely decorative chart from screen readers. The `<polyline>` draws the `coords`, with `stroke` chosen by `positive` (`--color-ok` vs `--color-err`) and `vectorEffect="non-scaling-stroke"` so the 1.5-unit line keeps a constant pixel thickness despite the non-uniform scaling.
 <!-- /fill:sym:Sparkline:walk:8 -->
 
 ### Examples
 
 <!-- fill:sym:Sparkline:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<Sparkline points={[4, 9, 6, 12, 8, 15]} positive />
+```
+
+This renders a green `<polyline>` with six coordinates spread across the 100×28 viewBox. Passing fewer than two points (e.g. `points={[5]}`) renders nothing.
 <!-- /fill:sym:Sparkline:example -->
 
 ### Used by
@@ -167,14 +171,26 @@ return (
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
-| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
-| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
+| <Sparkline /> | renders a polyline with one coordinate per value | The `<polyline>` `points` attribute contains exactly as many `x,y` pairs as values passed in. |
+| <Sparkline /> | renders nothing when given fewer than two points | With a single point the component returns null, so no SVG is in the DOM. |
+| <Sparkline /> | uses the error color when not positive | With `positive={false}` the polyline stroke resolves to `var(--color-err)` instead of the ok color. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  A[points: number[]] --> B{points.length < 2?}
+  B -- yes --> C[return null]
+  B -- no --> D[compute min, max, range]
+  D --> E[map each value to x,y in padded viewBox]
+  E --> F[join into coords string]
+  F --> G{positive?}
+  G -- true --> H[stroke = --color-ok]
+  G -- false --> I[stroke = --color-err]
+  H --> J[render svg + polyline]
+  I --> J
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

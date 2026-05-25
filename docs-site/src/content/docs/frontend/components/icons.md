@@ -6,7 +6,7 @@ description: Reference for `src/components/icons.tsx`
 **File:** `src/components/icons.tsx` · **Lines:** 118
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/icons.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+This file is a dependency-free, inline SVG icon set for the dashboard UI. Every icon is a 16×16 stroke-based glyph drawn with `currentColor`, sharing a private `Svg` wrapper that fixes the viewBox, stroke width, line caps, and `aria-hidden`, then spreads through any `SVGProps`. The 13 exported icons are consumed across the chrome and content components — `Sidebar.tsx`, `TopBar.tsx`, `PromptBar.tsx`, `FeaturedAgent.tsx`, `AgentGrid.tsx`, and `KpiStrip.tsx` — keeping the visual language consistent without pulling in an icon library.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -47,25 +47,27 @@ const IconDashboard = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconDashboard:summary -->
-<FILL: 2-4 sentences explaining what IconDashboard does and why it exists. Ground every claim in the signature and source.>
+Renders a dashboard glyph: four small rounded squares arranged in a 2×2 grid (`<rect>` elements with `rx="1"`), evoking a panel of cards. It exists to mark the Dashboard navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconDashboard:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconDashboard:return -->
-<FILL: describe the return value of IconDashboard — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the dashboard glyph). Never null — it always renders the four-rectangle grid.
 <!-- /fill:sym:IconDashboard:return -->
 
 ### Examples
 
 <!-- fill:sym:IconDashboard:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconDashboard className="text-text-faint" />
+```
 <!-- /fill:sym:IconDashboard:example -->
 
 ### Used by
@@ -81,25 +83,27 @@ const IconSessions = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconSessions:summary -->
-<FILL: 2-4 sentences explaining what IconSessions does and why it exists. Ground every claim in the signature and source.>
+Renders a speech/chat-bubble glyph (a single `<path>` outlining a rounded rectangle with a tail), representing conversational sessions. It labels the Sessions navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconSessions:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconSessions:return -->
-<FILL: describe the return value of IconSessions — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the chat-bubble glyph). Never null — the single path always renders.
 <!-- /fill:sym:IconSessions:return -->
 
 ### Examples
 
 <!-- fill:sym:IconSessions:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconSessions className="text-text-faint" />
+```
 <!-- /fill:sym:IconSessions:example -->
 
 ### Used by
@@ -115,25 +119,27 @@ const IconAgents = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconAgents:summary -->
-<FILL: 2-4 sentences explaining what IconAgents does and why it exists. Ground every claim in the signature and source.>
+Renders a 3D cube/box glyph (an outer hexagonal `<path>` plus an inner path for the top edges and vertical seam), conveying a packaged agent or module. It marks the Agents navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconAgents:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconAgents:return -->
-<FILL: describe the return value of IconAgents — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the cube glyph). Never null.
 <!-- /fill:sym:IconAgents:return -->
 
 ### Examples
 
 <!-- fill:sym:IconAgents:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconAgents className="text-text-faint" />
+```
 <!-- /fill:sym:IconAgents:example -->
 
 ### Used by
@@ -149,25 +155,27 @@ const IconRuns = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconRuns:summary -->
-<FILL: 2-4 sentences explaining what IconRuns does and why it exists. Ground every claim in the signature and source.>
+Renders a heartbeat/activity-pulse glyph (a single `<path>` baseline with a tall spike), suggesting live executions. It marks the Runs navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconRuns:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconRuns:return -->
-<FILL: describe the return value of IconRuns — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the activity-pulse glyph). Never null.
 <!-- /fill:sym:IconRuns:return -->
 
 ### Examples
 
 <!-- fill:sym:IconRuns:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconRuns className="text-text-faint" />
+```
 <!-- /fill:sym:IconRuns:example -->
 
 ### Used by
@@ -183,25 +191,27 @@ const IconIntegrations = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconIntegrations:summary -->
-<FILL: 2-4 sentences explaining what IconIntegrations does and why it exists. Ground every claim in the signature and source.>
+Renders a power-plug glyph (a single `<path>` with two prongs on top, a body, and a cord stub below), a common metaphor for connected services. It marks the Integrations navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconIntegrations:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconIntegrations:return -->
-<FILL: describe the return value of IconIntegrations — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the plug glyph). Never null.
 <!-- /fill:sym:IconIntegrations:return -->
 
 ### Examples
 
 <!-- fill:sym:IconIntegrations:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconIntegrations className="text-text-faint" />
+```
 <!-- /fill:sym:IconIntegrations:example -->
 
 ### Used by
@@ -217,25 +227,27 @@ const IconSettings = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconSettings:summary -->
-<FILL: 2-4 sentences explaining what IconSettings does and why it exists. Ground every claim in the signature and source.>
+Renders a sliders/controls glyph: two horizontal track lines (`<path>`) each crossed by a draggable knob (`<circle>`), the standard "settings" metaphor. It marks the Settings navigation entry in `Sidebar.tsx`.
 <!-- /fill:sym:IconSettings:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconSettings:return -->
-<FILL: describe the return value of IconSettings — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the sliders glyph). Never null.
 <!-- /fill:sym:IconSettings:return -->
 
 ### Examples
 
 <!-- fill:sym:IconSettings:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconSettings className="text-text-faint" />
+```
 <!-- /fill:sym:IconSettings:example -->
 
 ### Used by
@@ -251,25 +263,27 @@ const IconSearch = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconSearch:summary -->
-<FILL: 2-4 sentences explaining what IconSearch does and why it exists. Ground every claim in the signature and source.>
+Renders a magnifying-glass glyph (a `<circle>` lens with a short diagonal `<path>` handle), the universal search affordance. It is used inside the search inputs of `TopBar.tsx` and `AgentGrid.tsx`.
 <!-- /fill:sym:IconSearch:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconSearch:return -->
-<FILL: describe the return value of IconSearch — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the magnifying-glass glyph). Never null.
 <!-- /fill:sym:IconSearch:return -->
 
 ### Examples
 
 <!-- fill:sym:IconSearch:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconSearch className="absolute left-3 top-2.5 text-text-faint" />
+```
 <!-- /fill:sym:IconSearch:example -->
 
 ### Used by
@@ -286,25 +300,27 @@ const IconPlus = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconPlus:summary -->
-<FILL: 2-4 sentences explaining what IconPlus does and why it exists. Ground every claim in the signature and source.>
+Renders a plus/add glyph (one `<path>` with a vertical and a horizontal stroke crossing at center), the standard "create new" affordance. It is used by `Sidebar.tsx`.
 <!-- /fill:sym:IconPlus:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconPlus:return -->
-<FILL: describe the return value of IconPlus — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the plus glyph). Never null.
 <!-- /fill:sym:IconPlus:return -->
 
 ### Examples
 
 <!-- fill:sym:IconPlus:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<button><IconPlus /> New session</button>
+```
 <!-- /fill:sym:IconPlus:example -->
 
 ### Used by
@@ -320,25 +336,27 @@ const IconArrowUp = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconArrowUp:summary -->
-<FILL: 2-4 sentences explaining what IconArrowUp does and why it exists. Ground every claim in the signature and source.>
+Renders an upward arrow glyph (a `<path>` with a vertical shaft and a chevron head pointing up), used as a submit/send affordance. It appears in `FeaturedAgent.tsx` and `PromptBar.tsx`.
 <!-- /fill:sym:IconArrowUp:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconArrowUp:return -->
-<FILL: describe the return value of IconArrowUp — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the up-arrow glyph). Never null.
 <!-- /fill:sym:IconArrowUp:return -->
 
 ### Examples
 
 <!-- fill:sym:IconArrowUp:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<button aria-label="Send"><IconArrowUp /></button>
+```
 <!-- /fill:sym:IconArrowUp:example -->
 
 ### Used by
@@ -355,25 +373,27 @@ const IconSparkle = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconSparkle:summary -->
-<FILL: 2-4 sentences explaining what IconSparkle does and why it exists. Ground every claim in the signature and source.>
+Renders a four-point sparkle/star glyph. Unlike the other stroke-based icons, its `<path>` is filled with `currentColor` and has `stroke="none"`, giving a solid AI/magic accent. It appears in `FeaturedAgent.tsx` and `PromptBar.tsx`.
 <!-- /fill:sym:IconSparkle:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconSparkle:return -->
-<FILL: describe the return value of IconSparkle — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the filled sparkle glyph). Never null.
 <!-- /fill:sym:IconSparkle:return -->
 
 ### Examples
 
 <!-- fill:sym:IconSparkle:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconSparkle className="text-accent" />
+```
 <!-- /fill:sym:IconSparkle:example -->
 
 ### Used by
@@ -390,25 +410,27 @@ const IconChevronDown = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconChevronDown:summary -->
-<FILL: 2-4 sentences explaining what IconChevronDown does and why it exists. Ground every claim in the signature and source.>
+Renders a downward chevron glyph (one `<path>` forming a "v"), the standard disclosure/dropdown indicator. It is used by `Sidebar.tsx`, `TopBar.tsx`, and `PromptBar.tsx`.
 <!-- /fill:sym:IconChevronDown:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconChevronDown:return -->
-<FILL: describe the return value of IconChevronDown — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the chevron glyph). Never null.
 <!-- /fill:sym:IconChevronDown:return -->
 
 ### Examples
 
 <!-- fill:sym:IconChevronDown:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconChevronDown className="text-text-faint" />
+```
 <!-- /fill:sym:IconChevronDown:example -->
 
 ### Used by
@@ -426,25 +448,27 @@ const IconTrendUp = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconTrendUp:summary -->
-<FILL: 2-4 sentences explaining what IconTrendUp does and why it exists. Ground every claim in the signature and source.>
+Renders an upward-trend glyph: a zig-zag line that ends climbing to the upper-right, plus a small arrowhead `<path>` at the top corner. It signals a positive metric delta in `KpiStrip.tsx`.
 <!-- /fill:sym:IconTrendUp:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconTrendUp:return -->
-<FILL: describe the return value of IconTrendUp — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the up-trend glyph). Never null.
 <!-- /fill:sym:IconTrendUp:return -->
 
 ### Examples
 
 <!-- fill:sym:IconTrendUp:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconTrendUp className="text-ok" />
+```
 <!-- /fill:sym:IconTrendUp:example -->
 
 ### Used by
@@ -460,25 +484,27 @@ const IconTrendDown = (p: IconProps) => { ... }
 ```
 
 <!-- fill:sym:IconTrendDown:summary -->
-<FILL: 2-4 sentences explaining what IconTrendDown does and why it exists. Ground every claim in the signature and source.>
+Renders a downward-trend glyph: the mirror of `IconTrendUp`, with a zig-zag line dropping to the lower-right and an arrowhead `<path>` at the bottom corner. It signals a negative metric delta in `KpiStrip.tsx`.
 <!-- /fill:sym:IconTrendDown:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
+| p | `SVGProps<SVGSVGElement>` | — | yes | Standard SVG props (e.g. `className`, `width`, `style`, event handlers) spread onto the underlying `<svg>`, overriding the wrapper's defaults. |
 
 **Returns:** `any`
 
 <!-- fill:sym:IconTrendDown:return -->
-<FILL: describe the return value of IconTrendDown — what it represents, when it can be null/undefined, units.>
+A 16×16 `<svg>` React element (the down-trend glyph). Never null.
 <!-- /fill:sym:IconTrendDown:return -->
 
 ### Examples
 
 <!-- fill:sym:IconTrendDown:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<IconTrendDown className="text-err" />
+```
 <!-- /fill:sym:IconTrendDown:example -->
 
 ### Used by
@@ -488,7 +514,7 @@ const IconTrendDown = (p: IconProps) => { ... }
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

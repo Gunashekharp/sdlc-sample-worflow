@@ -6,7 +6,7 @@ description: Reference for `src/lib/sortAgents.ts`
 **File:** `src/lib/sortAgents.ts` · **Lines:** 30
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `lib/sortAgents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module provides `sortAgents`, a pure helper that returns a new `Agent[]` (from `../data/agents`) ordered by one of four keys, plus the `SortKey` union and the `SORT_LABELS` map of human-readable menu labels. `AgentGrid.tsx` uses all three to render a sort dropdown and reorder the displayed agents, and `sortAgents.test.ts` exercises the sort logic directly. Like `filterAgents`, it is side-effect free and never mutates its input.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -43,13 +43,13 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| key | `SortKey` | — | yes | <FILL: purpose of key> |
+| agents | `Agent[]` | — | yes | The agents to order; left unmodified. |
+| key | `SortKey` | — | yes | Which field/direction to sort by. |
 
 **Returns:** `Agent[]`
 
 <!-- fill:sym:sortAgents:return -->
-<FILL: describe the return value of sortAgents — what it represents, when it can be null/undefined, units.>
+A new `Agent[]` sorted according to `key`: by `runsPerWeek` descending, `successRate` descending, `name` ascending (locale-aware), or `lastRunMinutes` ascending (most recent first). It is never `null` — the original array is shallow-copied before sorting, so the input is left untouched and the returned array contains the same elements in a new order.
 <!-- /fill:sym:sortAgents:return -->
 
 ### Line-by-line walkthrough
@@ -63,7 +63,7 @@ const copy = [...agents]
 ```
 
 <!-- fill:sym:sortAgents:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Makes a shallow copy of `agents` with the spread operator. This is essential because `Array.sort` sorts in place; copying first means the subsequent `copy.sort(...)` reorders the clone and the caller's original array is never mutated, keeping the function pure.
 <!-- /fill:sym:sortAgents:walk:0 -->
 
 **Line 19 — `SwitchStatement`**
@@ -82,13 +82,20 @@ switch (key) {
 ```
 
 <!-- fill:sym:sortAgents:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Branches on `key` and returns `copy.sort(...)` with the matching comparator. `'runs'` and `'success'` sort numerically descending (`b - a`), `'recent'` sorts `lastRunMinutes` ascending so the most recently run agent comes first, and `'name'` uses `localeCompare` for correct alphabetical ordering. Because `SortKey` is a closed union, the switch is exhaustive and every branch returns, so no fallthrough or default is needed.
 <!-- /fill:sym:sortAgents:walk:1 -->
 
 ### Examples
 
 <!-- fill:sym:sortAgents:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+Given agents `a` (Charlie, 50 runs/wk, 90% success, 30 min ago), `b` (Alpha, 300, 80%, 5 min ago), and `c` (Bravo, 100, 99%, 120 min ago):
+
+```ts
+sortAgents(agents, 'runs').map(a => a.id)    // → ['b', 'c', 'a']  (most runs first)
+sortAgents(agents, 'success').map(a => a.id) // → ['c', 'a', 'b']  (highest success first)
+sortAgents(agents, 'name').map(a => a.id)    // → ['b', 'c', 'a']  (Alpha, Bravo, Charlie)
+sortAgents(agents, 'recent').map(a => a.id)  // → ['b', 'a', 'c']  (most recently run first)
+```
 <!-- /fill:sym:sortAgents:example -->
 
 ### Used by
@@ -105,7 +112,7 @@ export type SortKey = 'runs' | 'success' | 'name' | 'recent'
 ```
 
 <!-- fill:sym:SortKey:summary -->
-<FILL: 2-4 sentences explaining what SortKey does and why it exists. Ground every claim in the signature and source.>
+`SortKey` is a string-literal union of the four supported sort orders: `'runs'`, `'success'`, `'name'`, and `'recent'`. It constrains the `key` argument to `sortAgents` and keys the `SORT_LABELS` record, so adding a new sort option in one place forces the comparator and label to be updated too. `AgentGrid.tsx` stores the active sort as a `SortKey`.
 <!-- /fill:sym:SortKey:summary -->
 
 ### Used by
@@ -130,16 +137,16 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
-| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
-| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
-| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
-| sortAgents | does not mutate the input array | <FILL: assertion summary> |
+| sortAgents | sorts by runs, descending | `'runs'` orders ids as `['b', 'c', 'a']`. |
+| sortAgents | sorts by success rate, descending | `'success'` orders ids as `['c', 'a', 'b']`. |
+| sortAgents | sorts by name, ascending | `'name'` orders ids as `['b', 'c', 'a']` (Alpha, Bravo, Charlie). |
+| sortAgents | sorts by most recent run first | `'recent'` orders ids as `['b', 'a', 'c']`. |
+| sortAgents | does not mutate the input array | Input `agents` order is unchanged after sorting. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

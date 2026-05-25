@@ -6,7 +6,7 @@ description: Reference for `src/data/agents.ts`
 **File:** `src/data/agents.ts` · **Lines:** 211
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `data/agents.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module holds the static seed catalogue of SDLC agents for the Snabbit Agent Console. It defines the `AgentStatus` and `AgentCategory` string-literal unions, the `Agent` interface that shapes each entry, and exports the `AGENTS` array along with `FEATURED_AGENT_ID` and the `AGENT_CATEGORIES` list. `src/App.tsx` reads `AGENTS` and `FEATURED_AGENT_ID` to split out the featured agent from the rest, while `AgentGrid`, `AgentCard`, `FeaturedAgent`, `StatusDot`, and the `filterAgents`/`sortAgents` helpers consume the exported types. In a real deployment this data would be fetched from the backend rather than hard-coded here.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -31,7 +31,7 @@ export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
 <!-- fill:sym:AgentStatus:summary -->
-<FILL: 2-4 sentences explaining what AgentStatus does and why it exists. Ground every claim in the signature and source.>
+`AgentStatus` is a string-literal union narrowing an agent's operational state to exactly `'running'`, `'idle'`, or `'attention'`. It backs the `status` field of every `Agent` and is consumed by `StatusDot.tsx`, which maps each value to a colored indicator. Constraining the set to these three literals lets the type system reject invalid status strings at compile time.
 <!-- /fill:sym:AgentStatus:summary -->
 
 ### Used by
@@ -47,7 +47,7 @@ export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'D
 ```
 
 <!-- fill:sym:AgentCategory:summary -->
-<FILL: 2-4 sentences explaining what AgentCategory does and why it exists. Ground every claim in the signature and source.>
+`AgentCategory` is a string-literal union restricting an agent's category to one of `'Review'`, `'Deploy'`, `'Reliability'`, `'Quality'`, or `'Docs'`. It types the `category` field of `Agent` and is the element type of the `AGENT_CATEGORIES` list used to build the grid's category filter. Defining the categories as a closed union keeps the catalogue, filter UI, and any category-keyed logic in sync.
 <!-- /fill:sym:AgentCategory:summary -->
 
 ## Agent
@@ -59,18 +59,18 @@ export interface Agent { ... }
 ```
 
 <!-- fill:sym:Agent:summary -->
-<FILL: 2-4 sentences explaining what Agent does and why it exists. Ground every claim in the signature and source.>
+`Agent` is the interface describing a single entry in the console catalogue, combining identity (`id`, `name`), classification (`category`, `status`), and metrics (`runsPerWeek`, `successRate`, `avgDuration`, `lastRun`, `lastRunMinutes`, `popular`). It is the element type of the `AGENTS` array and the prop type passed to `AgentCard` and `FeaturedAgent`. The `filterAgents` and `sortAgents` helpers operate over `Agent` values, relying on fields like `popular`, `category`, and `lastRunMinutes` to drive their behavior.
 <!-- /fill:sym:Agent:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable unique identifier (e.g. `'pr-reviewer'`); used as the React key and for featured-agent lookup. |
+| name | `string` | Human-readable display name shown in the UI. |
+| category | `AgentCategory` | Which of the five console categories the agent belongs to. |
+| description | `string` | Short sentence describing what the agent does. |
+| status | `AgentStatus` | Current operational state, rendered by `StatusDot`. |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -97,7 +97,7 @@ const AGENTS: Agent[]
 ```
 
 <!-- fill:sym:AGENTS:summary -->
-<FILL: 2-4 sentences explaining what AGENTS does and why it exists. Ground every claim in the signature and source.>
+`AGENTS` is the seed array of twelve `Agent` records that populates the console — covering review, deploy, reliability, quality, and docs agents. `App.tsx` consumes it to pick the featured agent and pass the remainder to `AgentGrid`, and `AgentGrid.test.tsx` and `agents.test.ts` exercise it directly. As static seed data, it stands in for what a real deployment would fetch from the backend.
 <!-- /fill:sym:AGENTS:summary -->
 
 ### Used by
@@ -130,7 +130,7 @@ const AGENT_CATEGORIES: AgentCategory[]
 ```
 
 <!-- fill:sym:AGENT_CATEGORIES:summary -->
-<FILL: 2-4 sentences explaining what AGENT_CATEGORIES does and why it exists. Ground every claim in the signature and source.>
+`AGENT_CATEGORIES` is an ordered list of every `AgentCategory` value (`Review`, `Deploy`, `Reliability`, `Quality`, `Docs`). `AgentGrid.tsx` iterates it to render the category filter controls, giving the UI a single source of truth for the available categories and their display order. `agents.test.ts` also references it to assert that no agent uses a category outside this set.
 <!-- /fill:sym:AGENT_CATEGORIES:summary -->
 
 ### Used by
@@ -142,17 +142,17 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | `AGENTS` is non-empty. |
+| agent catalogue | gives every agent a unique id | No two agents share the same `id`. |
+| agent catalogue | includes the featured agent | An agent with `id === FEATURED_AGENT_ID` exists in `AGENTS`. |
+| agent catalogue | only uses known categories | Every agent's `category` is a member of `AGENT_CATEGORIES`. |
+| agent catalogue | keeps success rates between 0 and 100 | Each `successRate` falls within the 0–100 range. |
+| agent catalogue | gives every agent a non-empty name and description | Every agent has a non-empty `name` and `description`. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

@@ -6,7 +6,7 @@ description: Reference for `server/src/postgresStore.ts`
 **File:** `server/src/postgresStore.ts` · **Lines:** 81
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `postgresStore.ts` is responsible for, what other files it integrates with, and what calls into it.>
+`postgresStore.ts` provides the production, Postgres-backed implementation of the `Store` contract from `store.ts` via `createPostgresStore`. It runs SQL queries through a `pg` `Pool` and maps the raw `agents` and `kpis` rows into the `Agent` and `Kpi` shapes from `domain.ts` using the `rowToAgent`/`rowToKpi` helpers (translating snake_case columns to camelCase fields and casting `category`/`status` to their union types). It is wired up in `index.ts`, which constructs the `Pool` and passes the resulting store into `createApp`, serving as the runtime counterpart to the in-memory `createMemoryStore`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -42,12 +42,12 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pool | `Pool` | — | yes | <FILL: purpose of pool> |
+| pool | `Pool` | — | yes | A `pg` connection pool used to run the SQL queries against the database. |
 
 **Returns:** `Store`
 
 <!-- fill:sym:createPostgresStore:return -->
-<FILL: describe the return value of createPostgresStore — what it represents, when it can be null/undefined, units.>
+Returns a `Store` object that satisfies both `AgentStore` and `KpiStore`, with each method querying the database through the captured `pool`. The store object itself is always returned (never null); its `getAgent` method resolves to `null` when no row matches the requested id, while `listAgents`/`listKpis` resolve to arrays (possibly empty). The methods may reject if the underlying query fails.
 <!-- /fill:sym:createPostgresStore:return -->
 
 ### Line-by-line walkthrough
@@ -81,13 +81,31 @@ return {
 ```
 
 <!-- fill:sym:createPostgresStore:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the `Store` implementation as an object literal whose three async methods query the captured `pool`. `listAgents` runs `SELECT * FROM agents ORDER BY runs_per_week DESC`, destructures `rows`, and maps each `AgentRow` through `rowToAgent` so the result is fully-typed `Agent[]` sorted by weekly usage. `getAgent(id)` uses a parameterised query (`WHERE id = $1` with `[id]`) to avoid SQL injection, reads `rows[0]` as a possibly-`undefined` `AgentRow`, and returns `rowToAgent(row)` or `null` to honour the `Agent | null` contract. `listKpis` runs `SELECT * FROM kpis ORDER BY sort_order ASC` and maps the `KpiRow[]` through `rowToKpi`, preserving the intended display order. The `rows as AgentRow[]` / `KpiRow[]` casts assert the DB column shapes since `pg` returns untyped rows.
 <!-- /fill:sym:createPostgresStore:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:createPostgresStore:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+The running server (`index.ts`) builds the store from a `pg` pool and hands it to `createApp`:
+
+```ts
+import { Pool } from 'pg'
+import { config } from './config'
+import { createApp } from './app'
+import { createPostgresStore } from './postgresStore'
+import { getCicdProvider } from './integrations/cicd'
+
+const pool = new Pool({ connectionString: config.databaseUrl })
+const store = createPostgresStore(pool)
+const cicd = getCicdProvider({ githubToken: config.githubToken, githubRepo: config.githubRepo })
+
+const app = createApp({ store, cicd })
+app.listen(config.port)
+
+// Once running:
+await store.getAgent('pr-reviewer') // => Agent from the agents table, or null if absent
+```
 <!-- /fill:sym:createPostgresStore:example -->
 
 ### Used by
@@ -97,7 +115,27 @@ return {
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+classDiagram
+    class Store {
+        <<type>>
+        +listAgents() Promise~Agent[]~
+        +getAgent(id) Promise~Agent|null~
+        +listKpis() Promise~Kpi[]~
+    }
+    class PostgresStore {
+        +listAgents()
+        +getAgent(id)
+        +listKpis()
+    }
+    class Pool {
+        +query(sql, params)
+    }
+    Store <|.. PostgresStore : createPostgresStore
+    PostgresStore --> Pool : queries
+    PostgresStore ..> AgentRow : rowToAgent
+    PostgresStore ..> KpiRow : rowToKpi
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

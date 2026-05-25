@@ -6,7 +6,7 @@ description: Reference for `src/App.tsx`
 **File:** `src/App.tsx` · **Lines:** 40
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `App.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`App.tsx` is the root component of the dashboard: it lays out the full-screen Agent Console shell and wires together every top-level piece. It pulls `AGENTS` and `FEATURED_AGENT_ID` from `./data/agents`, picks out the featured agent, and renders `Sidebar`, `TopBar`, `KpiStrip`, `FeaturedAgent`, `PipelinesPanel`, `AgentGrid`, and `PromptBar` in a flex layout. It is mounted by `main.tsx` (inside `StrictMode`) and exercised by `App.test.tsx`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -42,7 +42,7 @@ export default function App() { ... }
 ```
 
 <!-- fill:sym:App:summary -->
-<FILL: 2-4 sentences explaining what App does and why it exists. Ground every claim in the signature and source.>
+`App` is the default-exported root component that composes the entire dashboard. It derives two values from the static catalogue — the featured agent and the remaining agents — then returns the page layout: a `Sidebar` beside a vertical column holding the `TopBar`, a scrollable `main` region with the `KpiStrip`, `FeaturedAgent`, `PipelinesPanel`, and `AgentGrid`, and a `PromptBar` pinned below. It holds no state of its own; its only logic is splitting `AGENTS` into the featured agent and the rest before delegating to child components.
 <!-- /fill:sym:App:summary -->
 
 ### Line-by-line walkthrough
@@ -56,7 +56,7 @@ const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
 ```
 
 <!-- fill:sym:App:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Looks up the featured agent by scanning `AGENTS` for the one whose `id` matches `FEATURED_AGENT_ID`. The `?? AGENTS[0]` fallback guarantees `featured` is always a defined `Agent` even if that id is ever removed from the catalogue, so the rest of the component never has to guard against `undefined`.
 <!-- /fill:sym:App:walk:0 -->
 
 **Line 12 — `FirstStatement`**
@@ -66,7 +66,7 @@ const rest = AGENTS.filter((a) => a.id !== featured.id)
 ```
 
 <!-- fill:sym:App:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Builds the `rest` array by filtering out the featured agent, comparing on `a.id !== featured.id`. This avoids showing the featured agent twice — once in the `FeaturedAgent` slot and again in the `AgentGrid` — and the result is what gets passed as the `agents` prop to the grid.
 <!-- /fill:sym:App:walk:1 -->
 
 **Line 14 — `ReturnStatement`**
@@ -92,13 +92,27 @@ return (
 ```
 
 <!-- fill:sym:App:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the dashboard layout. The outer `div` is a full-height (`h-screen`), clipped flex row containing the `Sidebar` and a `min-w-0 flex-1` column. That column stacks the `TopBar`, a scrollable `main` region (`flex-1 overflow-y-auto`) whose centered, max-width inner `div` renders `KpiStrip`, `FeaturedAgent` (receiving the `featured` agent), `PipelinesPanel`, and `AgentGrid` (receiving `rest`), and finally a `PromptBar` fixed at the bottom of the column. Only `main` scrolls, keeping the sidebar, top bar, and prompt bar in view at all times.
 <!-- /fill:sym:App:walk:2 -->
 
 ### Examples
 
 <!-- fill:sym:App:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+`App` takes no props and is rendered once at the application root. `main.tsx` mounts it like so:
+
+```tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+```
+
+With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and the remaining eleven agents flow into `AgentGrid`, so the rendered page shows the PR Reviewer in the featured slot and the other agents in the grid below.
 <!-- /fill:sym:App:example -->
 
 ### Used by
@@ -110,15 +124,49 @@ return (
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | <FILL: assertion summary> |
-| <App /> | renders the KPI strip | <FILL: assertion summary> |
-| <App /> | renders agents in the grid | <FILL: assertion summary> |
-| <App /> | renders the prompt input | <FILL: assertion summary> |
+| <App /> | renders the featured agent | The featured agent (`pr-reviewer`) appears in the rendered output. |
+| <App /> | renders the KPI strip | The KPI strip and its metrics are present. |
+| <App /> | renders agents in the grid | The non-featured agents are rendered in the grid. |
+| <App /> | renders the prompt input | The `PromptBar`'s input field is present. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+The diagram below shows how `App` derives `featured`/`rest` from `AGENTS` and composes its child components, including which data each child receives.
+
+```mermaid
+flowchart TD
+  AGENTS["AGENTS (data/agents)"]
+  FID["FEATURED_AGENT_ID"]
+  App["App"]
+  featured["featured: Agent"]
+  rest["rest: Agent[]"]
+  Sidebar["Sidebar"]
+  TopBar["TopBar"]
+  KpiStrip["KpiStrip"]
+  FeaturedAgent["FeaturedAgent"]
+  PipelinesPanel["PipelinesPanel"]
+  AgentGrid["AgentGrid"]
+  PromptBar["PromptBar"]
+
+  AGENTS --> App
+  FID --> App
+  App --> featured
+  App --> rest
+  App --> Sidebar
+  App --> TopBar
+  App --> KpiStrip
+  App --> PipelinesPanel
+  App --> PromptBar
+  featured -->|agent prop| FeaturedAgent
+  rest -->|agents prop| AgentGrid
+  App --> FeaturedAgent
+  App --> AgentGrid
+```
+
+:::caution
+The Figma designs referenced in PRs #1–#4 for `App.tsx` could not be embedded because the Figma export token has expired (HTTP 403). Re-run the docs agent with a valid Figma token to attach them.
+:::
 <!-- /fill:file:diagrams -->
 
 ## Source

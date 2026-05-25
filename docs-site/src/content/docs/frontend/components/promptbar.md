@@ -6,7 +6,7 @@ description: Reference for `src/components/PromptBar.tsx`
 **File:** `src/components/PromptBar.tsx` · **Lines:** 58
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/PromptBar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`PromptBar.tsx` is the sticky composer at the bottom of the console where the user types a prompt for an agent. It manages the textarea's value with local `useState`, enables the send button only for non-empty input, and submits on click or on Enter (Shift+Enter inserts a newline). It pulls `IconSparkle`, `IconChevronDown`, and `IconArrowUp` from `./icons` for the model selector and send button, and is mounted by `App.tsx`. Backend wiring is a placeholder (tracked in `BACKLOG.md`); for now submitting logs to the console and clears the input.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -36,7 +36,7 @@ export default function PromptBar() { ... }
 ```
 
 <!-- fill:sym:PromptBar:summary -->
-<FILL: 2-4 sentences explaining what PromptBar does and why it exists. Ground every claim in the signature and source.>
+`PromptBar` is a zero-prop component that renders a controlled `<textarea>` plus a footer with a model-picker button ("Opus 4.7"), a keyboard hint, and a send button. It tracks the input in `value` state and derives `canSend` from whether the trimmed value is non-empty, which both disables the send button and short-circuits `submit`. Pressing Enter without Shift triggers `submit`, which currently logs the trimmed prompt and resets the field — a stand-in until the backend is wired up.
 <!-- /fill:sym:PromptBar:summary -->
 
 ### Line-by-line walkthrough
@@ -50,7 +50,7 @@ const [value, setValue] = useState('')
 ```
 
 <!-- fill:sym:PromptBar:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares `[value, setValue] = useState('')`, the controlled state backing the textarea. It starts empty and is updated on every `onChange`, making React the single source of truth for the prompt text.
 <!-- /fill:sym:PromptBar:walk:0 -->
 
 **Line 6 — `FirstStatement`**
@@ -60,7 +60,7 @@ const canSend = value.trim().length > 0
 ```
 
 <!-- fill:sym:PromptBar:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Computes `canSend = value.trim().length > 0`, a derived boolean that is `true` only when the input has non-whitespace content. It is recomputed each render from `value` (no separate state needed) and gates both the send button's `disabled` attribute and the early return inside `submit`, preventing empty or whitespace-only submissions.
 <!-- /fill:sym:PromptBar:walk:1 -->
 
 **Line 8 — `FunctionDeclaration`**
@@ -75,7 +75,7 @@ function submit() {
 ```
 
 <!-- fill:sym:PromptBar:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Defines `submit()`, the send handler shared by the button click and the Enter key. It first guards with `if (!canSend) return` so empty input is a no-op, then `console.log`s the trimmed value (a placeholder for the real backend call noted in `BACKLOG.md`), and finally `setValue('')` clears the textarea. Declaring it as a named inner function keeps the logic in one place for both invocation paths.
 <!-- /fill:sym:PromptBar:walk:2 -->
 
 **Line 15 — `ReturnStatement`**
@@ -126,13 +126,20 @@ return (
 ```
 
 <!-- fill:sym:PromptBar:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the composer UI. The bordered container holds a controlled `<textarea>` bound to `value`/`setValue` with an `onKeyDown` that intercepts Enter without Shift — calling `e.preventDefault()` and `submit()` so Enter sends while Shift+Enter still inserts a newline. The footer row contains the model-selector button (`IconSparkle`, "Opus 4.7", `IconChevronDown`), an `sm:`-only hint ("Enter to send · Shift+Enter for newline"), and the send `<button>` whose `onClick` is `submit`, `disabled={!canSend}`, and styled to dim/disable when empty. `aria-label`s on the textarea and send button keep it accessible.
 <!-- /fill:sym:PromptBar:walk:3 -->
 
 ### Examples
 
 <!-- fill:sym:PromptBar:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import PromptBar from './components/PromptBar'
+
+// Pinned at the bottom of the layout; takes no props.
+<PromptBar />
+```
+
+Typing "Summarize the failing runs" and pressing Enter logs `Prompt submitted: Summarize the failing runs` and clears the textarea; an empty or whitespace-only field leaves the send button disabled and `submit` a no-op.
 <!-- /fill:sym:PromptBar:example -->
 
 ### Used by
@@ -142,7 +149,18 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  T[type in textarea] --> V[setValue]
+  V --> C{value.trim length > 0?}
+  C -->|no| D[send button disabled]
+  C -->|yes| EN[send enabled]
+  K[Enter without Shift] --> SUB[submit]
+  B[click send] --> SUB
+  SUB --> G{canSend?}
+  G -->|no| X[no-op]
+  G -->|yes| LOG[console.log trimmed value, then clear input]
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

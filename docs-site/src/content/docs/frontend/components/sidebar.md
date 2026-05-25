@@ -6,7 +6,7 @@ description: Reference for `src/components/Sidebar.tsx`
 **File:** `src/components/Sidebar.tsx` · **Lines:** 117
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/Sidebar.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`Sidebar.tsx` renders the console's fixed left navigation rail: a workspace switcher, a "New session" action, the primary nav links, a scrollable list of recent sessions, and a user footer. The nav items and recent sessions are defined as the module-level `NAV` and `RECENT_SESSIONS` constants, and each nav icon comes from `./icons` (typed via React's `ComponentType`/`SVGProps`). It takes no props and is mounted by `App.tsx`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -36,7 +36,7 @@ export default function Sidebar() { ... }
 ```
 
 <!-- fill:sym:Sidebar:summary -->
-<FILL: 2-4 sentences explaining what Sidebar does and why it exists. Ground every claim in the signature and source.>
+`Sidebar` is a zero-prop, stateless component that draws the dashboard's navigation column. It iterates the static `NAV` array to render each link with its icon, highlighting the entry whose `active` flag is set (and marking it `aria-current="page"`), and iterates `RECENT_SESSIONS` to list recent work. It exists to give every page a consistent fixed-width rail for branding, primary navigation, and quick session access.
 <!-- /fill:sym:Sidebar:summary -->
 
 ### Line-by-line walkthrough
@@ -128,13 +128,23 @@ return (
 ```
 
 <!-- fill:sym:Sidebar:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The single return builds the `<aside>` rail (fixed `w-60`, non-shrinking, right border). Top to bottom: a workspace-switcher button with the "S" badge, "Snabbit / Agent Console" labels, and `IconChevronDown`; a "New session" button with `IconPlus` and a `⌘N` `<kbd>`; a `<nav>` that maps over `NAV`, destructuring `const Icon = item.icon` per entry so the icon component can be rendered as `<Icon>`, applying active styling and `aria-current={item.active ? 'page' : undefined}` based on `item.active`; a scrollable "Recent sessions" section that maps `RECENT_SESSIONS` to truncated buttons keyed by the session string; and a footer with the user avatar, name, and email. There is no state or data fetching — it renders the two module constants directly.
 <!-- /fill:sym:Sidebar:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:Sidebar:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import Sidebar from './components/Sidebar'
+
+// Fixed left rail in the app shell; takes no props.
+<div className="flex h-screen">
+  <Sidebar />
+  <main>{/* page content */}</main>
+</div>
+```
+
+This renders the six `NAV` links (with "Dashboard" highlighted as active) and the five `RECENT_SESSIONS` entries.
 <!-- /fill:sym:Sidebar:example -->
 
 ### Used by
@@ -144,7 +154,7 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

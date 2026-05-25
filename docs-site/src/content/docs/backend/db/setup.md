@@ -6,7 +6,7 @@ description: Reference for `server/src/db/setup.ts`
 **File:** `server/src/db/setup.ts` · **Lines:** 68
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `db/setup.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This is the one-shot database bootstrap script, run via `npm run db:setup`. It opens a `pg` `Pool` against `config.databaseUrl`, executes `SCHEMA_SQL` from `./schema` to create the `agents` and `kpis` tables if they do not exist, then upserts every row from `SEED_AGENTS` and `SEED_KPIS` (imported from `../seed`). It has no exports — running the module is the side effect; on success it logs a ready message, and on failure it logs the error and exits with code 1.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -28,7 +28,26 @@ No exported symbols detected by the AST. This file is likely a side-effect entry
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+The `main()` bootstrap sequence:
+
+```mermaid
+sequenceDiagram
+  participant CLI as npm run db:setup
+  participant Setup as setup.ts main
+  participant PG as Postgres Pool
+  CLI->>Setup: invoke module
+  Setup->>PG: new Pool(config.databaseUrl)
+  Setup->>PG: query(SCHEMA_SQL)
+  loop each SEED_AGENTS
+    Setup->>PG: INSERT agent ON CONFLICT DO UPDATE
+  end
+  loop each SEED_KPIS (index = sort_order)
+    Setup->>PG: INSERT kpi ON CONFLICT DO UPDATE
+  end
+  Setup->>Setup: console.log(Database ready...)
+  Setup->>PG: pool.end()
+  Note over Setup: on error: log + process.exit(1)
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

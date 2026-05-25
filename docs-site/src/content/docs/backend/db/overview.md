@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+This folder owns the Postgres persistence layer's setup. [`schema.ts`](../db/schema) holds the idempotent `CREATE TABLE` SQL for the `agents` and `kpis` tables, and [`setup.ts`](../db/setup) is the one-shot bootstrap that applies that schema and upserts the seed data. Files that define database structure or perform schema/seed bootstrapping belong here; request handling, domain types, and the runtime query layer (`postgresStore.ts`) live outside this folder.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,5 +36,6 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+- `npm run db:setup` runs [`setup.ts`](../db/setup), which connects a `pg` `Pool` using `config.databaseUrl`, executes `SCHEMA_SQL` from [`schema.ts`](../db/schema) to create the tables if absent, then upserts every entry from `SEED_AGENTS` and `SEED_KPIS` (see the dependency subgraph above).
+- Each seed row is written with `INSERT ... ON CONFLICT (id) DO UPDATE`, so re-running setup refreshes existing rows instead of failing — the whole flow is idempotent and ends by closing the pool.
 <!-- /fill:folder:flows -->

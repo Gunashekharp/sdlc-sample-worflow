@@ -6,7 +6,7 @@ description: Reference for `src/lib/usePersistentState.ts`
 **File:** `src/lib/usePersistentState.ts` · **Lines:** 31
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `lib/usePersistentState.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module provides `usePersistentState`, a generic React hook that behaves like `useState` but mirrors the value to `localStorage` under a given key and restores it on the next mount. All storage access is wrapped in try/catch so disabled storage, quota errors, or malformed JSON fall back to the `initial` value rather than throwing. `AgentGrid.tsx` uses it to remember UI preferences (such as the selected sort or filter) across page reloads.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -45,13 +45,13 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | The localStorage key the value is read from and written to. |
+| initial | `T` | — | yes | Fallback value used when nothing is stored or storage fails. |
 
 **Returns:** `[T, (value: T) => void]`
 
 <!-- fill:sym:usePersistentState:return -->
-<FILL: describe the return value of usePersistentState — what it represents, when it can be null/undefined, units.>
+A `[value, setValue]` tuple matching the `useState` convention: `value` is the current state (the restored stored value, or `initial` if nothing was stored or reading failed), and `setValue` updates it, triggering a re-render and a write back to `localStorage`. The tuple itself is never `null`; `value` is only `null`/`undefined` if `T` permits those.
 <!-- /fill:sym:usePersistentState:return -->
 
 ### Line-by-line walkthrough
@@ -72,7 +72,7 @@ const [value, setValue] = useState<T>(() => {
 ```
 
 <!-- fill:sym:usePersistentState:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Initializes state with a lazy initializer function, so the `localStorage` read runs only once (on first render) rather than on every render. It reads the raw string at `key`; when present it `JSON.parse`s it back into a `T`, otherwise it returns `initial`. The whole read is wrapped in try/catch so a `SecurityError` (storage disabled) or a `JSON.parse` failure on malformed data falls back to `initial` instead of crashing the component.
 <!-- /fill:sym:usePersistentState:walk:0 -->
 
 **Line 21 — `ExpressionStatement`**
@@ -88,7 +88,7 @@ useEffect(() => {
 ```
 
 <!-- fill:sym:usePersistentState:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+A `useEffect` that synchronizes the value back to storage. Whenever `value` (or `key`) changes it serializes the value with `JSON.stringify` and writes it to `localStorage`. The try/catch swallows write failures (e.g. quota exceeded, private-mode storage) because persistence is best-effort — a failed write must not break the UI. The `[key, value]` deps ensure the write fires on every value change and re-targets if the key changes.
 <!-- /fill:sym:usePersistentState:walk:1 -->
 
 **Line 29 — `ReturnStatement`**
@@ -98,13 +98,21 @@ return [value, setValue]
 ```
 
 <!-- fill:sym:usePersistentState:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the `[value, setValue]` tuple so the hook is a drop-in replacement for `useState`. `setValue` is React's own state setter; calling it updates `value`, which re-renders and triggers the persistence effect above.
 <!-- /fill:sym:usePersistentState:walk:2 -->
 
 ### Examples
 
 <!-- fill:sym:usePersistentState:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+Remember the selected sort key across reloads:
+
+```tsx
+const [sort, setSort] = usePersistentState<SortKey>('agentSort', 'runs')
+
+// First mount with nothing stored → sort === 'runs'
+setSort('name')        // re-renders; writes "name" to localStorage['agentSort']
+// After a page reload → sort === 'name' (restored from storage)
+```
 <!-- /fill:sym:usePersistentState:example -->
 
 ### Used by
@@ -114,7 +122,20 @@ return [value, setValue]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  M[Mount: lazy init] --> R{localStorage.getItem key}
+  R -->|raw found| P{JSON.parse ok?}
+  R -->|null| I[use initial]
+  P -->|yes| V[value = parsed]
+  P -->|throws| I
+  R -->|storage throws| I
+  V --> Render
+  I --> Render
+  Render --> S[setValue called]
+  S --> E[effect: localStorage.setItem key, JSON.stringify value]
+  E -->|write fails| Ignore[ignored - best-effort]
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

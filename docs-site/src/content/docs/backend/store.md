@@ -6,7 +6,7 @@ description: Reference for `server/src/store.ts`
 **File:** `server/src/store.ts` · **Lines:** 33
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `store.ts` is responsible for, what other files it integrates with, and what calls into it.>
+`store.ts` defines the data-access contract for the API: the `AgentStore` and `KpiStore` interfaces, their intersection `Store`, and `createMemoryStore`, an in-memory implementation. The interfaces work with the `Agent` and `Kpi` types from `domain.ts`, and the `Store` type is what `app.ts` injects via `AppDeps` and `routes.ts` reads through. `createMemoryStore` is used by the test suite (so `npm test` needs no database) and as a quick local fallback, while `postgresStore.ts` provides the production implementation of the same `Store` contract.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -44,13 +44,13 @@ export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| kpis | `Kpi[]` | — | yes | <FILL: purpose of kpis> |
+| agents | `Agent[]` | — | yes | The seed list of agents the returned store reads from and serves. |
+| kpis | `Kpi[]` | — | yes | The seed list of KPIs the returned store reads from and serves. |
 
 **Returns:** `Store`
 
 <!-- fill:sym:createMemoryStore:return -->
-<FILL: describe the return value of createMemoryStore — what it represents, when it can be null/undefined, units.>
+Returns a `Store` object — an implementation of both `AgentStore` and `KpiStore` — backed by the supplied `agents` and `kpis` arrays held in a closure. It is always a valid object (never null); its individual methods return promises, and `getAgent` resolves to `null` only when no agent matches the requested id.
 <!-- /fill:sym:createMemoryStore:return -->
 
 ### Line-by-line walkthrough
@@ -74,13 +74,25 @@ return {
 ```
 
 <!-- fill:sym:createMemoryStore:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns an object literal implementing the `Store` contract over the closed-over `agents` and `kpis` arrays. `listAgents` returns a shallow copy `[...agents]` so callers can't mutate the backing array; `getAgent(id)` uses `Array.find` on `a.id === id` and coalesces a miss to `null` with `?? null` (matching the `Agent | null` signature); `listKpis` similarly returns a `[...kpis]` copy. All three are `async` so the in-memory store satisfies the same promise-returning interface as the Postgres store.
 <!-- /fill:sym:createMemoryStore:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:createMemoryStore:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+The test suite builds an app around an in-memory store seeded from `seed.ts`:
+
+```ts
+import { createMemoryStore } from '../store'
+import { SEED_AGENTS, SEED_KPIS } from '../seed'
+
+const store = createMemoryStore(SEED_AGENTS, SEED_KPIS)
+
+await store.listAgents()            // => Agent[] (a copy of SEED_AGENTS)
+await store.getAgent('pr-reviewer') // => the matching Agent
+await store.getAgent('nope')        // => null
+await store.listKpis()              // => Kpi[] (a copy of SEED_KPIS)
+```
 <!-- /fill:sym:createMemoryStore:example -->
 
 ### Used by
@@ -116,7 +128,7 @@ export type Store = AgentStore & KpiStore
 ```
 
 <!-- fill:sym:Store:summary -->
-<FILL: 2-4 sentences explaining what Store does and why it exists. Ground every claim in the signature and source.>
+`Store` is the intersection type `AgentStore & KpiStore`, so any value typed as `Store` must provide all three read methods: `listAgents`, `getAgent`, and `listKpis`. It exists as the single data-access abstraction the rest of the app depends on, decoupling route handlers from any specific backend. Both `createMemoryStore` here and `createPostgresStore` in `postgresStore.ts` return a `Store`, and `app.ts` injects one through `AppDeps`.
 <!-- /fill:sym:Store:summary -->
 
 ### Used by
@@ -127,7 +139,26 @@ export type Store = AgentStore & KpiStore
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+classDiagram
+    class AgentStore {
+        <<interface>>
+        +listAgents() Promise~Agent[]~
+        +getAgent(id) Promise~Agent|null~
+    }
+    class KpiStore {
+        <<interface>>
+        +listKpis() Promise~Kpi[]~
+    }
+    class Store {
+        <<type>>
+        AgentStore & KpiStore
+    }
+    AgentStore <|-- Store
+    KpiStore <|-- Store
+    Store <|.. MemoryStore : createMemoryStore
+    Store <|.. PostgresStore : createPostgresStore
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

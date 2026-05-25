@@ -6,7 +6,7 @@ description: Reference for `src/components/KpiStrip.tsx`
 **File:** `src/components/KpiStrip.tsx` · **Lines:** 45
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/KpiStrip.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`KpiStrip.tsx` renders the dashboard's row of key-metric cards. It reads the static `KPIS` array (and `Kpi` type) from `../data/kpis`, draws each metric's trend with the `Sparkline` component, and picks a trend arrow (`IconTrendUp`/`IconTrendDown`) from `./icons`. The exported `KpiStrip` is mounted by `App.tsx`; the per-card rendering is handled by the local `KpiCard` helper.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -38,7 +38,7 @@ export default function KpiStrip() { ... }
 ```
 
 <!-- fill:sym:KpiStrip:summary -->
-<FILL: 2-4 sentences explaining what KpiStrip does and why it exists. Ground every claim in the signature and source.>
+`KpiStrip` is a zero-prop component that lays out every entry in the `KPIS` dataset as a responsive grid of cards (1 / 2 / 4 columns across breakpoints). Each card is delegated to the local `KpiCard`, which shows the label, value, a delta colored by `kpi.positive`, a trend arrow chosen from the delta's sign, a `Sparkline` of `kpi.trend`, and a hint. It exists to give the dashboard an at-a-glance metrics summary above the rest of the content.
 <!-- /fill:sym:KpiStrip:summary -->
 
 ### Line-by-line walkthrough
@@ -61,13 +61,20 @@ return (
 ```
 
 <!-- fill:sym:KpiStrip:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The single return renders a `<section aria-label="Key metrics">` whose grid classes step from one column to two (`sm:`) to four (`lg:`). It maps over the imported `KPIS` array, rendering one `<KpiCard key={kpi.id} kpi={kpi} />` per metric. There is no local state — the data is static — so iterating the module-level constant is sufficient, and the `aria-label` names the region for assistive tech.
 <!-- /fill:sym:KpiStrip:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:KpiStrip:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import KpiStrip from './components/KpiStrip'
+
+// Takes no props — it reads the KPIS dataset itself.
+<KpiStrip />
+```
+
+This renders one card per entry in `KPIS`, each with its value, signed delta, trend sparkline, and hint.
 <!-- /fill:sym:KpiStrip:example -->
 
 ### Used by
@@ -77,7 +84,7 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

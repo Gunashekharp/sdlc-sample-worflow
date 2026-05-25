@@ -6,7 +6,7 @@ description: Reference for `server/src/integrations/cicd.ts`
 **File:** `server/src/integrations/cicd.ts` · **Lines:** 162
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `integrations/cicd.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module is the CI/CD integration adapter for the backend. It defines the `Pipeline`, `PipelineSummary`, and `CicdProvider` types and supplies two concrete providers: `createMockCicdProvider`, which returns deterministic in-memory pipeline data with no credentials, and `createGithubActionsProvider`, which calls the live GitHub Actions REST API. `getCicdProvider` chooses between them based on the `githubToken`/`githubRepo` values read from `config.ts`, and `summarizePipelines` aggregates a pipeline list into headline counts. `server/src/index.ts` wires the chosen provider into the app, `server/src/routes.ts` calls `summarizePipelines` to build the pipeline response, and `server/src/app.ts` consumes the `CicdProvider` contract.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -38,12 +38,12 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pipelines | `Pipeline[]` | — | yes | <FILL: purpose of pipelines> |
+| pipelines | `Pipeline[]` | — | yes | The list of pipeline runs to count and reduce into a summary. |
 
 **Returns:** `PipelineSummary`
 
 <!-- fill:sym:summarizePipelines:return -->
-<FILL: describe the return value of summarizePipelines — what it represents, when it can be null/undefined, units.>
+A `PipelineSummary` object: `total` (length of the input array), the per-status counts `passing`/`failing`/`running`, and `passRate`, the percentage of finished (passing + failing) pipelines that passed, rounded to an integer 0–100. The function is pure and never returns null or undefined; given an empty array it returns all-zero counts with `passRate` of 0 (running pipelines are excluded from the rate denominator).
 <!-- /fill:sym:summarizePipelines:return -->
 
 ### Line-by-line walkthrough
@@ -57,7 +57,7 @@ const passing = pipelines.filter((p) => p.status === 'passing').length
 ```
 
 <!-- fill:sym:summarizePipelines:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Counts the pipelines whose `status` is `'passing'`. `filter` produces a new array of only the matching entries and `.length` yields the count, stored in the local `passing`. No input mutation occurs.
 <!-- /fill:sym:summarizePipelines:walk:0 -->
 
 **Line 40 — `FirstStatement`**
@@ -67,7 +67,7 @@ const failing = pipelines.filter((p) => p.status === 'failing').length
 ```
 
 <!-- fill:sym:summarizePipelines:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Same pattern as the previous line, but for the `'failing'` status. The resulting count is stored in `failing`.
 <!-- /fill:sym:summarizePipelines:walk:1 -->
 
 **Line 41 — `FirstStatement`**
@@ -77,7 +77,7 @@ const running = pipelines.filter((p) => p.status === 'running').length
 ```
 
 <!-- fill:sym:summarizePipelines:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Counts the in-flight pipelines whose `status` is `'running'`, stored in `running`. These are deliberately excluded from the pass-rate denominator computed below.
 <!-- /fill:sym:summarizePipelines:walk:2 -->
 
 **Line 42 — `FirstStatement`**
@@ -87,7 +87,7 @@ const finished = passing + failing
 ```
 
 <!-- fill:sym:summarizePipelines:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Computes the number of finished pipelines as `passing + failing`. Running pipelines have no final outcome yet, so they are not part of this total; `finished` becomes the denominator for the pass-rate calculation.
 <!-- /fill:sym:summarizePipelines:walk:3 -->
 
 **Line 43 — `ReturnStatement`**
@@ -103,13 +103,22 @@ return {
 ```
 
 <!-- fill:sym:summarizePipelines:walk:4 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the assembled `PipelineSummary`. `total` is the full input length, the three counts come from the locals above, and `passRate` guards against division by zero: when `finished === 0` it is `0`, otherwise it is `passing / finished` scaled to a 0–100 percentage and rounded with `Math.round`.
 <!-- /fill:sym:summarizePipelines:walk:4 -->
 
 ### Examples
 
 <!-- fill:sym:summarizePipelines:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```ts
+const summary = summarizePipelines([
+  { id: 'p-1', status: 'passing', /* ...other fields */ } as Pipeline,
+  { id: 'p-2', status: 'failing', /* ... */ } as Pipeline,
+  { id: 'p-3', status: 'running', /* ... */ } as Pipeline,
+])
+// => { total: 3, passing: 1, failing: 1, running: 1, passRate: 50 }
+```
+
+The two finished pipelines (one passing, one failing) give a `passRate` of `Math.round((1 / 2) * 100) === 50`; the running pipeline is excluded from that rate.
 <!-- /fill:sym:summarizePipelines:example -->
 
 ### Used by
@@ -126,13 +135,13 @@ export function createMockCicdProvider(): CicdProvider { ... }
 ```
 
 <!-- fill:sym:createMockCicdProvider:summary -->
-<FILL: 2-4 sentences explaining what createMockCicdProvider does and why it exists. Ground every claim in the signature and source.>
+Builds a `CicdProvider` named `'mock'` whose `listPipelines` returns a fixed set of eight sample pipelines from the internal `buildMockPipelines` helper. It requires no credentials or network access, which makes it the zero-config default used in local development and tests. The sample data is deterministic except for the relative timestamps, which are computed as offsets from `Date.now()` via `minutesAgo`.
 <!-- /fill:sym:createMockCicdProvider:summary -->
 
 **Returns:** `CicdProvider`
 
 <!-- fill:sym:createMockCicdProvider:return -->
-<FILL: describe the return value of createMockCicdProvider — what it represents, when it can be null/undefined, units.>
+A `CicdProvider` object with `name: 'mock'` and an async `listPipelines()` that resolves to the eight-element mock `Pipeline[]`. It is always returned (never null/undefined) and never throws or makes network calls.
 <!-- /fill:sym:createMockCicdProvider:return -->
 
 ### Line-by-line walkthrough
@@ -151,13 +160,19 @@ return {
 ```
 
 <!-- fill:sym:createMockCicdProvider:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the provider object literal. `name` is the constant `'mock'` so callers can identify the active provider, and `listPipelines` is an async method that delegates to `buildMockPipelines()` and resolves to its array. Because it is `async`, the synchronous helper result is wrapped in a resolved promise, satisfying the `Promise<Pipeline[]>` shape of the `CicdProvider` contract.
 <!-- /fill:sym:createMockCicdProvider:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:createMockCicdProvider:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```ts
+const provider = createMockCicdProvider()
+provider.name // => 'mock'
+const pipelines = await provider.listPipelines()
+pipelines.length // => 8
+pipelines[0].name // => 'CI · build & test'
+```
 <!-- /fill:sym:createMockCicdProvider:example -->
 
 ### Used by
@@ -177,20 +192,20 @@ export function createGithubActionsProvider(
 ```
 
 <!-- fill:sym:createGithubActionsProvider:summary -->
-<FILL: 2-4 sentences explaining what createGithubActionsProvider does and why it exists. Ground every claim in the signature and source.>
+Builds a live `CicdProvider` named `'github-actions'` that fetches the 20 most recent workflow runs for `repo` from the GitHub Actions REST API, authenticating with the supplied `token`. Each raw run is mapped to the internal `Pipeline` shape by `githubRunToPipeline`, which derives `status` from the run's `status`/`conclusion` and computes `durationSeconds` from the start and update timestamps. It exists so the dashboard can show real CI data when credentials are configured, and is selected automatically by `getCicdProvider`.
 <!-- /fill:sym:createGithubActionsProvider:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| token | `string` | — | yes | <FILL: purpose of token> |
-| repo | `string` | — | yes | <FILL: purpose of repo> |
+| token | `string` | — | yes | GitHub access token sent as the `Authorization: Bearer` header for the Actions API. |
+| repo | `string` | — | yes | The `owner/repo` slug whose workflow runs are fetched (interpolated into the API URL). |
 
 **Returns:** `CicdProvider`
 
 <!-- fill:sym:createGithubActionsProvider:return -->
-<FILL: describe the return value of createGithubActionsProvider — what it represents, when it can be null/undefined, units.>
+A `CicdProvider` with `name: 'github-actions'` and an async `listPipelines()` that resolves to a `Pipeline[]` derived from the live API. The factory itself always returns an object (never null), but `listPipelines()` performs a network call and will reject with an `Error` (`"GitHub Actions API responded <status>"`) when the API responds with a non-2xx status.
 <!-- /fill:sym:createGithubActionsProvider:return -->
 
 ### Line-by-line walkthrough
@@ -223,13 +238,21 @@ return {
 ```
 
 <!-- fill:sym:createGithubActionsProvider:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the provider literal. Its `listPipelines` awaits a `fetch` to `https://api.github.com/repos/${repo}/actions/runs?per_page=20`, sending the bearer `token` plus the GitHub-recommended `Accept` and `X-GitHub-Api-Version` headers. If `res.ok` is false it throws an `Error` carrying the HTTP status, so failures surface to the caller rather than producing a malformed list. On success it parses the JSON as `GithubRunsResponse` and maps each `workflow_runs` entry through `githubRunToPipeline` to produce the normalized `Pipeline[]`.
 <!-- /fill:sym:createGithubActionsProvider:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:createGithubActionsProvider:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```ts
+const provider = createGithubActionsProvider(
+  process.env.GITHUB_TOKEN!,
+  'snabbit/changelog-automation',
+)
+provider.name // => 'github-actions'
+const pipelines = await provider.listPipelines() // live call to GitHub Actions
+// throws Error('GitHub Actions API responded 401') if the token is invalid
+```
 <!-- /fill:sym:createGithubActionsProvider:example -->
 
 ## getCicdProvider
@@ -249,12 +272,12 @@ export function getCicdProvider(env: {
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | <FILL: purpose of env> |
+| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | Resolved configuration (typically from `config.ts`) whose `githubToken`/`githubRepo` decide which provider is returned. |
 
 **Returns:** `CicdProvider`
 
 <!-- fill:sym:getCicdProvider:return -->
-<FILL: describe the return value of getCicdProvider — what it represents, when it can be null/undefined, units.>
+A `CicdProvider`: the live GitHub Actions provider when both `githubToken` and `githubRepo` are non-empty, otherwise the mock provider. It always returns a usable provider and never null/undefined, so callers can unconditionally call `listPipelines()`.
 <!-- /fill:sym:getCicdProvider:return -->
 
 ### Line-by-line walkthrough
@@ -270,7 +293,7 @@ if (env.githubToken && env.githubRepo) {
 ```
 
 <!-- fill:sym:getCicdProvider:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Checks whether both credentials are present. `env.githubToken && env.githubRepo` is truthy only when neither is an empty string (the defaults from `config.ts`), in which case it returns `createGithubActionsProvider(env.githubToken, env.githubRepo)` and the live provider is used. The early return means the mock fallback below is skipped.
 <!-- /fill:sym:getCicdProvider:walk:0 -->
 
 **Line 160 — `ReturnStatement`**
@@ -280,13 +303,22 @@ return createMockCicdProvider()
 ```
 
 <!-- fill:sym:getCicdProvider:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The default fallback: when one or both credentials are missing, returns `createMockCicdProvider()` so the app still serves deterministic pipeline data with zero configuration.
 <!-- /fill:sym:getCicdProvider:walk:1 -->
 
 ### Examples
 
 <!-- fill:sym:getCicdProvider:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```ts
+// No credentials -> mock provider
+getCicdProvider({ githubToken: '' }).name // => 'mock'
+
+// Both credentials present -> live provider
+getCicdProvider({
+  githubToken: 'ghp_xxx',
+  githubRepo: 'snabbit/changelog-automation',
+}).name // => 'github-actions'
+```
 <!-- /fill:sym:getCicdProvider:example -->
 
 ### Used by
@@ -303,7 +335,7 @@ export type PipelineStatus = 'passing' | 'failing' | 'running'
 ```
 
 <!-- fill:sym:PipelineStatus:summary -->
-<FILL: 2-4 sentences explaining what PipelineStatus does and why it exists. Ground every claim in the signature and source.>
+A string-literal union of the three lifecycle states a pipeline can be in: `'passing'`, `'failing'`, or `'running'`. It constrains the `status` field of `Pipeline` to a closed set, which lets `summarizePipelines` exhaustively count each state and `githubRunToPipeline` map raw GitHub statuses onto a normalized value.
 <!-- /fill:sym:PipelineStatus:summary -->
 
 ### Used by
@@ -319,21 +351,21 @@ export interface Pipeline { ... }
 ```
 
 <!-- fill:sym:Pipeline:summary -->
-<FILL: 2-4 sentences explaining what Pipeline does and why it exists. Ground every claim in the signature and source.>
+The normalized shape of a single CI/CD run as exposed by the API, independent of which provider produced it. Both `createMockCicdProvider` and `createGithubActionsProvider` emit objects of this shape so downstream code (`summarizePipelines`, routes, tests) never has to know the underlying source. It carries identity, branch, status, duration, who triggered it, and a last-updated timestamp.
 <!-- /fill:sym:Pipeline:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Unique pipeline/run identifier (the GitHub run id, stringified, for live runs). |
+| name | `string` | Human-readable pipeline name (workflow name or display title). |
+| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run. |
+| branch | `string` | The branch the run executed against; `'unknown'` when not reported. |
+| status | `PipelineStatus` | Current lifecycle state: passing, failing, or running. |
+| durationSeconds | `number` | Elapsed run time in seconds, clamped to a non-negative integer. |
+| triggeredBy | `string` | Login of the user or bot that triggered the run; `'unknown'` if absent. |
+| updatedAt | `string` | ISO-8601 timestamp of the run's last update. |
 
 ### Used by
 
@@ -348,17 +380,17 @@ export interface PipelineSummary { ... }
 ```
 
 <!-- fill:sym:PipelineSummary:summary -->
-<FILL: 2-4 sentences explaining what PipelineSummary does and why it exists. Ground every claim in the signature and source.>
+The aggregate produced by `summarizePipelines`: a count of total pipelines, per-status counts, and a derived pass rate. It exists to give the dashboard headline metrics without re-scanning the full pipeline list on the client.
 <!-- /fill:sym:PipelineSummary:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
+| total | `number` | Total number of pipelines in the input list. |
+| passing | `number` | Count of pipelines with status `'passing'`. |
+| failing | `number` | Count of pipelines with status `'failing'`. |
+| running | `number` | Count of pipelines still `'running'` (excluded from the pass rate). |
 | passRate | `number` | Pass rate over finished (passing + failing) pipelines, 0–100. |
 
 ## CicdProvider
@@ -370,14 +402,14 @@ export interface CicdProvider { ... }
 ```
 
 <!-- fill:sym:CicdProvider:summary -->
-<FILL: 2-4 sentences explaining what CicdProvider does and why it exists. Ground every claim in the signature and source.>
+The provider contract that decouples the rest of the app from any specific CI system. It requires a `readonly name` for identification and an async `listPipelines(): Promise<Pipeline[]>` method. Both the mock and the GitHub Actions implementations satisfy it, so `app.ts` and the routes can depend on the interface and let `getCicdProvider` decide which concrete provider is wired in.
 <!-- /fill:sym:CicdProvider:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | `string` | <FILL: name> |
+| name | `string` | Identifier of the active provider (`'mock'` or `'github-actions'`). |
 
 ### Used by
 
@@ -386,7 +418,22 @@ export interface CicdProvider { ... }
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+Provider selection and the live `listPipelines` call:
+
+```mermaid
+flowchart TD
+  A[getCicdProvider env] --> B{githubToken AND githubRepo?}
+  B -- yes --> C[createGithubActionsProvider]
+  B -- no --> D[createMockCicdProvider]
+  C --> E[listPipelines]
+  D --> F[listPipelines -> buildMockPipelines]
+  E --> G[fetch GitHub Actions runs]
+  G --> H{res.ok?}
+  H -- no --> I[throw Error status]
+  H -- yes --> J[map githubRunToPipeline]
+  J --> K[Pipeline array]
+  F --> K
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

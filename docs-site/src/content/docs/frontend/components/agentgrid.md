@@ -6,7 +6,7 @@ description: Reference for `src/components/AgentGrid.tsx`
 **File:** `src/components/AgentGrid.tsx` · **Lines:** 100
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/AgentGrid.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`AgentGrid.tsx` is the interactive agent browser: it owns the category tab, sort order, search query, and selection state, then renders the matching agents as a responsive grid of `AgentCard`s. It composes the pure helpers `filterAgents` and `sortAgents` (with `SORT_LABELS`/`SortKey`) from `../lib`, persists the category and sort across reloads via `usePersistentState`, and uses `AGENT_CATEGORIES` from `../data/agents` to build its tab list and `IconSearch` for the filter input. It is mounted by `App.tsx` with the full `agents` array and is exercised by `AgentGrid.test.tsx`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -43,14 +43,14 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 ```
 
 <!-- fill:sym:AgentGrid:summary -->
-<FILL: 2-4 sentences explaining what AgentGrid does and why it exists. Ground every claim in the signature and source.>
+`AgentGrid` takes the full `agents` array and lets the user narrow and reorder it through a category tab strip, a sort `<select>`, and a search input. It derives a memoized `visible` list by piping the agents through `filterAgents` (by query and category) and then `sortAgents` (by the chosen `SortKey`), and renders each result as a selectable `AgentCard`. When nothing matches it shows a dashed empty-state panel that echoes the active query. The category and sort choices live in `usePersistentState` so they survive reloads, while the transient query and selection use plain `useState`.
 <!-- /fill:sym:AgentGrid:summary -->
 
 ### Props
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+| agents | `Agent[]` | yes | The complete pool of agents to filter, sort, and render as cards. |
 
 ### Line-by-line walkthrough
 
@@ -66,7 +66,7 @@ const [category, setCategory] = usePersistentState<string>(
 ```
 
 <!-- fill:sym:AgentGrid:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the active category tab as `[category, setCategory]` via `usePersistentState<string>`, keyed by `'snabbit.agentGrid.category'` and defaulting to `'All'`. Using the persistent hook rather than `useState` means the chosen tab is written to storage and restored on the next mount, so the user's filter survives reloads and remounts.
 <!-- /fill:sym:AgentGrid:walk:0 -->
 
 **Line 18 — `FirstStatement`**
@@ -79,7 +79,7 @@ const [sort, setSort] = usePersistentState<SortKey>(
 ```
 
 <!-- fill:sym:AgentGrid:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the sort order as `[sort, setSort]` via `usePersistentState<SortKey>`, keyed by `'snabbit.agentGrid.sort'` and defaulting to `'runs'`. Typing the state as `SortKey` ties it to the keys of `SORT_LABELS`, and persisting it keeps the user's preferred ordering across sessions just like the category.
 <!-- /fill:sym:AgentGrid:walk:1 -->
 
 **Line 22 — `FirstStatement`**
@@ -89,7 +89,7 @@ const [query, setQuery] = useState('')
 ```
 
 <!-- fill:sym:AgentGrid:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the search text as `[query, setQuery]` with plain `useState('')`. Unlike the category and sort, the query is intentionally transient — it starts empty on every mount and is not persisted, since a stale search box would be confusing on reload.
 <!-- /fill:sym:AgentGrid:walk:2 -->
 
 **Line 23 — `FirstStatement`**
@@ -99,7 +99,7 @@ const [selectedId, setSelectedId] = useState<string | null>(null)
 ```
 
 <!-- fill:sym:AgentGrid:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares `[selectedId, setSelectedId]` as `useState<string | null>(null)`, tracking which card is currently selected. It starts `null` (nothing selected); each `AgentCard` compares its own `agent.id` against this value and calls `setSelectedId` on click. It is local, transient state rather than persisted because selection is a UI focus, not a saved preference.
 <!-- /fill:sym:AgentGrid:walk:3 -->
 
 **Line 25 — `FirstStatement`**
@@ -112,7 +112,7 @@ const visible = useMemo(
 ```
 
 <!-- fill:sym:AgentGrid:walk:4 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Computes the `visible` list inside `useMemo`: it first calls `filterAgents(agents, { query, category })` to drop non-matching agents, then pipes that into `sortAgents(..., sort)` to order them. The dependency array `[agents, query, category, sort]` means the (potentially expensive) filter-then-sort only re-runs when one of those inputs changes, avoiding redundant recomputation on unrelated re-renders such as selecting a card.
 <!-- /fill:sym:AgentGrid:walk:4 -->
 
 **Line 30 — `ReturnStatement`**
@@ -190,13 +190,21 @@ return (
 ```
 
 <!-- fill:sym:AgentGrid:walk:5 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the UI. A header shows the title with the live `visible.length` count. The tab strip maps over `TABS` (`'All'`, `'Popular'`, plus the spread `AGENT_CATEGORIES`), rendering a button per tab whose `onClick` calls `setCategory(tab)` and whose `aria-pressed`/active styling reflect `category === tab`. The sort `<select>` is bound to `sort`, lists every `SORT_LABELS` entry as an `<option>`, and casts the changed value to `SortKey` in `setSort`. The search `<label>` wraps `IconSearch` and a controlled `<input>` bound to `query`/`setQuery`. Finally, the conditional renders the responsive `grid` of `AgentCard`s when `visible.length > 0` — each card marked `selected` when its id equals `selectedId` and wired to `setSelectedId` — otherwise it renders the dashed empty-state panel, interpolating the active `query` into the "No agents match" message.
 <!-- /fill:sym:AgentGrid:walk:5 -->
 
 ### Examples
 
 <!-- fill:sym:AgentGrid:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import AgentGrid from './components/AgentGrid'
+import { agents } from './data/agents'
+
+// In App.tsx — pass the full pool; the grid handles filtering, sorting, and selection.
+<AgentGrid agents={agents} />
+```
+
+With this input the grid renders one `AgentCard` per agent (the test "renders a card for every agent" asserts exactly that), then narrows the list as the user types in the filter or clicks a category tab.
 <!-- /fill:sym:AgentGrid:example -->
 
 ### Used by
@@ -208,18 +216,30 @@ return (
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
-| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
-| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
-| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
-| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
+| <AgentGrid /> | renders a card for every agent | One card is rendered per agent in the supplied array. |
+| <AgentGrid /> | filters agents by the search query | Typing in the filter input narrows the cards to those matching the query. |
+| <AgentGrid /> | shows an empty state when nothing matches | A no-results message appears, echoing the query, when the filter excludes everything. |
+| <AgentGrid /> | filters agents by category tab | Clicking a category tab restricts visible cards to that category. |
+| <AgentGrid /> | marks a card as selected when clicked | The clicked card reflects selected state (accent styling / aria-pressed). |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Changing the sort reorders but does not drop any cards. |
+| <AgentGrid /> | remembers the selected category across remounts | The persisted category is restored after the component unmounts and remounts. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  A[agents prop] --> M{useMemo}
+  Q[query state] --> M
+  C[category state] --> M
+  S[sort state] --> M
+  M --> F[filterAgents by query + category]
+  F --> O[sortAgents by SortKey]
+  O --> V[visible list]
+  V --> D{visible.length > 0?}
+  D -->|yes| G[render grid of AgentCard]
+  D -->|no| E[render empty state with query]
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

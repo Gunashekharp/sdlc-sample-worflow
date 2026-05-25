@@ -6,7 +6,7 @@ description: Reference for `src/lib/api.ts`
 **File:** `src/lib/api.ts` · **Lines:** 44
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `lib/api.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module is the typed HTTP client for the Snabbit Agent Console API. It defines the wire-format types (`Pipeline`, `PipelineSummary`, `PipelinesResponse`) and exposes `fetchPipelines`, the single network call into the `/api/pipelines` endpoint. The base URL is read once from the `VITE_API_URL` env var (falling back to `http://localhost:3001`). `PipelinesPanel.tsx` is the only consumer; it drives `fetchPipelines` through the `useFetch` hook so that loading, error, and abort handling are managed for it.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -32,19 +32,19 @@ export async function fetchPipelines(
 ```
 
 <!-- fill:sym:fetchPipelines:summary -->
-<FILL: 2-4 sentences explaining what fetchPipelines does and why it exists. Ground every claim in the signature and source.>
+`fetchPipelines` performs a `GET` against `${API_URL}/api/pipelines` and resolves to a typed `PipelinesResponse`. It exists to centralize the one network call the dashboard needs, so callers never construct URLs or parse JSON themselves. It accepts an optional `AbortSignal` so an in-flight request can be cancelled, and it throws on any non-2xx response rather than returning a partial result.
 <!-- /fill:sym:fetchPipelines:summary -->
 
 ### Parameters
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| signal | `AbortSignal` | — | no | <FILL: purpose of signal> |
+| signal | `AbortSignal` | — | no | Optional signal forwarded to `fetch` so the request can be aborted (e.g. on unmount or reload). |
 
 **Returns:** `Promise<PipelinesResponse>`
 
 <!-- fill:sym:fetchPipelines:return -->
-<FILL: describe the return value of fetchPipelines — what it represents, when it can be null/undefined, units.>
+A `Promise` that resolves to a `PipelinesResponse` — the parsed JSON body containing the provider name, aggregate `summary`, and the full `pipelines` array. It never resolves to `null`: if the response status is not OK the promise rejects with an `Error` carrying the status code, and if the request is aborted the promise rejects with the abort error from `fetch`.
 <!-- /fill:sym:fetchPipelines:return -->
 
 ### Line-by-line walkthrough
@@ -58,7 +58,7 @@ const res = await fetch(`${API_URL}/api/pipelines`, { signal })
 ```
 
 <!-- fill:sym:fetchPipelines:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Issues the network request with `fetch`, building the URL from the module-level `API_URL` constant and the `/api/pipelines` path, and forwarding the caller's `signal` in the options object so the request participates in abort handling. `await` suspends until the response headers arrive, binding the resulting `Response` to `res`.
 <!-- /fill:sym:fetchPipelines:walk:0 -->
 
 **Line 39 — `IfStatement`**
@@ -70,7 +70,7 @@ if (!res.ok) {
 ```
 
 <!-- fill:sym:fetchPipelines:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+`fetch` only rejects on network failure, not on HTTP error status, so this guard inspects `res.ok` and throws an `Error` for any non-2xx response. The message interpolates `res.status` so callers (and the `useFetch` error state) get a meaningful "API responded 500"-style string instead of silently treating an error body as valid data.
 <!-- /fill:sym:fetchPipelines:walk:1 -->
 
 **Line 42 — `ReturnStatement`**
@@ -80,13 +80,31 @@ return res.json() as Promise<PipelinesResponse>
 ```
 
 <!-- fill:sym:fetchPipelines:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Parses the response body as JSON and returns the resulting promise. The `as Promise<PipelinesResponse>` assertion tells TypeScript to treat the otherwise-`any` JSON as the typed response; it is a compile-time cast only, so the shape is trusted rather than validated at runtime.
 <!-- /fill:sym:fetchPipelines:walk:2 -->
 
 ### Examples
 
 <!-- fill:sym:fetchPipelines:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+Typically called indirectly through `useFetch`, which supplies the abort signal:
+
+```ts
+const { data, loading, error, reload } = useFetch(fetchPipelines)
+// data === null while loading; on success:
+// {
+//   provider: 'github-actions',
+//   summary: { total: 12, passing: 9, failing: 2, running: 1, passRate: 0.75 },
+//   pipelines: [ /* Pipeline[] */ ],
+// }
+```
+
+Called directly with manual cancellation:
+
+```ts
+const controller = new AbortController()
+const response = await fetchPipelines(controller.signal)
+console.log(response.summary.passRate) // e.g. 0.75
+```
 <!-- /fill:sym:fetchPipelines:example -->
 
 ### Used by
@@ -102,7 +120,7 @@ export type PipelineStatus = 'passing' | 'failing' | 'running'
 ```
 
 <!-- fill:sym:PipelineStatus:summary -->
-<FILL: 2-4 sentences explaining what PipelineStatus does and why it exists. Ground every claim in the signature and source.>
+`PipelineStatus` is a string-literal union enumerating the three states a pipeline run can be in: `'passing'`, `'failing'`, or `'running'`. It exists to keep the `status` field on `Pipeline` constrained to known values so the UI can map each state to a colour or badge without handling arbitrary strings.
 <!-- /fill:sym:PipelineStatus:summary -->
 
 ## Pipeline
@@ -114,21 +132,21 @@ export interface Pipeline { ... }
 ```
 
 <!-- fill:sym:Pipeline:summary -->
-<FILL: 2-4 sentences explaining what Pipeline does and why it exists. Ground every claim in the signature and source.>
+`Pipeline` describes a single CI/CD pipeline run as returned by the API. It carries identity (`id`, `name`), the source provider and branch, the current `status`, how long the run took, who triggered it, and when it was last updated. It is the element type of the `pipelines` array in `PipelinesResponse` and is rendered row-by-row in `PipelinesPanel.tsx`.
 <!-- /fill:sym:Pipeline:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Stable unique identifier for the pipeline run, used as the React list key. |
+| name | `string` | Human-readable pipeline name shown in the UI. |
+| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run. |
+| branch | `string` | Git branch the run was executed against. |
+| status | `PipelineStatus` | Current run state: passing, failing, or running. |
+| durationSeconds | `number` | Wall-clock duration of the run in seconds. |
+| triggeredBy | `string` | Identity (user or event) that initiated the run. |
+| updatedAt | `string` | ISO timestamp of the last status update. |
 
 ### Used by
 
@@ -143,18 +161,18 @@ export interface PipelineSummary { ... }
 ```
 
 <!-- fill:sym:PipelineSummary:summary -->
-<FILL: 2-4 sentences explaining what PipelineSummary does and why it exists. Ground every claim in the signature and source.>
+`PipelineSummary` holds the pre-aggregated counts for a set of pipelines: the `total`, how many are `passing`/`failing`/`running`, and the derived `passRate`. It exists so the dashboard can show headline metrics without recomputing them client-side. It is the type of the `summary` field on `PipelinesResponse`.
 <!-- /fill:sym:PipelineSummary:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
-| passRate | `number` | <FILL: passRate> |
+| total | `number` | Total number of pipelines in the response. |
+| passing | `number` | Count of pipelines currently passing. |
+| failing | `number` | Count of pipelines currently failing. |
+| running | `number` | Count of pipelines currently running. |
+| passRate | `number` | Fraction of pipelines passing (0–1). |
 
 ## PipelinesResponse
 
@@ -165,21 +183,35 @@ export interface PipelinesResponse { ... }
 ```
 
 <!-- fill:sym:PipelinesResponse:summary -->
-<FILL: 2-4 sentences explaining what PipelinesResponse does and why it exists. Ground every claim in the signature and source.>
+`PipelinesResponse` is the top-level shape of the `/api/pipelines` JSON body and the resolved value of `fetchPipelines`. It bundles the `provider` string, the aggregate `summary`, and the full `pipelines` array so a single request gives the panel both headline metrics and the per-run detail it renders.
 <!-- /fill:sym:PipelinesResponse:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| provider | `string` | <FILL: provider> |
-| summary | `PipelineSummary` | <FILL: summary> |
-| pipelines | `Pipeline[]` | <FILL: pipelines> |
+| provider | `string` | Name of the CI provider the data was sourced from. |
+| summary | `PipelineSummary` | Aggregate pass/fail/running counts and pass rate. |
+| pipelines | `Pipeline[]` | The individual pipeline runs. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+sequenceDiagram
+  participant Caller
+  participant fetchPipelines
+  participant API as /api/pipelines
+  Caller->>fetchPipelines: fetchPipelines(signal?)
+  fetchPipelines->>API: fetch(API_URL/api/pipelines, { signal })
+  API-->>fetchPipelines: Response
+  alt res.ok
+    fetchPipelines->>API: res.json()
+    fetchPipelines-->>Caller: PipelinesResponse
+  else not ok
+    fetchPipelines-->>Caller: throw Error("API responded {status}")
+  end
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

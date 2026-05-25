@@ -6,7 +6,7 @@ description: Reference for `server/src/config.ts`
 **File:** `server/src/config.ts` · **Lines:** 14
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `config.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This file centralizes the backend's runtime configuration, reading each value from an environment variable with a sensible default so local development is zero-config. It exposes a single `config` object with `port`, `databaseUrl`, `githubToken`, and `githubRepo`. `index.ts` reads `config.port` and the GitHub credentials to start the server and choose the CI/CD provider, and `db/setup.ts` reads `config.databaseUrl` to connect to Postgres.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -26,7 +26,7 @@ const config: { port: number; databaseUrl: any; githubToken: any; githubRepo: an
 ```
 
 <!-- fill:sym:config:summary -->
-<FILL: 2-4 sentences explaining what config does and why it exists. Ground every claim in the signature and source.>
+A frozen-style object literal of resolved settings. `port` is `process.env.PORT` coerced with `Number`, defaulting to `3001`; `databaseUrl` falls back to `postgres://localhost:5432/snabbit_dash`; and `githubToken`/`githubRepo` default to empty strings. The empty-string defaults are deliberate: when both are set the CI/CD adapter goes live, and when either is blank `getCicdProvider` falls back to the mock provider.
 <!-- /fill:sym:config:summary -->
 
 ### Used by
@@ -37,7 +37,7 @@ const config: { port: number; databaseUrl: any; githubToken: any; githubRepo: an
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

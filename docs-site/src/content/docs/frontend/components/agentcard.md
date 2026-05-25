@@ -6,7 +6,7 @@ description: Reference for `src/components/AgentCard.tsx`
 **File:** `src/components/AgentCard.tsx` · **Lines:** 38
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/AgentCard.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`AgentCard.tsx` renders a single agent as a clickable card showing its status, name, category, description, and a row of usage metrics. It consumes the `Agent` type from `../data/agents` and delegates the colored status indicator to `StatusDot`. It is rendered in a grid by `AgentGrid`, which supplies the `agent`, `selected`, and `onSelect` props for each item.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -36,16 +36,16 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 ```
 
 <!-- fill:sym:AgentCard:summary -->
-<FILL: 2-4 sentences explaining what AgentCard does and why it exists. Ground every claim in the signature and source.>
+`AgentCard` is a presentational component that displays one `Agent` as a selectable button. It surfaces the agent's status dot, name, category badge, two-line clamped description, and a footer with weekly runs, success rate, and last-run time. Clicking the card invokes `onSelect(agent.id)`, and the `selected` flag toggles accent border/ring styling and the `aria-pressed` state so the active card is visually and assistively distinguished.
 <!-- /fill:sym:AgentCard:summary -->
 
 ### Props
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
-| selected | `boolean` | yes | <FILL: what does selected control?> |
-| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
+| agent | `Agent` | yes | The agent record whose status, name, category, description, and metrics are displayed. |
+| selected | `boolean` | yes | Whether this card is the currently chosen one; drives accent styling and `aria-pressed`. |
+| onSelect | `(id: string) => void` | yes | Callback fired with `agent.id` when the card is clicked, letting the parent track selection. |
 
 ### Line-by-line walkthrough
 
@@ -83,13 +83,21 @@ return (
 ```
 
 <!-- fill:sym:AgentCard:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The component's single statement returns a `<button type="button">` whose `onClick` arrow calls `onSelect(agent.id)`, reporting the selection upward without managing any local state. `aria-pressed={selected}` exposes toggle state to assistive tech, and the template-literal `className` swaps between an accent border/ring when `selected` and a muted hover style otherwise. Inside, a header row places a `StatusDot` next to the truncated `agent.name` and a right-aligned `agent.category` badge; `agent.description` is shown with `line-clamp-2`; and a `mt-auto` footer pins the monospaced metrics — `agent.runsPerWeek.toLocaleString()` (thousands-separated), `agent.successRate`%, and `agent.lastRun` — to the bottom so equal-height cards align in the grid.
 <!-- /fill:sym:AgentCard:walk:0 -->
 
 ### Examples
 
 <!-- fill:sym:AgentCard:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+<AgentCard
+  agent={agent}
+  selected={agent.id === selectedId}
+  onSelect={setSelectedId}
+/>
+```
+
+This mirrors how `AgentGrid` maps over its `visible` agents: each card receives one agent, marks itself selected when its `id` matches the grid's `selectedId`, and calls `setSelectedId` on click.
 <!-- /fill:sym:AgentCard:example -->
 
 ### Used by
@@ -99,7 +107,7 @@ return (
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source

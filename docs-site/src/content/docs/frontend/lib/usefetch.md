@@ -6,7 +6,7 @@ description: Reference for `src/lib/useFetch.ts`
 **File:** `src/lib/useFetch.ts` · **Lines:** 47
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `lib/useFetch.ts` is responsible for, what other files it integrates with, and what calls into it.>
+This module provides `useFetch`, a small generic React hook that runs an async `fetcher` on mount and exposes its `loading`/`error`/`data` state plus a `reload` callback, along with the `FetchState<T>` interface describing that shape. It wraps each call in an `AbortController` so in-flight requests are cancelled on unmount or reload, avoiding stale state updates. `PipelinesPanel.tsx` is the consumer, pairing it with `fetchPipelines` from `api.ts` to load pipeline data declaratively.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -45,12 +45,12 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | Async function that performs the request; receives an AbortSignal and must be referentially stable. |
 
 **Returns:** `FetchState<T>`
 
 <!-- fill:sym:useFetch:return -->
-<FILL: describe the return value of useFetch — what it represents, when it can be null/undefined, units.>
+A `FetchState<T>` object: `data` is the resolved result or `null` until the first success, `loading` is `true` while a request is in flight, `error` is the failure message string or `null`, and `reload` re-runs the fetcher. `data` stays `null` on error, and `error` is cleared (`null`) at the start of each new attempt. Note `data` is not reset to `null` on reload, so a previous result remains visible while the next request loads.
 <!-- /fill:sym:useFetch:return -->
 
 ### Line-by-line walkthrough
@@ -64,7 +64,7 @@ const [data, setData] = useState<T | null>(null)
 ```
 
 <!-- fill:sym:useFetch:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the `data` state, typed `T | null` and initialized to `null` because no result exists before the first fetch resolves. `setData` is called once the fetcher succeeds.
 <!-- /fill:sym:useFetch:walk:0 -->
 
 **Line 19 — `FirstStatement`**
@@ -74,7 +74,7 @@ const [loading, setLoading] = useState(true)
 ```
 
 <!-- fill:sym:useFetch:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the `loading` boolean state, initialized to `true` so the very first render already reflects the pending request that the mount effect is about to start — avoiding a flash of "no data" before loading begins.
 <!-- /fill:sym:useFetch:walk:1 -->
 
 **Line 20 — `FirstStatement`**
@@ -84,7 +84,7 @@ const [error, setError] = useState<string | null>(null)
 ```
 
 <!-- fill:sym:useFetch:walk:2 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares the `error` state, typed `string | null` and initialized to `null` (no error yet). On failure it holds the error message; the effect resets it to `null` at the start of each attempt so a prior error never lingers across a successful reload.
 <!-- /fill:sym:useFetch:walk:2 -->
 
 **Line 21 — `FirstStatement`**
@@ -94,7 +94,7 @@ const [nonce, setNonce] = useState(0)
 ```
 
 <!-- fill:sym:useFetch:walk:3 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Declares a `nonce` counter, initialized to `0`. Its only purpose is to act as an effect dependency: incrementing it forces the fetch effect to re-run, which is how `reload` triggers a refetch without changing the `fetcher` reference.
 <!-- /fill:sym:useFetch:walk:3 -->
 
 **Line 23 — `FirstStatement`**
@@ -104,7 +104,7 @@ const reload = useCallback(() => setNonce((n) => n + 1), [])
 ```
 
 <!-- fill:sym:useFetch:walk:4 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Defines `reload` as a `useCallback` with an empty dependency array, so the function identity is stable across renders. It bumps `nonce` via the functional updater `(n) => n + 1`, which retriggers the fetch effect. Memoizing it means consumers can safely pass `reload` to children or include it in their own deps without causing re-renders.
 <!-- /fill:sym:useFetch:walk:4 -->
 
 **Line 25 — `ExpressionStatement`**
@@ -132,7 +132,7 @@ useEffect(() => {
 ```
 
 <!-- fill:sym:useFetch:walk:5 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+The core effect. On each run it creates a fresh `AbortController`, flips `loading` to `true`, and clears any prior `error`. It then invokes `fetcher(controller.signal)`; on success it sets `data` and clears `loading`, on failure it stores the error message (`err.message` when `err` is an `Error`, else `'Request failed'`) and clears `loading`. Both handlers first check `controller.signal.aborted` and bail out early, so a cancelled request never writes stale state into an unmounted or superseded component. The cleanup function returned (`() => controller.abort()`) aborts the in-flight request whenever the effect re-runs or the component unmounts. The dependency array `[fetcher, nonce]` re-runs the effect when the fetcher reference changes or `reload` bumps `nonce` — which is why the docstring warns the fetcher must be referentially stable.
 <!-- /fill:sym:useFetch:walk:5 -->
 
 **Line 45 — `ReturnStatement`**
@@ -142,13 +142,25 @@ return { data, loading, error, reload }
 ```
 
 <!-- fill:sym:useFetch:walk:6 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the current `FetchState<T>` — the live `data`, `loading`, and `error` values plus the stable `reload` callback — so the consuming component can render the appropriate loading/error/data UI and trigger a refetch.
 <!-- /fill:sym:useFetch:walk:6 -->
 
 ### Examples
 
 <!-- fill:sym:useFetch:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+Pair it with the module-level `fetchPipelines` (a stable reference) from `api.ts`:
+
+```tsx
+function PipelinesPanel() {
+  const { data, loading, error, reload } = useFetch(fetchPipelines)
+
+  if (loading) return <Spinner />
+  if (error) return <button onClick={reload}>Retry ({error})</button>
+  return <PipelineList pipelines={data!.pipelines} />
+}
+```
+
+On mount `loading` is `true` and `data` is `null`; once `fetchPipelines` resolves, `data` holds the `PipelinesResponse` and `loading` becomes `false`. Calling `reload()` refetches.
 <!-- /fill:sym:useFetch:example -->
 
 ### Used by
@@ -164,22 +176,30 @@ export interface FetchState<T> { ... }
 ```
 
 <!-- fill:sym:FetchState:summary -->
-<FILL: 2-4 sentences explaining what FetchState does and why it exists. Ground every claim in the signature and source.>
+`FetchState<T>` is the return type of `useFetch`. It bundles the four pieces of async state a component needs — the resolved `data` (or `null`), a `loading` flag, an `error` message (or `null`), and a `reload` trigger — into one object so callers can destructure exactly what they render. The generic `T` flows through from the fetcher's resolved type.
 <!-- /fill:sym:FetchState:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | <FILL: data> |
-| loading | `boolean` | <FILL: loading> |
-| error | `string` | <FILL: error> |
-| reload | `() => void` | <FILL: reload> |
+| data | `T` | The resolved fetch result, or `null` before the first success. |
+| loading | `boolean` | `true` while a request is in flight. |
+| error | `string` | Failure message, or `null` when there is no error. |
+| reload | `() => void` | Re-runs the fetcher to refresh the data. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+stateDiagram-v2
+  [*] --> Loading: mount (loading=true)
+  Loading --> Loaded: fetcher resolves\n(setData, loading=false)
+  Loading --> Errored: fetcher rejects\n(setError, loading=false)
+  Loading --> [*]: unmount / reload\n(controller.abort, signal aborted -> no setState)
+  Loaded --> Loading: reload() bumps nonce
+  Errored --> Loading: reload() bumps nonce
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

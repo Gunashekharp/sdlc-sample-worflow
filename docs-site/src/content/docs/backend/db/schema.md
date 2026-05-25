@@ -32,7 +32,34 @@ const SCHEMA_SQL: "\nCREATE TABLE IF NOT EXISTS agents (\n id TEXT PRIMARY KEY,\
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+The two standalone tables defined by `SCHEMA_SQL` (there are no foreign keys between them):
+
+```mermaid
+erDiagram
+  agents {
+    TEXT id PK
+    TEXT name
+    TEXT category
+    TEXT description
+    TEXT status
+    INTEGER runs_per_week
+    INTEGER success_rate
+    TEXT avg_duration
+    TEXT last_run
+    INTEGER last_run_minutes
+    BOOLEAN popular
+  }
+  kpis {
+    TEXT id PK
+    INTEGER sort_order
+    TEXT label
+    TEXT value
+    TEXT delta
+    BOOLEAN positive
+    TEXT hint
+    JSONB trend
+  }
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

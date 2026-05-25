@@ -6,7 +6,7 @@ description: Reference for `src/components/PipelinesPanel.tsx`
 **File:** `src/components/PipelinesPanel.tsx` · **Lines:** 93
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `components/PipelinesPanel.tsx` is responsible for, what other files it integrates with, and what calls into it.>
+`PipelinesPanel.tsx` is the live CI/CD pipelines widget, fetching pipeline data from the backend and rendering it as a list with loading, error, and empty states plus a refresh button. It calls `fetchPipelines` (and uses the `Pipeline` type) from `../lib/api`, driving the request through the `useFetch` hook from `../lib/useFetch`. Local helpers (`STATUS_STYLES`, `formatDuration`, `PanelMessage`, `PipelineRow`) handle per-row presentation. It is mounted by `App.tsx` and tested in `PipelinesPanel.test.tsx`.
 <!-- /fill:file:summary -->
 
 ## Imports
@@ -49,7 +49,7 @@ const { data, loading, error, reload } = useFetch(fetchPipelines)
 ```
 
 <!-- fill:sym:PipelinesPanel:walk:0 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Destructures `{ data, loading, error, reload }` from `useFetch(fetchPipelines)`. The hook invokes the async `fetchPipelines` request (typically on mount), exposing the resolved payload as `data`, the in-flight flag as `loading`, any failure message as `error`, and a `reload` callback to re-run the request. Centralizing the async lifecycle in `useFetch` keeps this component free of manual `useEffect`/state plumbing.
 <!-- /fill:sym:PipelinesPanel:walk:0 -->
 
 **Line 49 — `ReturnStatement`**
@@ -101,13 +101,20 @@ return (
 ```
 
 <!-- fill:sym:PipelinesPanel:walk:1 -->
-<FILL: explain what this statement does. Reference variables, side effects, and why this exact construct was chosen.>
+Returns the panel. The header shows the "CI/CD pipelines" title; when `data` is present it appends a summary line (`data.summary.passRate`% pass rate, `data.summary.running` running, and `data.provider`), and a right-aligned "Refresh" button wires `onClick` to `reload`. The body is a sequence of mutually exclusive conditionals: `loading` shows a "Loading pipelines…" `PanelMessage`; `error && !loading` shows a reachability message interpolating `error`; `data && !loading && !error && data.pipelines.length === 0` shows "No recent pipeline runs."; and the success branch (`data.pipelines.length > 0`) renders a `<ul>` mapping each pipeline to a `PipelineRow`. The guard chain ensures exactly one state renders at a time.
 <!-- /fill:sym:PipelinesPanel:walk:1 -->
 
 ### Examples
 
 <!-- fill:sym:PipelinesPanel:example -->
-<FILL: at least one concrete input → output example. For components, a JSX usage snippet. For functions, an input + return value. Pull from tests when available so the example is real.>
+```tsx
+import PipelinesPanel from './components/PipelinesPanel'
+
+// Takes no props — it fetches its own data via useFetch(fetchPipelines).
+<PipelinesPanel />
+```
+
+On mount it shows "Loading pipelines…", then either lists the pipelines returned by the API (test "renders pipelines returned by the API") or, if the request fails, the error message asking whether the server is running on port 3001 (test "shows an error state when the API is unreachable").
 <!-- /fill:sym:PipelinesPanel:example -->
 
 ### Used by
@@ -119,13 +126,22 @@ return (
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
+| <PipelinesPanel /> | renders pipelines returned by the API | After the fetch resolves, the returned pipelines appear as rows. |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | A failed request renders the error message prompting to check the server on port 3001. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  M[useFetch fetchPipelines] --> S{state}
+  S -->|loading| L[Loading pipelines…]
+  S -->|error and not loading| E[API unreachable message]
+  S -->|data, no error, 0 pipelines| Z[No recent pipeline runs]
+  S -->|data, no error, >0 pipelines| R[render PipelineRow list]
+  R -.-> RF[Refresh button → reload]
+  RF --> M
+```
 <!-- /fill:file:diagrams -->
 
 ## Source

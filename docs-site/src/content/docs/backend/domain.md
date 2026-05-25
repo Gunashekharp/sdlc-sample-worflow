@@ -6,7 +6,7 @@ description: Reference for `server/src/domain.ts`
 **File:** `server/src/domain.ts` · **Lines:** 33
 
 <!-- fill:file:summary -->
-<FILL: 2-4 sentence plain-language summary of what `domain.ts` is responsible for, what other files it integrates with, and what calls into it.>
+`domain.ts` defines the core data types for the Snabbit Agent Console API: the `AgentStatus` and `AgentCategory` string unions and the `Agent` and `Kpi` interfaces. These shapes are designed to mirror exactly what the frontend expects, so the same vocabulary flows from the database through the API to the UI. They are consumed by `store.ts` (the `Store` interface and in-memory store), `postgresStore.ts` (which maps SQL rows into `Agent` and `Kpi`), and `seed.ts` (which provides the seed catalogue). This file is pure type declarations with no runtime logic.
 <!-- /fill:file:summary -->
 
 ## Symbols
@@ -29,7 +29,7 @@ export type AgentStatus = 'running' | 'idle' | 'attention'
 ```
 
 <!-- fill:sym:AgentStatus:summary -->
-<FILL: 2-4 sentences explaining what AgentStatus does and why it exists. Ground every claim in the signature and source.>
+`AgentStatus` is a string-literal union restricting an agent's operational state to one of three values: `'running'`, `'idle'`, or `'attention'`. It exists to give the rest of the codebase a closed, type-checked vocabulary for agent state rather than an open `string`. `postgresStore.ts` casts the raw `status` text column to this type when mapping a database row into an `Agent`.
 <!-- /fill:sym:AgentStatus:summary -->
 
 ### Used by
@@ -45,7 +45,7 @@ export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'D
 ```
 
 <!-- fill:sym:AgentCategory:summary -->
-<FILL: 2-4 sentences explaining what AgentCategory does and why it exists. Ground every claim in the signature and source.>
+`AgentCategory` is a string-literal union that classifies an agent into one of five fixed buckets: `'Review'`, `'Deploy'`, `'Reliability'`, `'Quality'`, or `'Docs'`. It exists so categories are constrained to a known set the frontend can group and filter on, instead of arbitrary strings. `postgresStore.ts` casts the raw `category` text column to this type when building an `Agent` from a row.
 <!-- /fill:sym:AgentCategory:summary -->
 
 ### Used by
@@ -61,24 +61,24 @@ export interface Agent { ... }
 ```
 
 <!-- fill:sym:Agent:summary -->
-<FILL: 2-4 sentences explaining what Agent does and why it exists. Ground every claim in the signature and source.>
+`Agent` is the central record describing a single automation agent in the console, combining identity (`id`, `name`), classification (`category`, `status`), and a set of usage metrics (`runsPerWeek`, `successRate`, `avgDuration`, `lastRun`, `lastRunMinutes`, `popular`). It exists as the canonical shape returned by the `/api/agents` endpoints and consumed by the frontend. The `Store` interface in `store.ts` returns `Agent[]` and `Agent | null`, `postgresStore.ts` assembles it from an `AgentRow`, and `seed.ts` supplies a hard-coded catalogue of these objects.
 <!-- /fill:sym:Agent:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
-| runsPerWeek | `number` | <FILL: runsPerWeek> |
-| successRate | `number` | <FILL: successRate> |
-| avgDuration | `string` | <FILL: avgDuration> |
-| lastRun | `string` | <FILL: lastRun> |
-| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
-| popular | `boolean` | <FILL: popular> |
+| id | `string` | Stable unique identifier used to look the agent up (e.g. `'pr-reviewer'`). |
+| name | `string` | Human-readable display name shown in the UI (e.g. `'PR Reviewer'`). |
+| category | `AgentCategory` | One of the five fixed categories used to group and filter agents. |
+| description | `string` | Short free-text summary of what the agent does. |
+| status | `AgentStatus` | Current operational state: running, idle, or needing attention. |
+| runsPerWeek | `number` | How many times the agent runs in a typical week; also the default sort key. |
+| successRate | `number` | Fraction or percentage of runs that succeeded. |
+| avgDuration | `string` | Pre-formatted average run duration for display (e.g. `'2m 30s'`). |
+| lastRun | `string` | Pre-formatted timestamp/label of the most recent run for display. |
+| lastRunMinutes | `number` | Minutes elapsed since the last run, for numeric comparisons. |
+| popular | `boolean` | Whether the agent is flagged as popular/featured in the UI. |
 
 ### Used by
 
@@ -95,20 +95,20 @@ export interface Kpi { ... }
 ```
 
 <!-- fill:sym:Kpi:summary -->
-<FILL: 2-4 sentences explaining what Kpi does and why it exists. Ground every claim in the signature and source.>
+`Kpi` describes a single key-performance-indicator tile for the dashboard, pairing a `label` and pre-formatted `value` with a `delta`, a `positive` flag, a `hint`, and a `trend` array of points for a sparkline. It exists as the shape returned by the `/api/kpis` endpoint and rendered directly by the frontend KPI cards. The `KpiStore` interface in `store.ts` returns `Kpi[]`, `postgresStore.ts` builds it from a `KpiRow`, and `seed.ts` provides the seed list.
 <!-- /fill:sym:Kpi:summary -->
 
 ### Shape
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique identifier for the KPI tile. |
+| label | `string` | Human-readable name of the metric shown on the tile. |
+| value | `string` | Pre-formatted headline value for display (e.g. `'98%'`). |
+| delta | `string` | Pre-formatted change versus the previous period (e.g. `'+4%'`). |
+| positive | `boolean` | Whether the delta is favourable, used to colour the indicator. |
+| hint | `string` | Short explanatory tooltip/subtext for the metric. |
+| trend | `number[]` | Series of data points used to draw the sparkline. |
 
 ### Used by
 
@@ -119,7 +119,7 @@ export interface Kpi { ... }
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+
 <!-- /fill:file:diagrams -->
 
 ## Source
