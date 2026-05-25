@@ -43,7 +43,47 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    # Short-circuits the docs-bot whenever an in-flight PR is already
+    # touching the docs-toolchain or docs content. Without this, every
+    # docs-bot run on `main` would create a merge conflict on every open
+    # PR that wrote to docs-site/, forcing the PR author to manually
+    # rebase + re-resolve every time the bot fired (painful loop hit
+    # 4 times in the lead-up to this commit).
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.pr-guard.outputs.should_run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check for open PRs touching the docs paths
+        id: pr-guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PATHS_TO_CHECK="docs-site/src/content/docs scripts/docs .github/workflows/docs.yml"
+          OPEN_PRS=$(gh pr list --state open --base main --json number,headRefName,files --limit 50)
+          BLOCKER=$(echo "$OPEN_PRS" | python3 -c "
+          import json, sys
+          paths = '''$PATHS_TO_CHECK'''.split()
+          for pr in json.load(sys.stdin):
+              touched = {f['path'] for f in pr.get('files', [])}
+              for p in paths:
+                  if any(t == p or t.startswith(p + '/') for t in touched):
+                      print(f\"#{pr['number']} ({pr['headRefName']})\")
+                      sys.exit(0)
+          ")
+          if [ -n "$BLOCKER" ]; then
+            echo "::notice::Deferring docs-bot run — open PR $BLOCKER is touching the docs paths."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No open PR conflicts; proceeding."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

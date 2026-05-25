@@ -424,16 +424,16 @@ Provider selection and the live `listPipelines` call:
 
 ```mermaid
 flowchart TD
-  A[getCicdProvider env] --> B{githubToken AND githubRepo?}
-  B -- yes --> C[createGithubActionsProvider]
-  B -- no --> D[createMockCicdProvider]
-  C --> E[listPipelines]
-  D --> F[listPipelines -> buildMockPipelines]
-  E --> G[fetch GitHub Actions runs]
-  G --> H{res.ok?}
-  H -- no --> I[throw Error status]
-  H -- yes --> J[map githubRunToPipeline]
-  J --> K[Pipeline array]
+  A["getCicdProvider(env)"] --> B{"githubToken AND githubRepo?"}
+  B -->|"yes"| C["createGithubActionsProvider"]
+  B -->|"no"| D["createMockCicdProvider"]
+  C --> E["listPipelines()"]
+  D --> F["listPipelines() -&gt; buildMockPipelines()"]
+  E --> G["fetch GitHub Actions runs"]
+  G --> H{"res.ok?"}
+  H -->|"no"| I["throw Error(status)"]
+  H -->|"yes"| J["map githubRunToPipeline"]
+  J --> K["Pipeline array"]
   F --> K
 ```
 <!-- /fill:file:diagrams -->

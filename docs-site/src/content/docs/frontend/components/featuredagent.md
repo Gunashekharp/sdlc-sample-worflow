@@ -130,5 +130,29 @@ Given an agent, this renders the hero banner with that agent's name, a worded st
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+The diagram below shows how the `agent` prop feeds each part of the rendered hero banner.
+
+```mermaid
+flowchart TD
+  agent["agent: Agent"]
+  FeaturedAgent["FeaturedAgent"]
+  eyebrow["IconSparkle + Featured agent eyebrow"]
+  name["agent.name"]
+  pill["status pill: StatusDot + STATUS_LABEL"]
+  desc["agent.description"]
+  stats["dl of Stat: runsPerWeek, successRate, avgDuration, lastRun"]
+  cta["Run agent button + IconArrowUp"]
+
+  agent -->|"agent prop"| FeaturedAgent
+  FeaturedAgent --> eyebrow
+  FeaturedAgent --> name
+  FeaturedAgent --> pill
+  FeaturedAgent --> desc
+  FeaturedAgent --> stats
+  FeaturedAgent --> cta
+  agent --> name
+  agent -->|"status"| pill
+  agent --> desc
+  agent --> stats
+```
 <!-- /fill:file:diagrams -->

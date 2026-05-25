@@ -154,5 +154,38 @@ const AGENT_CATEGORIES: AgentCategory[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+The `Agent` interface ties together the two string-literal unions and is collected into the `AGENTS` seed array:
+
+```mermaid
+classDiagram
+    class Agent {
+        +string id
+        +string name
+        +AgentCategory category
+        +string description
+        +AgentStatus status
+        +number runsPerWeek
+        +number successRate
+        +string avgDuration
+        +string lastRun
+        +number lastRunMinutes
+        +boolean popular
+    }
+    class AgentStatus {
+        <<union>>
+        running
+        idle
+        attention
+    }
+    class AgentCategory {
+        <<union>>
+        Review
+        Deploy
+        Reliability
+        Quality
+        Docs
+    }
+    Agent --> AgentStatus : status
+    Agent --> AgentCategory : category
+```
 <!-- /fill:file:diagrams -->

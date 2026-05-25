@@ -156,5 +156,18 @@ export interface AgentFilter { ... }
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+flowchart TD
+  In["agents, filter"] --> Norm["query = filter.query.trim().toLowerCase()"]
+  Norm --> Each["for each agent"]
+  Each --> Cat{"matches category?"}
+  Cat -->|"no"| Drop["drop agent"]
+  Cat -->|"yes"| HasQ{"query empty?"}
+  HasQ -->|"yes"| Keep["keep agent"]
+  HasQ -->|"no"| Match{"name or description includes query?"}
+  Match -->|"yes"| Keep
+  Match -->|"no"| Drop
+  Keep --> Out["return filtered Agent[]"]
+  Drop --> Out
+```
 <!-- /fill:file:diagrams -->

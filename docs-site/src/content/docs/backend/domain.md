@@ -121,5 +121,39 @@ export interface Kpi { ... }
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+```mermaid
+classDiagram
+    class Agent {
+        +string id
+        +string name
+        +AgentCategory category
+        +string description
+        +AgentStatus status
+        +number runsPerWeek
+        +number successRate
+        +string avgDuration
+        +string lastRun
+        +number lastRunMinutes
+        +boolean popular
+    }
+    class Kpi {
+        +string id
+        +string label
+        +string value
+        +string delta
+        +boolean positive
+        +string hint
+        +number[] trend
+    }
+    class AgentStatus {
+        <<union>>
+        running | idle | attention
+    }
+    class AgentCategory {
+        <<union>>
+        Review | Deploy | Reliability | Quality | Docs
+    }
+    Agent ..> AgentStatus : status
+    Agent ..> AgentCategory : category
+```
 <!-- /fill:file:diagrams -->
