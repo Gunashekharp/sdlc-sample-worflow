@@ -195,6 +195,12 @@ return (
 Returns the UI. A header shows the title with the live `visible.length` count. The tab strip maps over `TABS` (`'All'`, `'Popular'`, plus the spread `AGENT_CATEGORIES`), rendering a button per tab whose `onClick` calls `setCategory(tab)` and whose `aria-pressed`/active styling reflect `category === tab`. The sort `<select>` is bound to `sort`, lists every `SORT_LABELS` entry as an `<option>`, and casts the changed value to `SortKey` in `setSort`. The search `<label>` wraps `IconSearch` and a controlled `<input>` bound to `query`/`setQuery`. Finally, the conditional renders the responsive `grid` of `AgentCard`s when `visible.length > 0` — each card marked `selected` when its id equals `selectedId` and wired to `setSelectedId` — otherwise it renders the dashed empty-state panel, interpolating the active `query` into the "No agents match" message.
 <!-- /fill:sym:AgentGrid:walk:5 -->
 
+### Behavior
+
+<!-- fill:sym:AgentGrid:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:AgentGrid:behavior -->
+
 ### Examples
 
 <!-- fill:sym:AgentGrid:example -->

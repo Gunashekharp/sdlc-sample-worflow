@@ -66,5 +66,5 @@ A static `Kpi[]` of four headline dashboard metrics — agent runs over 7 days, 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

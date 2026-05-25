@@ -55,6 +55,8 @@ function parseFillAnchors(content: string): Map<string, string> {
   while ((m = re.exec(content)) !== null) {
     const inner = m[2].trim()
     if (inner.startsWith('<FILL:') && inner.endsWith('>')) continue
+    // Empty content is treated as un-filled (same as extract-skeleton.ts).
+    if (inner === '') continue
     out.set(m[1], inner)
   }
   return out

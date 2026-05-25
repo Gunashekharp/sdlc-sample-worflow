@@ -88,6 +88,12 @@ return (
 The component's single statement returns a `<button type="button">` whose `onClick` arrow calls `onSelect(agent.id)`, reporting the selection upward without managing any local state. `aria-pressed={selected}` exposes toggle state to assistive tech, and the template-literal `className` swaps between an accent border/ring when `selected` and a muted hover style otherwise. Inside, a header row places a `StatusDot` next to the truncated `agent.name` and a right-aligned `agent.category` badge; `agent.description` is shown with `line-clamp-2`; and a `mt-auto` footer pins the monospaced metrics — `agent.runsPerWeek.toLocaleString()` (thousands-separated), `agent.successRate`%, and `agent.lastRun` — to the bottom so equal-height cards align in the grid.
 <!-- /fill:sym:AgentCard:walk:0 -->
 
+### Behavior
+
+<!-- fill:sym:AgentCard:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:AgentCard:behavior -->
+
 ### Examples
 
 <!-- fill:sym:AgentCard:example -->
@@ -109,5 +115,5 @@ This mirrors how `AgentGrid` maps over its `visible` agents: each card receives 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

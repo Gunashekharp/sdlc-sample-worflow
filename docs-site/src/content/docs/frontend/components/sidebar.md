@@ -133,6 +133,12 @@ return (
 The single return builds the `<aside>` rail (fixed `w-60`, non-shrinking, right border). Top to bottom: a workspace-switcher button with the "S" badge, "Snabbit / Agent Console" labels, and `IconChevronDown`; a "New session" button with `IconPlus` and a `⌘N` `<kbd>`; a `<nav>` that maps over `NAV`, destructuring `const Icon = item.icon` per entry so the icon component can be rendered as `<Icon>`, applying active styling and `aria-current={item.active ? 'page' : undefined}` based on `item.active`; a scrollable "Recent sessions" section that maps `RECENT_SESSIONS` to truncated buttons keyed by the session string; and a footer with the user avatar, name, and email. There is no state or data fetching — it renders the two module constants directly.
 <!-- /fill:sym:Sidebar:walk:0 -->
 
+### Behavior
+
+<!-- fill:sym:Sidebar:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:Sidebar:behavior -->
+
 ### Examples
 
 <!-- fill:sym:Sidebar:example -->
@@ -156,5 +162,5 @@ This renders the six `NAV` links (with "Dashboard" highlighted as active) and th
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

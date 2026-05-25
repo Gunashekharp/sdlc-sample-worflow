@@ -523,6 +523,12 @@ function parseFillAnchors(content: string): Map<string, string> {
     // Skip un-filled defaults so a regen with an updated default prompt
     // wins instead of cementing the old one.
     if (inner.startsWith('<FILL:') && inner.endsWith('>')) continue
+    // Empty content is treated as un-filled too. The LLM sometimes left
+    // diagram anchors blank when it decided the file was "trivial"; the
+    // right way to record that is a `:::note` line, not nothing at all.
+    // Treating empty as un-filled re-exposes the FILL prompt so the next
+    // LLM pass either writes a diagram or writes the explicit note.
+    if (inner === '') continue
     out.set(m[1], inner)
   }
   return out
@@ -732,6 +738,21 @@ function renderSymbol(sym: SymbolDoc, preserved?: Map<string, string>): string {
   }
   if (sym.walk && sym.walk.length) {
     lines.push(renderWalk(sym, preserved))
+  }
+  // For React components, the walkthrough is often one giant return
+  // statement, which under-documents the rendered structure. Add an
+  // anchored Behavior section so the LLM can break down the JSX, the
+  // event handlers, the accessibility wiring, and the styling rules —
+  // the things a reader actually wants to know about a UI component.
+  if (sym.kind === 'component') {
+    lines.push('### Behavior')
+    lines.push('')
+    lines.push(fillBlock(
+      `sym:${sym.name}:behavior`,
+      `walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.`,
+      preserved,
+    ))
+    lines.push('')
   }
   if (sym.kind === 'component' || sym.kind === 'hook' || sym.kind === 'function') {
     lines.push('### Examples')

@@ -103,6 +103,12 @@ return (
 The single return builds the banner. A relatively-positioned `<section>` holds an absolutely-positioned, `pointer-events-none` `<div>` whose inline `style` paints the diagonal accent-to-transparent gradient backdrop. Above it, a content column shows the `IconSparkle` "Featured agent" eyebrow, then an `<h2>` with `{agent.name}` followed by a pill combining `<StatusDot status={agent.status} />` and `{STATUS_LABEL[agent.status]}` to render the status in words. `{agent.description}` is shown, and the `<dl>` instantiates four `Stat` components — `agent.runsPerWeek.toLocaleString()`, `${agent.successRate}%`, `agent.avgDuration`, and `agent.lastRun`. A right-aligned, non-shrinking "Run agent" `<button>` with `IconArrowUp` completes the layout. There is no state or branching; the component is a pure function of `agent`.
 <!-- /fill:sym:FeaturedAgent:walk:0 -->
 
+### Behavior
+
+<!-- fill:sym:FeaturedAgent:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:FeaturedAgent:behavior -->
+
 ### Examples
 
 <!-- fill:sym:FeaturedAgent:example -->
@@ -124,5 +130,5 @@ Given an agent, this renders the hero banner with that agent's name, a worded st
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

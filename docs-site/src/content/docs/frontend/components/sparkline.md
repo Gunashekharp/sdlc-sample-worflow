@@ -154,6 +154,12 @@ return (
 Returns the SVG. The `viewBox` uses the computed `width`/`height`, `preserveAspectRatio="none"` lets it stretch freely to the CSS box, and `aria-hidden="true"` hides this purely decorative chart from screen readers. The `<polyline>` draws the `coords`, with `stroke` chosen by `positive` (`--color-ok` vs `--color-err`) and `vectorEffect="non-scaling-stroke"` so the 1.5-unit line keeps a constant pixel thickness despite the non-uniform scaling.
 <!-- /fill:sym:Sparkline:walk:8 -->
 
+### Behavior
+
+<!-- fill:sym:Sparkline:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:Sparkline:behavior -->
+
 ### Examples
 
 <!-- fill:sym:Sparkline:example -->

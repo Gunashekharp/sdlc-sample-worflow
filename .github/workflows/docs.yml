@@ -158,19 +158,38 @@ jobs:
               are. They are how the toolchain preserves your work across reruns.
 
             - In Markdown tables, some cells contain inline `<FILL: ...>` text
-              without anchors (for example the Purpose column in parameter tables,
-              the Description column in interface shape tables, the Asserts
-              column in the Tests table). Replace those inline FILL placeholders
-              with one-line descriptions. Do not add anchors around table cells —
-              they break the table renderer.
+              without anchors. You MUST replace EVERY one of these on EVERY
+              file you visit — this is non-negotiable. The complete list of
+              where they appear:
+                • Per-symbol Parameters table → `Purpose` column
+                • Per-component Props table → `Description` column
+                • Interface/class Shape/Members table → `Description` column
+                • Tests table → `Asserts` column
+                • Overview pages: section folder table → `Purpose` column
+                • Overview pages: file-list table → `Hint` column
+              Each cell needs one specific sentence (~10–25 words) grounded
+              in the actual code. "Controls X behaviour" is too vague — say
+              what X actually does. Do NOT add `<!-- fill:ID -->` anchors
+              around table cells; they break the table renderer.
 
             What you may write:
             - Plain prose explaining what code does and why it exists.
             - Mermaid diagrams ONLY inside fill anchors marked
               `<!-- fill:file:diagrams -->`. Use ```mermaid fenced blocks. Pick
               the right diagram type for the file: flowchart, sequenceDiagram,
-              stateDiagram-v2, classDiagram, or erDiagram. Skip the diagrams
-              section if the file is trivial — do not invent flow.
+              stateDiagram-v2, classDiagram, or erDiagram.
+              If the file is genuinely trivial and a diagram would be invented
+              flow rather than informative, fill the anchor with a one-line
+              `:::note` instead of leaving it empty. Example:
+                  <!-- fill:file:diagrams -->
+                  :::note
+                  Pure presentational component with a single return — no
+                  control flow worth diagramming.
+                  :::
+                  <!-- /fill:file:diagrams -->
+              An EMPTY diagrams anchor is treated as un-filled and you will
+              be re-prompted next run. Either draw the diagram or write the
+              explicit note.
             - Concrete examples in Examples sections. Pull from tests when
               available so the example reflects real call sites.
 

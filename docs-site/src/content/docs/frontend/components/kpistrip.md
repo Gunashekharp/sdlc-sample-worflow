@@ -66,6 +66,12 @@ return (
 The single return renders a `<section aria-label="Key metrics">` whose grid classes step from one column to two (`sm:`) to four (`lg:`). It maps over the imported `KPIS` array, rendering one `<KpiCard key={kpi.id} kpi={kpi} />` per metric. There is no local state — the data is static — so iterating the module-level constant is sufficient, and the `aria-label` names the region for assistive tech.
 <!-- /fill:sym:KpiStrip:walk:0 -->
 
+### Behavior
+
+<!-- fill:sym:KpiStrip:behavior -->
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+<!-- /fill:sym:KpiStrip:behavior -->
+
 ### Examples
 
 <!-- fill:sym:KpiStrip:example -->
@@ -86,5 +92,5 @@ This renders one card per entry in `KPIS`, each with its value, signed delta, tr
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->
