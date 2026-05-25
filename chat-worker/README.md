@@ -3,9 +3,10 @@
 The backend for the "Ask the docs" chat widget on the documentation site.
 
 It is a stateless Cloudflare Worker: it receives a question, keyword-searches
-the bundled docs index, asks **Cloudflare Workers AI** to answer using only the
-matched docs, and returns the answer plus source links. The conversation itself
-lives in the visitor's browser (session memory) — nothing is stored here.
+the bundled docs index, asks the **Anthropic API (Claude Haiku 4.5)** to answer
+using only the matched docs, and returns the answer plus source links. The
+conversation itself lives in the visitor's browser (session memory) — nothing
+is stored here.
 
 ## What's in here
 
@@ -13,23 +14,25 @@ lives in the visitor's browser (session memory) — nothing is stored here.
 |------|---------|
 | `build-index.mjs` | Reads the docs Markdown and produces `docs-index.json` |
 | `docs-index.json` | The search index the Worker uses (generated) |
-| `src/index.js` | The Worker — search + AI call + response |
-| `wrangler.toml` | Worker config, including the Workers AI binding |
+| `src/index.js` | The Worker — search + Anthropic API call + response |
+| `wrangler.toml` | Worker config |
 | `package.json` | Scripts: `index`, `dev`, `deploy` |
 
 ## Cost
 
 - **Hosting** — Cloudflare Workers free plan (100,000 requests/day).
-- **AI** — Cloudflare Workers AI free allowance (10,000 Neurons/day).
-- **No API key** — the AI is reached through the `AI` binding, which uses your
-  Cloudflare account directly. There is no key to manage or hide.
-
-Beyond the free daily allowance you'd need Cloudflare's paid plan.
+- **AI** — the Anthropic API is pay-as-you-go. Claude Haiku 4.5 is the
+  low-cost tier; each docs answer is a small request, so usage on a docs
+  site is typically modest. Set a spend limit in the Anthropic Console if
+  you want a hard cap.
+- **API key** — your Anthropic API key is stored as an encrypted Wrangler
+  secret on the Worker (`ANTHROPIC_API_KEY`). It is never committed to the
+  repo and never reaches the browser.
 
 ## Deploy — one time
 
-You need a free [Cloudflare account](https://dash.cloudflare.com/sign-up) and
-Node 18+.
+You need a free [Cloudflare account](https://dash.cloudflare.com/sign-up),
+an [Anthropic API key](https://console.anthropic.com/), and Node 18+.
 
 ```bash
 cd chat-worker
@@ -43,10 +46,17 @@ npx wrangler login
 
 # 3. Deploy the Worker
 npm run deploy
+
+# 4. Store your Anthropic API key as an encrypted secret
+#    (paste the key when prompted — it is not echoed)
+npx wrangler secret put ANTHROPIC_API_KEY
 ```
 
 Wrangler prints the deployed URL, e.g.
 `https://snabbit-docs-chatbot.<your-subdomain>.workers.dev`.
+
+The secret takes effect on the live Worker as soon as `secret put` finishes —
+no redeploy needed. If you ever rotate the key, just run step 4 again.
 
 ## Connect the widget
 
@@ -77,8 +87,8 @@ To automate this, run those two commands from a GitHub Action whenever
 ## Notes
 
 - **Model** — set by `MODEL` in `src/index.js`
-  (`@cf/meta/llama-3.1-8b-instruct`). Swap it for any other Workers AI text
-  model if you want.
+  (`claude-haiku-4-5-20251001`). Swap it for any other Anthropic model string
+  if you want a different speed/quality trade-off.
 - **CORS** is open (`*`) so the docs site can call the Worker. To lock it to
   your site only, set `Access-Control-Allow-Origin` in `src/index.js` to your
   Pages origin.
