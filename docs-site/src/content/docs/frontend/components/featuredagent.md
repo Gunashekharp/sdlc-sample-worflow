@@ -46,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
+| agent | `Agent` | yes | The agent to spotlight; supplies the name, status pill, description, and the four stat values rendered in the banner. |
 
 ### Line-by-line walkthrough
 
@@ -106,7 +106,13 @@ The single return builds the banner. A relatively-positioned `<section>` holds a
 ### Behavior
 
 <!-- fill:sym:FeaturedAgent:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- **Top-level element.** A `relative overflow-hidden` `<section>` is the card; an absolutely-positioned `pointer-events-none` `<div>` sits behind the content and paints the gradient via inline `style` (`linear-gradient(135deg, var(--color-accent-subtle), transparent 55%)`). `pointer-events-none` ensures the decorative layer never intercepts clicks.
+- **Responsive layout.** The content row is `flex flex-col gap-4 p-5 sm:flex-row sm:items-center`, stacking vertically on mobile and switching to a side-by-side hero on small screens and up.
+- **Eyebrow + heading.** An uppercase accent `<p>` pairs `IconSparkle` with the text "Featured agent"; the `<h2>` renders `{agent.name}` next to a rounded status pill.
+- **Status pill.** The pill nests `<StatusDot status={agent.status} />` (the colored/pulsing dot) with `{STATUS_LABEL[agent.status]}`, turning the enum into a readable word like "Running" or "Needs attention".
+- **Stats.** A `<dl>` instantiates the local `Stat` helper four times, mapping `agent.runsPerWeek.toLocaleString()`, `${agent.successRate}%`, `agent.avgDuration`, and `agent.lastRun` to labelled `<dt>`/`<dd>` pairs.
+- **Call to action.** A non-shrinking ("Run agent") `<button type="button">` with a trailing `IconArrowUp` is purely visual here — it carries no `onClick`, so the action is not yet wired.
+- **Purity.** There are no event handlers, state, or branches; the component is a pure function of its `agent` prop.
 <!-- /fill:sym:FeaturedAgent:behavior -->
 
 ### Examples

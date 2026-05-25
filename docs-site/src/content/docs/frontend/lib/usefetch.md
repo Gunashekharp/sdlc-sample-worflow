@@ -47,7 +47,7 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | The async function the hook runs on mount and reload; it receives an `AbortSignal` and must be referentially stable, or the effect re-runs every render. |
 
 **Returns:** `FetchState<T>`
 
@@ -185,10 +185,10 @@ export interface FetchState<T> { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | <FILL: data> |
-| loading | `boolean` | <FILL: loading> |
-| error | `string` | <FILL: error> |
-| reload | `() => void` | <FILL: reload> |
+| data | `T` | The resolved fetcher result, or `null` until the first success; retained across reloads while the next request runs. |
+| loading | `boolean` | `true` while a request is in flight, including the very first render; flips to `false` on success or failure. |
+| error | `string` | The failure message string, or `null` when there is no error; cleared at the start of each attempt. |
+| reload | `() => void` | Stable callback that re-runs the fetcher by bumping the internal nonce; safe to pass to children. |
 
 ## Diagrams
 

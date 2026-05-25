@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique key for the metric (e.g. `agent-runs`), used as the React list key in `KpiStrip`. |
+| label | `string` | The metric's display name (e.g. "Agent runs · 7d"), shown uppercased atop the card. |
+| value | `string` | Pre-formatted headline figure (e.g. "1,284" or "4h 12m") rendered as the large number. |
+| delta | `string` | Pre-formatted period-over-period change (e.g. "+18%" or "-22%"); its leading sign picks the trend arrow icon. |
+| positive | `boolean` | Whether the change is a good outcome regardless of sign; colors the delta green/red and the sparkline. |
+| hint | `string` | One-line explanation of what the metric measures, shown muted below the sparkline. |
+| trend | `number[]` | Seven-point series, oldest first, plotted as the card's sparkline. |
 
 ### Used by
 
@@ -67,5 +67,7 @@ const KPIS: Kpi[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Static seed data — a single interface and a constant array of four records. No control flow or state to diagram.
+:::
 <!-- /fill:file:diagrams -->

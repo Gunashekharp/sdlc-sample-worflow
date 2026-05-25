@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
-| runsPerWeek | `number` | <FILL: runsPerWeek> |
-| successRate | `number` | <FILL: successRate> |
-| avgDuration | `string` | <FILL: avgDuration> |
-| lastRun | `string` | <FILL: lastRun> |
-| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
-| popular | `boolean` | <FILL: popular> |
+| id | `string` | Stable unique slug (the `agents` table primary key) used to look up a single agent at `/api/agents/:id`. |
+| name | `string` | Human-readable display name returned to the frontend. |
+| category | `AgentCategory` | The agent's classification bucket, one of the five `AgentCategory` literals. |
+| description | `string` | One-sentence summary of what the agent does. |
+| status | `AgentStatus` | Operational state — `running`, `idle`, or `attention`. |
+| runsPerWeek | `number` | Approximate count of runs over the last 7 days; the Postgres store orders the list by this descending. |
+| successRate | `number` | Successful-run percentage, 0–100. |
+| avgDuration | `string` | Pre-formatted average run duration (e.g. "2m 40s"). |
+| lastRun | `string` | Human-readable time since the last run (e.g. "3m ago"). |
+| lastRunMinutes | `number` | Minutes since the last run — the numeric, orderable companion to `lastRun`. |
+| popular | `boolean` | Whether the agent appears under the frontend's "Popular" filter. |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable unique key (the `kpis` table primary key) for the metric tile. |
+| label | `string` | Display name of the metric (e.g. "Mean time to merge"). |
+| value | `string` | Pre-formatted headline figure shown as the large number. |
+| delta | `string` | Pre-formatted period-over-period change (e.g. "+18%", "-22%"). |
+| positive | `boolean` | Whether the change is a good outcome regardless of its sign; drives the frontend's color choice. |
+| hint | `string` | One-line explanation of what the metric measures. |
+| trend | `number[]` | Series of points (oldest first) the frontend renders as a sparkline; stored as JSONB in Postgres. |
 
 ### Used by
 

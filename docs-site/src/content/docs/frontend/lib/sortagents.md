@@ -45,8 +45,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| key | `SortKey` | — | yes | <FILL: purpose of key> |
+| agents | `Agent[]` | — | yes | The list of agents to order; it is shallow-copied, never mutated, and every element is preserved in the result. |
+| key | `SortKey` | — | yes | Selects the sort order — one of `'runs'`, `'success'`, `'name'`, or `'recent'` — choosing which comparator runs. |
 
 **Returns:** `Agent[]`
 
@@ -139,11 +139,11 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
-| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
-| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
-| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
-| sortAgents | does not mutate the input array | <FILL: assertion summary> |
+| sortAgents | sorts by runs, descending | Asserts `'runs'` orders the three fixtures `['b','c','a']` — highest `runsPerWeek` (300, 100, 50) first. |
+| sortAgents | sorts by success rate, descending | Asserts `'success'` orders them `['c','a','b']` — highest `successRate` (99, 90, 80) first. |
+| sortAgents | sorts by name, ascending | Asserts `'name'` orders them `['b','c','a']` — alphabetically Alpha, Bravo, Charlie via `localeCompare`. |
+| sortAgents | sorts by most recent run first | Asserts `'recent'` orders them `['b','a','c']` — smallest `lastRunMinutes` (5, 30, 120) first. |
+| sortAgents | does not mutate the input array | Asserts the original `agents` array keeps its id order after sorting, proving the spread copy isolates the caller. |
 
 ## Diagrams
 

@@ -136,7 +136,14 @@ The single return builds the `<aside>` rail (fixed `w-60`, non-shrinking, right 
 ### Behavior
 
 <!-- fill:sym:Sidebar:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- **Container.** A semantic `<aside className="flex w-60 shrink-0 flex-col border-r">` fixes the rail at 240px and prevents it from shrinking when the main column grows.
+- **Workspace switcher.** The top `<button>` shows an accent "S" badge, the "Snabbit / Agent Console" labels, and a trailing `IconChevronDown`; it is visual only (no handler).
+- **New session.** A full-width `<button>` pairs `IconPlus` with "New session" and a right-aligned `<kbd>⌘N</kbd>` shortcut hint.
+- **Nav loop.** `NAV.map((item) => { const Icon = item.icon; ... })` assigns the icon component to a capitalized `Icon` variable so JSX renders it as `<Icon ... />`. Each link is keyed by `item.label`, sets `aria-current={item.active ? 'page' : undefined}` for the active route, and branches its `className` between an active style (`bg-surface-2 font-medium text-text`) and a muted hover style.
+- **Active icon tint.** `<Icon className={item.active ? 'text-accent' : ''} />` accents only the active link's icon.
+- **Recent sessions.** A scrollable (`overflow-y-auto`, `min-h-0 flex-1`) region maps `RECENT_SESSIONS` strings to truncated buttons, each keyed by the session text.
+- **User footer.** A bottom row shows a circular "g" avatar with the user's name and a truncated email.
+- **Statelessness.** No state, props, or effects — the whole rail renders from the two module-level constants `NAV` and `RECENT_SESSIONS`.
 <!-- /fill:sym:Sidebar:behavior -->
 
 ### Examples
@@ -162,5 +169,7 @@ This renders the six `NAV` links (with "Dashboard" highlighted as active) and th
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Static, stateless navigation rail rendered from two module constants (`NAV`, `RECENT_SESSIONS`) — no control flow or state transitions worth diagramming.
+:::
 <!-- /fill:file:diagrams -->

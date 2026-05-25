@@ -109,7 +109,12 @@ Returns the panel. The header shows the "CI/CD pipelines" title; when `data` is 
 ### Behavior
 
 <!-- fill:sym:PipelinesPanel:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- **Data source.** The component takes no props; `const { data, loading, error, reload } = useFetch(fetchPipelines)` drives the whole UI from the hook's async state.
+- **Header.** A `<section>` opens with an `<h2>CI/CD pipelines</h2>`; `{data && (...)}` conditionally appends a summary line interpolating `data.summary.passRate`% pass rate, `data.summary.running` running, and `data.provider`, so the summary only shows once data exists.
+- **Refresh handler.** The right-aligned (`ml-auto`) "Refresh" `<button>` wires `onClick={reload}`, re-running the fetch via the hook's nonce mechanism.
+- **Mutually exclusive states.** The body renders exactly one branch: `{loading && ...}` shows "Loading pipelines…"; `{error && !loading && ...}` shows the "Could not reach the API ({error})…" message; `{data && !loading && !error && data.pipelines.length === 0 && ...}` shows "No recent pipeline runs."; and the final guard (`length > 0`) maps `data.pipelines` to `<PipelineRow>` items inside a `<ul className="divide-y divide-border">`.
+- **Row helper.** `PipelineRow` looks up `STATUS_STYLES[pipeline.status]` to color the status dot and label it via `title`, then renders the name, branch badge, `formatDuration(pipeline.durationSeconds)`, and (on `sm+`) `triggeredBy`.
+- **Duration formatting.** `formatDuration` converts seconds to `Xm Ys`, dropping the minutes segment when under a minute.
 <!-- /fill:sym:PipelinesPanel:behavior -->
 
 ### Examples
@@ -134,8 +139,8 @@ On mount it shows "Loading pipelines…", then either lists the pipelines return
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
+| <PipelinesPanel /> | renders pipelines returned by the API | Stubs `fetch` to resolve a two-pipeline payload and asserts both run names ("CI · build & test", "E2E suite") appear. |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | Stubs `fetch` to reject and asserts the "could not reach the api" message is rendered. |
 
 ## Diagrams
 

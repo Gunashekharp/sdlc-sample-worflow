@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+`server/src/db/` holds the database structure and its one-shot provisioning script: `schema.ts` exports the idempotent `CREATE TABLE` SQL for the `agents` and `kpis` tables, and `setup.ts` applies that schema then upserts the seed data. As the subgraph shows, `setup.ts` depends on `config.ts` (for the connection string), `schema.ts`, and `seed.ts`. Add files here for schema definitions or migration/provisioning tooling. Runtime query logic does NOT belong here — that lives in `postgresStore.ts` — and the seed records themselves live in `seed.ts`.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,5 +36,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+- **Provisioning (`npm run db:setup`):** `setup.ts` opens a `pg` pool using `config.databaseUrl`, runs `SCHEMA_SQL` from `schema.ts` to create the tables if absent, then upserts every `SEED_AGENTS`/`SEED_KPIS` record (`ON CONFLICT … DO UPDATE`), assigning each KPI its array index as `sort_order`, and finally closes the pool.
 <!-- /fill:folder:flows -->

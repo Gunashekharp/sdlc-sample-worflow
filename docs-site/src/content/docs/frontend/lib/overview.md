@@ -6,7 +6,7 @@ description: Files under src/lib/
 **Folder:** `src/lib/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+`src/lib/` holds the frontend's reusable, presentation-free logic: the typed API client (`api.ts`), the pure list transforms (`filterAgents.ts`, `sortAgents.ts`), and the generic React hooks (`useFetch.ts`, `usePersistentState.ts`). The dependency subgraph below shows the two transforms depend only on the `Agent` type from `data/agents.ts` and nothing else. Modules here are deliberately UI-agnostic — they take data in and return data or state, leaving rendering to the components in `src/components/`. JSX, styling, and component markup do NOT belong here.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -14,10 +14,10 @@ description: Files under src/lib/
 | File | Hint |
 | --- | --- |
 | [`api.ts`](../lib/api) | Typed client for the Snabbit Agent Console API. |
-| [`filterAgents.ts`](../lib/filteragents) | <FILL: one-line purpose for filterAgents.ts> |
-| [`sortAgents.ts`](../lib/sortagents) | <FILL: one-line purpose for sortAgents.ts> |
-| [`useFetch.ts`](../lib/usefetch) | <FILL: one-line purpose for useFetch.ts> |
-| [`usePersistentState.ts`](../lib/usepersistentstate) | <FILL: one-line purpose for usePersistentState.ts> |
+| [`filterAgents.ts`](../lib/filteragents) | Pure helper that narrows an `Agent[]` by category tab and free-text query. |
+| [`sortAgents.ts`](../lib/sortagents) | Pure helper that returns a new `Agent[]` ordered by runs, success, name, or recency. |
+| [`useFetch.ts`](../lib/usefetch) | Generic hook that runs an async fetcher on mount and exposes loading/error/data plus reload. |
+| [`usePersistentState.ts`](../lib/usepersistentstate) | `useState`-like hook that mirrors its value to localStorage and restores it on the next mount. |
 
 ## Dependencies
 
@@ -37,5 +37,6 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+- **Agent list pipeline:** `AgentGrid` feeds its agents through `filterAgents` then `sortAgents` (composed inside a `useMemo`) to produce the visible list, while `usePersistentState` keeps the chosen category and sort key across reloads.
+- **Pipeline loading:** `PipelinesPanel` passes the module-level `fetchPipelines` from `api.ts` into `useFetch`, which runs it on mount, surfaces loading/error/data, and aborts the request on unmount or reload.
 <!-- /fill:folder:flows -->

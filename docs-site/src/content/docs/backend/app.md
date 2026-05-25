@@ -50,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| deps | `AppDeps` | — | yes | The injected collaborators — a `store` for agent/KPI data and a `cicd` provider for pipelines — that the routes call into. |
 
 **Returns:** `any`
 
@@ -170,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | <FILL: store> |
-| cicd | `CicdProvider` | <FILL: cicd> |
+| store | `Store` | Data source for agents and KPIs; Postgres-backed in production, in-memory in tests. |
+| cicd | `CicdProvider` | Source of CI/CD pipeline data; the live GitHub Actions provider or the deterministic mock. |
 
 ### Used by
 

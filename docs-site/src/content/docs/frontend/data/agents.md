@@ -68,11 +68,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable unique slug (e.g. `pr-reviewer`); used as the React key and matched against `FEATURED_AGENT_ID` and `selectedId`. |
+| name | `string` | Display name shown on cards and the featured banner, and one of the fields `filterAgents` matches the query against. |
+| category | `AgentCategory` | The agent's classification, used by the grid's category tabs and the `Popular`/exact-category filter. |
+| description | `string` | One-sentence summary of what the agent does; rendered (clamped) on cards and also searched by `filterAgents`. |
+| status | `AgentStatus` | Operational state driving the `StatusDot` color/pulse and the worded label in `FeaturedAgent`. |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -144,12 +144,12 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | Asserts `AGENTS.length` is greater than 0, so the catalogue is never empty. |
+| agent catalogue | gives every agent a unique id | Asserts the set of ids has the same size as the id array, proving no duplicates. |
+| agent catalogue | includes the featured agent | Asserts some agent's id equals `FEATURED_AGENT_ID`, so the featured slot always resolves. |
+| agent catalogue | only uses known categories | Asserts every agent's `category` is contained in `AGENT_CATEGORIES`. |
+| agent catalogue | keeps success rates between 0 and 100 | Asserts each agent's `successRate` is within the inclusive 0–100 range. |
+| agent catalogue | gives every agent a non-empty name and description | Asserts every agent's trimmed `name` and `description` have length greater than 0. |
 
 ## Diagrams
 

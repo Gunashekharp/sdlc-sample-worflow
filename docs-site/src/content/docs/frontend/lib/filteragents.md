@@ -44,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
+| agents | `Agent[]` | — | yes | The catalogue to narrow; iterated with `Array.filter`, so it is read but never mutated. |
+| filter | `AgentFilter` | — | yes | The criteria object holding the `category` tab selection and the free-text `query` to match. |
 
 **Returns:** `Agent[]`
 
@@ -142,16 +142,16 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
-| filterAgents | filters by an exact category | <FILL: assertion summary> |
-| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
-| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
-| filterAgents | matches the query against the description | <FILL: assertion summary> |
-| filterAgents | is case-insensitive | <FILL: assertion summary> |
-| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
-| filterAgents | applies category and query together | <FILL: assertion summary> |
-| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
-| filterAgents | does not mutate the input array | <FILL: assertion summary> |
+| filterAgents | returns every agent for the All category and empty query | Asserts `{ category: 'All', query: '' }` keeps all three fixtures, confirming the no-op filter passes everything. |
+| filterAgents | filters by an exact category | Asserts `category: 'Review'` returns only agent `a`, the lone Review agent. |
+| filterAgents | filters by the Popular pseudo-category | Asserts `category: 'Popular'` returns `['a','b']`, the two agents flagged `popular`. |
+| filterAgents | matches the query against the agent name | Asserts query `'deploy'` returns `['b']` by matching the name "Deploy Bot". |
+| filterAgents | matches the query against the description | Asserts query `'root cause'` returns `['c']` by matching text only in its description. |
+| filterAgents | is case-insensitive | Asserts uppercase query `'REVIEWER'` still matches agent `a`, proving the `toLowerCase` folding. |
+| filterAgents | ignores surrounding whitespace in the query | Asserts `'  bot  '` returns `['b']`, proving `trim()` strips padding before matching. |
+| filterAgents | applies category and query together | Asserts `category: 'Popular'` plus query `'reviewer'` returns only `['a']`, confirming the AND of both criteria. |
+| filterAgents | returns an empty array when nothing matches | Asserts an unmatched query yields `[]` rather than null or the full list. |
+| filterAgents | does not mutate the input array | Asserts the source `agents` array is unchanged after filtering, proving `Array.filter` leaves the input intact. |
 
 ## Diagrams
 

@@ -40,7 +40,7 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pipelines | `Pipeline[]` | — | yes | <FILL: purpose of pipelines> |
+| pipelines | `Pipeline[]` | — | yes | The runs to aggregate; read-only — counted by status to produce the summary, never mutated. |
 
 **Returns:** `PipelineSummary`
 
@@ -201,8 +201,8 @@ Builds a live `CicdProvider` named `'github-actions'` that fetches the 20 most r
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| token | `string` | — | yes | <FILL: purpose of token> |
-| repo | `string` | — | yes | <FILL: purpose of repo> |
+| token | `string` | — | yes | GitHub personal-access/installation token sent as the `Authorization: Bearer` header to authenticate the Actions API call. |
+| repo | `string` | — | yes | The `owner/repo` slug interpolated into the workflow-runs URL, selecting which repository's runs to fetch. |
 
 **Returns:** `CicdProvider`
 
@@ -274,7 +274,7 @@ export function getCicdProvider(env: {
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | <FILL: purpose of env> |
+| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | The credential pair (typically from `config.ts`); both being non-empty selects the live provider, otherwise the mock. |
 
 **Returns:** `CicdProvider`
 
@@ -360,14 +360,14 @@ The normalized shape of a single CI/CD run as exposed by the API, independent of
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Unique run identifier (the GitHub run id stringified, or a mock id like `p-1041`). |
+| name | `string` | Workflow/run name (e.g. "CI · build & test"); for GitHub it falls back to `display_title` when unnamed. |
+| provider | `"github-actions" \| "jenkins"` | Which CI system the run came from, distinguishing GitHub Actions from Jenkins entries in the mock set. |
+| branch | `string` | The git branch the run targeted; `'unknown'` when GitHub reports no head branch. |
+| status | `PipelineStatus` | Normalized lifecycle state — `passing`, `failing`, or `running` — derived from the run's status/conclusion. |
+| durationSeconds | `number` | Run duration in seconds; for GitHub, `max(0, (updated_at - run_started_at) / 1000)` rounded. |
+| triggeredBy | `string` | Username or bot that initiated the run; `'unknown'` when the GitHub actor is absent. |
+| updatedAt | `string` | ISO-8601 timestamp of the run's last update. |
 
 ### Used by
 
@@ -389,10 +389,10 @@ The aggregate produced by `summarizePipelines`: a count of total pipelines, per-
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
+| total | `number` | Total number of pipelines in the input list (its `.length`). |
+| passing | `number` | Count of pipelines with status `passing`. |
+| failing | `number` | Count of pipelines with status `failing`. |
+| running | `number` | Count of in-flight pipelines (`running`); excluded from the pass-rate denominator. |
 | passRate | `number` | Pass rate over finished (passing + failing) pipelines, 0–100. |
 
 ## CicdProvider
@@ -411,7 +411,7 @@ The provider contract that decouples the rest of the app from any specific CI sy
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | `string` | <FILL: name> |
+| name | `string` | Read-only identifier of the active provider (`'mock'` or `'github-actions'`), echoed in the `/api/pipelines` response. |
 
 ### Used by
 

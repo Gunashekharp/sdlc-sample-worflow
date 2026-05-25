@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+| agents | `Agent[]` | yes | The full pool of agents to display; the grid filters and sorts this list internally rather than the caller pre-processing it. |
 
 ### Line-by-line walkthrough
 
@@ -198,7 +198,13 @@ Returns the UI. A header shows the title with the live `visible.length` count. T
 ### Behavior
 
 <!-- fill:sym:AgentGrid:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- **Top-level element.** A `<section className="flex flex-col gap-3">` stacks a toolbar header above the results area.
+- **Live count.** The `<h2>` shows `Agents` next to `{visible.length}`, so the count reflects the filtered/sorted result, not the raw `agents` length.
+- **Category tabs.** `TABS.map(...)` renders a button per tab from `['All', 'Popular', ...AGENT_CATEGORIES]`; each `onClick={() => setCategory(tab)}` switches the active tab, and `aria-pressed={category === tab}` plus the conditional `bg-surface-3` class mark the selected one for both screen readers and sighted users.
+- **Sort select.** The `<select>` is controlled by `value={sort}`; `onChange` casts `e.target.value as SortKey` into `setSort`. Its options come from `Object.keys(SORT_LABELS)`, displaying the human label per key, and `aria-label="Sort agents"` names the unlabelled control.
+- **Search input.** A `<label>` wraps `IconSearch` and a controlled `<input value={query} onChange={(e) => setQuery(e.target.value)}>` with `aria-label="Filter agents"`; `focus-within:border-border-strong` highlights the wrapper when the input is focused.
+- **Results vs. empty state.** `{visible.length > 0 ? ... : ...}` renders a responsive `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` of `AgentCard`s (each `selected` when `agent.id === selectedId`, wired to `setSelectedId`) or, when empty, a dashed panel reading `No agents match {query ? "“query”" : 'this filter'}`.
+- **State split.** `category` and `sort` use `usePersistentState` (survive reloads), while `query` and `selectedId` use plain `useState` (reset on mount), and `visible` is memoized so the filter→sort pipeline only reruns when its inputs change.
 <!-- /fill:sym:AgentGrid:behavior -->
 
 ### Examples
@@ -224,13 +230,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
-| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
-| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
-| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
-| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
+| <AgentGrid /> | renders a card for every agent | Asserts each agent's name from the full `AGENTS` list appears in the document after an unfiltered render. |
+| <AgentGrid /> | filters agents by the search query | Types `'deploy'` into the filter and asserts "Deploy Bot" is shown while "PR Reviewer" is gone. |
+| <AgentGrid /> | shows an empty state when nothing matches | Types a nonsense query and asserts the "No agents match" empty-state message appears. |
+| <AgentGrid /> | filters agents by category tab | Clicks the "Deploy" tab and asserts "Deploy Bot" is visible while a Reliability agent ("RCA Analyst") is hidden. |
+| <AgentGrid /> | marks a card as selected when clicked | Clicks a card and asserts its `aria-pressed` flips from `'false'` to `'true'`. |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Selects the `'name'` sort and asserts all agents remain present, confirming sorting reorders rather than drops items. |
+| <AgentGrid /> | remembers the selected category across remounts | Clicks "Deploy", unmounts, remounts, and asserts the "Deploy" tab is still `aria-pressed="true"`, proving persistence. |
 
 ## Diagrams
 

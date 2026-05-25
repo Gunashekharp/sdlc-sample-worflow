@@ -44,8 +44,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | <FILL: purpose of app> |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| app | `Express` | — | yes | The Express app to attach the `/api/*` route handlers onto; mutated in place. |
+| deps | `AppDeps` | — | yes | The injected `store` and `cicd` provider the handlers call to fetch agent, KPI, and pipeline data. |
 
 **Returns:** `void`
 

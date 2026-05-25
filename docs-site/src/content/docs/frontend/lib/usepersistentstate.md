@@ -47,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | The `localStorage` key the value is read from on mount and written to on change; distinct keys keep independent persisted values. |
+| initial | `T` | — | yes | The starting value used when nothing is stored under `key` or when reading/parsing storage fails. |
 
 **Returns:** `[T, (value: T) => void]`
 
