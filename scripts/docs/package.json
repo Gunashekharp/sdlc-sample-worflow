@@ -13,8 +13,12 @@
     "check:mermaid": "tsx check-mermaid.ts"
   },
   "dependencies": {
-    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "jsdom": "^25.0.1",
+    "mermaid": "^11.4.1",
     "ts-morph": "^25.0.1",
     "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7"
   }
 }

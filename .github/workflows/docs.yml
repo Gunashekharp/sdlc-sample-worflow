@@ -89,27 +89,6 @@ jobs:
           cd scripts/docs
           npm ci --no-audit --no-fund
 
-      - name: Cache Puppeteer's Chromium
-        # mermaid-cli renders diagrams via headless Chromium. Puppeteer
-        # downloads Chromium to ~/.cache/puppeteer on first use. Caching
-        # that directory turns subsequent CI runs from ~90s of download
-        # into ~2s of cache restore.
-        id: puppeteer-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/puppeteer
-          key: puppeteer-${{ runner.os }}-${{ hashFiles('scripts/docs/package-lock.json') }}
-
-      - name: Install Chromium for Puppeteer
-        # Newer Puppeteer versions do NOT auto-download Chromium on
-        # `npm install`. The Mermaid gate's `mmdc` calls fail with
-        # "Failed to launch the browser process: Code: null" without this.
-        # No-op on a cache hit (the binary is already at ~/.cache/puppeteer).
-        if: steps.puppeteer-cache.outputs.cache-hit != 'true'
-        run: |
-          cd scripts/docs
-          npx puppeteer browsers install chrome
-
       - name: Discard preserved prose on full rebuild
         # `full_rebuild` means "re-fill every page from scratch". Deleting
         # the auto-generated subtrees before the extractor runs means the
@@ -293,13 +272,14 @@ jobs:
           npm run check:coverage
 
       - name: Mermaid syntax gate
-        # Validates every ```mermaid block by piping it through mmdc.
-        # Catches the class of bug that the Astro build does not — the
-        # Starlight build is happy with malformed mermaid, but the page
-        # renders "Syntax error in text" at runtime in the browser.
-        # Most common offender: Opus writing `[]` inside a `[]` label,
-        # bare `<` in a node label, or `-->>` (sequence-diagram syntax)
-        # inside a flowchart.
+        # Validates every ```mermaid block with Mermaid's own parser
+        # (mermaid.parse) via a jsdom shim — same parser the browser
+        # uses at render time, no headless Chromium needed. Catches the
+        # class of bug that the Astro build does not — the Starlight
+        # build is happy with malformed mermaid, but the page renders
+        # "Syntax error in text" at runtime in the browser. Most common
+        # offender: Opus writing `[]` inside a `[]` label, bare `<` in a
+        # node label, or `-->>` (sequence-diagram syntax) inside a flowchart.
         run: |
           cd scripts/docs
           npm run check:mermaid
