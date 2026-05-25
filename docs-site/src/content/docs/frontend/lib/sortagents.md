@@ -45,8 +45,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| key | `SortKey` | — | yes | <FILL: purpose of key> |
+| agents | `Agent[]` | — | yes | The list to sort; shallow-copied so it is never mutated. |
+| key | `SortKey` | — | yes | Which order to apply: runs, success, name, or recent. |
 
 **Returns:** `Agent[]`
 
@@ -139,11 +139,11 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
-| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
-| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
-| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
-| sortAgents | does not mutate the input array | <FILL: assertion summary> |
+| sortAgents | sorts by runs, descending | Key `runs` orders by `runsPerWeek` descending → `['b', 'c', 'a']`. |
+| sortAgents | sorts by success rate, descending | Key `success` orders by `successRate` descending → `['c', 'a', 'b']`. |
+| sortAgents | sorts by name, ascending | Key `name` orders alphabetically → `['b', 'c', 'a']`. |
+| sortAgents | sorts by most recent run first | Key `recent` orders by `lastRunMinutes` ascending → `['b', 'a', 'c']`. |
+| sortAgents | does not mutate the input array | The input `agents` order is unchanged after sorting. |
 
 ## Diagrams
 

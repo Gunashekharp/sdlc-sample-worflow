@@ -35,7 +35,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | <FILL: what does className control?> |
+| className | `string` | no | CSS classes for the `<svg>`, controlling its rendered size; falls back to `h-7 w-full` when omitted. |
 
 ### Line-by-line walkthrough
 
@@ -173,9 +173,9 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
-| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
-| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
+| <Sparkline /> | renders a polyline with one coordinate per value | For `points={[1, 2, 3, 4]}` the `<polyline>` exists and its `points` attribute holds exactly 4 coordinate pairs. |
+| <Sparkline /> | renders nothing when given fewer than two points | For `points={[1]}` no `<polyline>` element is rendered. |
+| <Sparkline /> | uses the error color when not positive | With `positive={false}` the polyline's `stroke` contains `color-err`. |
 
 ## Diagrams
 

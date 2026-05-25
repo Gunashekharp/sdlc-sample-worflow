@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+This folder owns the Postgres persistence layer's data definition and bootstrap. [`schema.ts`](../db/schema) exports the idempotent `SCHEMA_SQL` that creates the `agents` and `kpis` tables, and [`setup.ts`](../db/setup) is a one-shot script (`npm run db:setup`) that applies that SQL and upserts the seed rows from `seed.ts`. Files belong here when they define table structure or perform schema/seed migrations. Query logic against these tables does not live here — that is in `postgresStore.ts`, which maps rows to the `domain.ts` types.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,5 +36,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+As the dependency subgraph above shows, `setup.ts` is the only active module: its `main()` opens a `pg` `Pool` using `config.databaseUrl`, runs `SCHEMA_SQL` from `schema.ts` to create the tables, then loops over `SEED_AGENTS` and `SEED_KPIS` from `seed.ts` issuing `INSERT ... ON CONFLICT (id) DO UPDATE` statements so reruns are idempotent. The script logs a readiness summary and always closes the pool in a `finally` block; any failure is caught and exits the process with code 1. At normal runtime the tables created here are read by `postgresStore.ts`, not by this folder.
 <!-- /fill:folder:flows -->

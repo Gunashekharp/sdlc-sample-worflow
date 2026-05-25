@@ -126,10 +126,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | <FILL: assertion summary> |
-| <App /> | renders the KPI strip | <FILL: assertion summary> |
-| <App /> | renders agents in the grid | <FILL: assertion summary> |
-| <App /> | renders the prompt input | <FILL: assertion summary> |
+| <App /> | renders the featured agent | Renders `App` and asserts both the "Featured agent" eyebrow and the featured agent's name "PR Reviewer" are in the document. |
+| <App /> | renders the KPI strip | Asserts the region labelled "key metrics" (`getByRole('region', { name: /key metrics/i })`) is present, confirming `KpiStrip` mounted. |
+| <App /> | renders agents in the grid | Asserts non-featured agents "Deploy Bot" and "Alert Triage" appear, confirming the `rest` array flowed into `AgentGrid`. |
+| <App /> | renders the prompt input | Asserts the element labelled "Prompt input" (the `PromptBar` textarea) is in the document. |
 
 ## Diagrams
 

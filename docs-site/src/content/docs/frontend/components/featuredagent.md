@@ -46,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
+| agent | `Agent` | yes | The agent to feature; supplies the name, status, description, and the runs/success/avg-run/last-run stats rendered in the banner. |
 
 ### Line-by-line walkthrough
 
@@ -124,5 +124,29 @@ Given an agent, this renders the hero banner with that agent's name, a worded st
 ## Diagrams
 
 <!-- fill:file:diagrams -->
+The diagram below shows how the `agent` prop feeds each part of the rendered hero banner.
 
+```mermaid
+flowchart TD
+  agent["agent: Agent"]
+  FeaturedAgent["FeaturedAgent"]
+  eyebrow["IconSparkle + Featured agent eyebrow"]
+  name["agent.name"]
+  pill["status pill: StatusDot + STATUS_LABEL"]
+  desc["agent.description"]
+  stats["dl of Stat: runsPerWeek, successRate, avgDuration, lastRun"]
+  cta["Run agent button + IconArrowUp"]
+
+  agent -->|"agent prop"| FeaturedAgent
+  FeaturedAgent --> eyebrow
+  FeaturedAgent --> name
+  FeaturedAgent --> pill
+  FeaturedAgent --> desc
+  FeaturedAgent --> stats
+  FeaturedAgent --> cta
+  agent --> name
+  agent -->|"status"| pill
+  agent --> desc
+  agent --> stats
+```
 <!-- /fill:file:diagrams -->

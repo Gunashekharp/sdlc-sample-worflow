@@ -47,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | The `localStorage` key the value is mirrored to and restored from. |
+| initial | `T` | — | yes | Fallback value used when nothing is stored or a read/parse fails. |
 
 **Returns:** `[T, (value: T) => void]`
 

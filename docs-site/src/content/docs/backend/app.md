@@ -50,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| deps | `AppDeps` | — | yes | The injected dependencies (`store` and `cicd`) handed to the routes, chosen by the caller (Postgres+real in `index.ts`, in-memory+mock in tests). |
 
 **Returns:** `any`
 
@@ -170,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | <FILL: store> |
-| cicd | `CicdProvider` | <FILL: cicd> |
+| store | `Store` | Data-access store providing agents and KPIs (in-memory in tests, Postgres-backed in production). |
+| cicd | `CicdProvider` | CI/CD adapter supplying pipeline data (mock provider by default, GitHub Actions when credentials are set). |
 
 ### Used by
 

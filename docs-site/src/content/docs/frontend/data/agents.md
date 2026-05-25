@@ -68,11 +68,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable unique slug for the agent (e.g. `pr-reviewer`); also used to match `FEATURED_AGENT_ID`. |
+| name | `string` | Human-readable display name shown on the card. |
+| category | `AgentCategory` | Which of the five categories the agent belongs to, driving the category filter. |
+| description | `string` | One-sentence summary of what the agent does, shown on the card. |
+| status | `AgentStatus` | Current operational state (`running`, `idle`, or `attention`) rendered by `StatusDot`. |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -144,15 +144,50 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | `AGENTS.length` is greater than 0. |
+| agent catalogue | gives every agent a unique id | A `Set` of all `id` values has the same size as the array, so no id repeats. |
+| agent catalogue | includes the featured agent | Some agent's `id` equals `FEATURED_AGENT_ID`. |
+| agent catalogue | only uses known categories | `AGENT_CATEGORIES` contains each agent's `category`. |
+| agent catalogue | keeps success rates between 0 and 100 | Every `successRate` is `>= 0` and `<= 100`. |
+| agent catalogue | gives every agent a non-empty name and description | Each agent's trimmed `name` and `description` have length greater than 0. |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
+
+The `Agent` interface ties together the two string-literal unions and is collected into the `AGENTS` seed array:
+
+```mermaid
+classDiagram
+    class Agent {
+        +string id
+        +string name
+        +AgentCategory category
+        +string description
+        +AgentStatus status
+        +number runsPerWeek
+        +number successRate
+        +string avgDuration
+        +string lastRun
+        +number lastRunMinutes
+        +boolean popular
+    }
+    class AgentStatus {
+        <<union>>
+        running
+        idle
+        attention
+    }
+    class AgentCategory {
+        <<union>>
+        Review
+        Deploy
+        Reliability
+        Quality
+        Docs
+    }
+    Agent --> AgentStatus : status
+    Agent --> AgentCategory : category
+```
 
 <!-- /fill:file:diagrams -->

@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+| agents | `Agent[]` | yes | The full pool of agents to display; the grid filters and sorts this array into its `visible` list. |
 
 ### Line-by-line walkthrough
 
@@ -218,13 +218,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
-| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
-| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
-| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
-| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
+| <AgentGrid /> | renders a card for every agent | Every agent's `name` from `AGENTS` is present in the document on initial render. |
+| <AgentGrid /> | filters agents by the search query | Typing `deploy` keeps `Deploy Bot` visible and removes `PR Reviewer`. |
+| <AgentGrid /> | shows an empty state when nothing matches | Typing `zzznotanagent` renders the "no agents match" message. |
+| <AgentGrid /> | filters agents by category tab | Clicking the `Deploy` tab keeps `Deploy Bot` and hides `RCA Analyst`. |
+| <AgentGrid /> | marks a card as selected when clicked | A card starts `aria-pressed="false"` and flips to `"true"` after it is clicked. |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the `name` sort still leaves every agent's name in the document. |
+| <AgentGrid /> | remembers the selected category across remounts | After clicking `Deploy`, unmounting, and remounting, the `Deploy` tab is still `aria-pressed="true"`. |
 
 ## Diagrams
 

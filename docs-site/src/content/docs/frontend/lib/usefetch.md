@@ -47,7 +47,7 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | The async function to run on mount; receives an `AbortSignal` and must be referentially stable to avoid re-running every render. |
 
 **Returns:** `FetchState<T>`
 
@@ -185,10 +185,10 @@ export interface FetchState<T> { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | <FILL: data> |
-| loading | `boolean` | <FILL: loading> |
-| error | `string` | <FILL: error> |
-| reload | `() => void` | <FILL: reload> |
+| data | `T` | The resolved fetcher result, or `null` until the first success. |
+| loading | `boolean` | `true` while a request is in flight. |
+| error | `string` | The failure message, or `null` when there is no error. |
+| reload | `() => void` | Re-runs the fetcher to refetch. |
 
 ## Diagrams
 
