@@ -461,14 +461,28 @@ function parseTests(testPath: string): TestCase[] {
 
 function summarizeFile(sourceFile: SourceFile): string {
   const firstNode = sourceFile.getStatementsWithComments()[0]
-  if (firstNode) {
-    const leading = firstNode.getLeadingCommentRanges()
-    if (leading && leading.length) {
-      const text = leading[0].getText().replace(/^\s*\/\*+|\*+\/\s*$|^\s*\*\s?/gm, '').trim()
-      if (text) return text.split('\n').slice(0, 4).join('\n')
-    }
+  if (!firstNode) return ''
+  const leading = firstNode.getLeadingCommentRanges()
+  if (!leading || !leading.length) return ''
+  const text = leading[0].getText().replace(/^\s*\/\*+|\*+\/\s*$|^\s*\*\s?/gm, '').trim()
+  if (!text) return ''
+  // Take lines until either a JSDoc tag (`@param`, `@returns`, …) or a
+  // standalone section header (`Deploy:` alone, or `Deploy:   <padded>`)
+  // signals the descriptive paragraph has ended. Crucially, inline use of
+  // a colon mid-sentence (`Stateless: it receives a question…`) is NOT a
+  // section header — that pattern has lowercase prose immediately after a
+  // single space.
+  const out: string[] = []
+  for (const line of text.split('\n')) {
+    if (/^@\w/.test(line.trim())) break
+    // `Deploy:` or `See also:` alone on a line
+    if (/^[A-Z][a-zA-Z]{1,30}(?:\s[A-Z]?[a-zA-Z]{1,30}){0,2}:\s*$/.test(line)) break
+    // `Deploy:   npm install ...` — colon followed by 2+ spaces of padding
+    if (/^[A-Z][a-zA-Z]{1,30}:  +\S/.test(line)) break
+    out.push(line)
+    if (out.length >= 14) break
   }
-  return ''
+  return out.join('\n').trim()
 }
 
 function mdEscape(s: string): string {
@@ -723,8 +737,8 @@ function renderFileDoc(doc: FileDoc, preserved?: Map<string, string>): string {
     lines.push('')
   }
   if (doc.symbols.length === 0) {
-    lines.push(':::caution')
-    lines.push(`No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.`)
+    lines.push(':::note')
+    lines.push(`No exported symbols detected by the AST. This file is a side-effect entrypoint, a re-export barrel, or a runtime bootstrap — open \`${doc.relPath}\` directly to read the source.`)
     lines.push(':::')
     lines.push('')
   } else {

@@ -9,6 +9,10 @@ description: Reference for `chat-worker/src/index.js`
 > Stateless: it receives a question (plus recent chat history for context),
 > keyword-searches the bundled docs index, asks the Anthropic API (Claude
 > Haiku 4.5) to answer using only the matched docs, and returns the answer +
+> source links.
+> The conversation is NOT stored here — the browser keeps it (session memory)
+> and sends recent turns with each request. The Anthropic API key lives only
+> as a Wrangler secret on the Worker; it never reaches the browser.
 
 ## Imports
 
@@ -19,8 +23,8 @@ This file pulls in the following modules. Relative imports point to other docume
 | `../docs-index.json` | `default as INDEX` | internal |
 
 
-:::caution
-No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.
+:::note
+No exported symbols detected by the AST. This file is a side-effect entrypoint, a re-export barrel, or a runtime bootstrap — open `chat-worker/src/index.js` directly to read the source.
 :::
 
 ## Diagrams

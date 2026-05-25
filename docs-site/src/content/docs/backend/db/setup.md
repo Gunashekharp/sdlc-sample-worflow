@@ -21,8 +21,8 @@ This file pulls in the following modules. Relative imports point to other docume
 | `../seed` | `SEED_AGENTS`, `SEED_KPIS` | internal |
 
 
-:::caution
-No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.
+:::note
+No exported symbols detected by the AST. This file is a side-effect entrypoint, a re-export barrel, or a runtime bootstrap — open `server/src/db/setup.ts` directly to read the source.
 :::
 
 ## Diagrams
