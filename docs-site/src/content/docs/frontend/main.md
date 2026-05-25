@@ -3,6 +3,8 @@ title: main
 description: Reference for `src/main.tsx`
 ---
 
+<!-- structure:1808f9c05e8e -->
+
 **File:** `src/main.tsx` · **Lines:** 11
 
 <!-- fill:file:summary -->

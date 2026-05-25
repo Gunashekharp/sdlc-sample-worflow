@@ -3,6 +3,8 @@ title: postgresStore
 description: Reference for `server/src/postgresStore.ts`
 ---
 
+<!-- structure:891ec8302d48 -->
+
 **File:** `server/src/postgresStore.ts` · **Lines:** 81
 
 <!-- fill:file:summary -->
@@ -42,7 +44,7 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pool | `Pool` | — | yes | The `pg` connection pool the store's methods query against; captured in the returned closure. |
+| pool | `Pool` | — | yes | <FILL: purpose of pool> |
 
 **Returns:** `Store`
 

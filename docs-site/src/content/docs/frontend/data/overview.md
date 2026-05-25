@@ -6,7 +6,7 @@ description: Files under src/data/
 **Folder:** `src/data/`
 
 <!-- fill:folder:summary -->
-`src/data/` holds the frontend's static seed data: the agent catalogue (`agents.ts`) and the dashboard KPIs (`kpis.ts`). Each module pairs a TypeScript interface and supporting literal-union types with the hard-coded array that fills the UI, standing in for what a real deployment would fetch from the backend. These files have no internal dependencies (see the note above) and contain no logic or rendering — components in `src/components/` and helpers in `src/lib/` consume the data and types defined here, not the other way around.
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -27,6 +27,5 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Catalogue bootstrap:** `App.tsx` imports `AGENTS` and `FEATURED_AGENT_ID` from `agents.ts`, separates the featured agent from the rest, and hands the remainder to `AgentGrid`.
-- **Metric strip:** `KpiStrip.tsx` maps over `KPIS` from `kpis.ts`, rendering one card per metric and drawing each `trend` series as a sparkline.
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
 <!-- /fill:folder:flows -->

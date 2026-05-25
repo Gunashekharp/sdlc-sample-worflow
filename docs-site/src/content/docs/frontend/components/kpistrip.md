@@ -3,6 +3,8 @@ title: KpiStrip
 description: Reference for `src/components/KpiStrip.tsx`
 ---
 
+<!-- structure:dd55eff38be8 -->
+
 **File:** `src/components/KpiStrip.tsx` · **Lines:** 45
 
 <!-- fill:file:summary -->

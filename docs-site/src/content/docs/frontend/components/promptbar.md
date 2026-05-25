@@ -3,6 +3,8 @@ title: PromptBar
 description: Reference for `src/components/PromptBar.tsx`
 ---
 
+<!-- structure:2faf8e4e7bc0 -->
+
 **File:** `src/components/PromptBar.tsx` · **Lines:** 58
 
 <!-- fill:file:summary -->

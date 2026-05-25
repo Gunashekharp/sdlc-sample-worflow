@@ -3,6 +3,8 @@ title: StatusDot
 description: Reference for `src/components/StatusDot.tsx`
 ---
 
+<!-- structure:e04781d7f59b -->
+
 **File:** `src/components/StatusDot.tsx` · **Lines:** 28
 
 <!-- fill:file:summary -->
@@ -41,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | The agent state to visualize; selects the dot's color and whether it pulses, plus its tooltip label. |
+| status | `AgentStatus` | yes | <FILL: what does status control?> |
 
 ### Line-by-line walkthrough
 

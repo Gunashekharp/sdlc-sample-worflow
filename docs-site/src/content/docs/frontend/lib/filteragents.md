@@ -3,6 +3,8 @@ title: filterAgents
 description: Reference for `src/lib/filterAgents.ts`
 ---
 
+<!-- structure:84f9ad55e270 -->
+
 **File:** `src/lib/filterAgents.ts` · **Lines:** 33
 
 <!-- fill:file:summary -->
@@ -42,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The source list of agents to narrow; left unmodified. |
-| filter | `AgentFilter` | — | yes | The category selection and free-text query to apply. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
 
 **Returns:** `Agent[]`
 
@@ -140,33 +142,19 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | With no constraints the full list passes through unchanged. |
-| filterAgents | filters by an exact category | Only agents whose `category` equals the filter category are kept. |
-| filterAgents | filters by the Popular pseudo-category | Only agents flagged `popular` are kept under the "Popular" tab. |
-| filterAgents | matches the query against the agent name | An agent is kept when its name contains the query substring. |
-| filterAgents | matches the query against the description | An agent is kept when its description contains the query substring. |
-| filterAgents | is case-insensitive | Differing case between query and field still produces a match. |
-| filterAgents | ignores surrounding whitespace in the query | Leading and trailing spaces are trimmed before matching. |
-| filterAgents | applies category and query together | Both criteria must hold; they compose as a logical AND. |
-| filterAgents | returns an empty array when nothing matches | Yields `[]` when no agent satisfies the criteria. |
-| filterAgents | does not mutate the input array | The original `agents` array is returned untouched. |
+| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
+| filterAgents | filters by an exact category | <FILL: assertion summary> |
+| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
+| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
+| filterAgents | matches the query against the description | <FILL: assertion summary> |
+| filterAgents | is case-insensitive | <FILL: assertion summary> |
+| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
+| filterAgents | applies category and query together | <FILL: assertion summary> |
+| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
+| filterAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-```mermaid
-flowchart TD
-  Start[for each agent] --> C{category matches?}
-  C -->|All| Q
-  C -->|Popular| Pop{agent.popular?}
-  C -->|specific| Eq{agent.category === filter.category?}
-  Pop -->|yes| Q
-  Pop -->|no| Drop[drop]
-  Eq -->|yes| Q
-  Eq -->|no| Drop
-  Q{query empty?} -->|yes| Keep[keep]
-  Q -->|no| Match{name or description includes query?}
-  Match -->|yes| Keep
-  Match -->|no| Drop
-```
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

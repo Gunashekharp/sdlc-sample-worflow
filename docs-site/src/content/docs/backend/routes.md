@@ -3,6 +3,8 @@ title: routes
 description: Reference for `server/src/routes.ts`
 ---
 
+<!-- structure:1d1dec11a389 -->
+
 **File:** `server/src/routes.ts` · **Lines:** 37
 
 <!-- fill:file:summary -->
@@ -42,8 +44,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | The Express application to attach the route handlers onto; mutated in place. |
-| deps | `AppDeps` | — | yes | The injected `store` and `cicd` collaborators the handlers read their data from. |
+| app | `Express` | — | yes | <FILL: purpose of app> |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `void`
 

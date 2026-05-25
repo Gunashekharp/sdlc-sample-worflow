@@ -3,6 +3,8 @@ title: schema
 description: Reference for `server/src/db/schema.ts`
 ---
 
+<!-- structure:cd30c69f81d2 -->
+
 **File:** `server/src/db/schema.ts` · **Lines:** 28
 
 > Postgres schema for the Snabbit Agent Console. Idempotent.

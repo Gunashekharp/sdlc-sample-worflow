@@ -3,6 +3,8 @@ title: TopBar
 description: Reference for `src/components/TopBar.tsx`
 ---
 
+<!-- structure:379cd71837e0 -->
+
 **File:** `src/components/TopBar.tsx` · **Lines:** 32
 
 <!-- fill:file:summary -->

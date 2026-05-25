@@ -272,13 +272,14 @@ jobs:
           npm run check:coverage
 
       - name: Mermaid syntax gate
-        # Validates every ```mermaid block by piping it through mmdc.
-        # Catches the class of bug that the Astro build does not — the
-        # Starlight build is happy with malformed mermaid, but the page
-        # renders "Syntax error in text" at runtime in the browser.
-        # Most common offender: Opus writing `[]` inside a `[]` label,
-        # bare `<` in a node label, or `-->>` (sequence-diagram syntax)
-        # inside a flowchart.
+        # Validates every ```mermaid block with Mermaid's own parser
+        # (mermaid.parse) via a jsdom shim — same parser the browser
+        # uses at render time, no headless Chromium needed. Catches the
+        # class of bug that the Astro build does not — the Starlight
+        # build is happy with malformed mermaid, but the page renders
+        # "Syntax error in text" at runtime in the browser. Most common
+        # offender: Opus writing `[]` inside a `[]` label, bare `<` in a
+        # node label, or `-->>` (sequence-diagram syntax) inside a flowchart.
         run: |
           cd scripts/docs
           npm run check:mermaid

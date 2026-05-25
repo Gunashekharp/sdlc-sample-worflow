@@ -18,6 +18,7 @@
  * never touched.
  */
 
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import {
@@ -528,11 +529,47 @@ function parseFillAnchors(content: string): Map<string, string> {
 }
 
 /**
- * Snapshot every existing doc file's filled blocks BEFORE the wipe step.
- * Returns a map from output doc path -> id -> preserved content.
+ * A short fingerprint of a source file's documented surface area: every
+ * exported symbol name and every relative import target, sorted and
+ * hashed. When this hash changes between runs the file's auto-generated
+ * structure has changed in a way that the LLM-written Mermaid diagram in
+ * `<!-- fill:file:diagrams -->` is likely now stale — so we invalidate
+ * that one anchor and let the LLM redraw the diagram on the next run.
+ *
+ * Other anchors (summaries, walkthrough prose, examples) keep their own
+ * id-based invalidation: rename a symbol → its id changes → prose drops.
  */
-function snapshotExistingFills(): Map<string, Map<string, string>> {
-  const snap = new Map<string, Map<string, string>>()
+function computeStructureHash(
+  exportedSymbolNames: string[],
+  imports: ImportRow[],
+): string {
+  const payload = JSON.stringify({
+    symbols: [...exportedSymbolNames].sort(),
+    imports: imports
+      .filter((i) => i.isRelative)
+      .map((i) => i.module)
+      .sort(),
+  })
+  return crypto.createHash('sha1').update(payload).digest('hex').slice(0, 12)
+}
+
+/** Parse the `<!-- structure:HASH -->` line emitted near the top of every page. */
+function parseStructureHash(content: string): string | null {
+  const m = content.match(/<!--\s*structure:([a-f0-9]+)\s*-->/)
+  return m ? m[1] : null
+}
+
+interface ExistingDocSnapshot {
+  fills: Map<string, string>
+  structureHash: string | null
+}
+
+/**
+ * Snapshot every existing doc file's filled blocks BEFORE the wipe step.
+ * Returns a map from output doc path -> { preserved fills + structure hash }.
+ */
+function snapshotExistingFills(): Map<string, ExistingDocSnapshot> {
+  const snap = new Map<string, ExistingDocSnapshot>()
   for (const root of sourceRoots) {
     const target = path.join(docsContentRoot, root.outDir)
     if (!fs.existsSync(target)) continue
@@ -546,7 +583,10 @@ function snapshotExistingFills(): Map<string, Map<string, string>> {
         if (!entry.name.endsWith('.md')) continue
         const content = fs.readFileSync(full, 'utf-8')
         const fills = parseFillAnchors(content)
-        if (fills.size) snap.set(full, fills)
+        const structureHash = parseStructureHash(content)
+        if (fills.size || structureHash) {
+          snap.set(full, { fills, structureHash })
+        }
       }
     }
     walk(target)
@@ -712,13 +752,21 @@ function renderSymbol(sym: SymbolDoc, preserved?: Map<string, string>): string {
   return lines.join('\n')
 }
 
-function renderFileDoc(doc: FileDoc, preserved?: Map<string, string>): string {
+function renderFileDoc(
+  doc: FileDoc,
+  preserved?: Map<string, string>,
+  structureHash?: string,
+): string {
   const fm: string[] = ['---']
   const title = path.basename(doc.relInRoot).replace(/\.[^.]+$/, '')
   fm.push(`title: ${title}`)
   fm.push(`description: Reference for \`${doc.relPath}\``)
   fm.push('---')
   const lines: string[] = [fm.join('\n'), '']
+  if (structureHash) {
+    lines.push(`<!-- structure:${structureHash} -->`)
+    lines.push('')
+  }
   lines.push(`**File:** \`${doc.relPath}\` · **Lines:** ${doc.totalLines}`)
   lines.push('')
   if (doc.headerSummary) {
@@ -813,7 +861,8 @@ async function run(): Promise<void> {
   // even pages whose source did not change.
   const snapshot = snapshotExistingFills()
   let preservedFillCount = 0
-  for (const v of snapshot.values()) preservedFillCount += v.size
+  for (const v of snapshot.values()) preservedFillCount += v.fills.size
+  let diagramsInvalidated = 0
   wipeReplaceableSubtrees()
   fs.mkdirSync(docsContentRoot, { recursive: true })
   const summary: Record<string, number> = {}
@@ -862,8 +911,35 @@ async function run(): Promise<void> {
       const testPath = findTestFile(sourceFile)
       if (testPath) doc.tests = parseTests(testPath)
       fs.mkdirSync(path.dirname(outPath), { recursive: true })
-      const preservedForThisDoc = snapshot.get(outPath)
-      fs.writeFileSync(outPath, renderFileDoc(doc, preservedForThisDoc), 'utf-8')
+
+      // Compute the structure fingerprint of the CURRENT source, compare
+      // against what the previous doc was generated from. If the file's
+      // exports or relative imports changed, the LLM-written diagram in
+      // `file:diagrams` is likely stale — drop that one preserved fill so
+      // the next LLM pass redraws it. Other anchors (summaries, walks,
+      // examples) are unaffected; they have their own id-based invalidation.
+      const exportedNames = doc.symbols.map((s) => s.name)
+      const structureHash = computeStructureHash(exportedNames, doc.imports)
+      const existing = snapshot.get(outPath)
+      let preservedForThisDoc = existing?.fills
+      if (
+        preservedForThisDoc &&
+        existing?.structureHash &&
+        existing.structureHash !== structureHash &&
+        preservedForThisDoc.has('file:diagrams')
+      ) {
+        // Clone so we don't mutate the shared snapshot map; drop just the
+        // diagram entry. Everything else (per-symbol prose) stays preserved.
+        preservedForThisDoc = new Map(preservedForThisDoc)
+        preservedForThisDoc.delete('file:diagrams')
+        diagramsInvalidated++
+      }
+
+      fs.writeFileSync(
+        outPath,
+        renderFileDoc(doc, preservedForThisDoc, structureHash),
+        'utf-8',
+      )
       count++
     }
     summary[root.name] = count
@@ -873,6 +949,12 @@ async function run(): Promise<void> {
   for (const [name, n] of Object.entries(summary)) console.log(`  ${name.padEnd(12)} ${n}`)
   console.log(`Preserved hand-curated: ${preserveFiles.join(', ')}`)
   console.log(`Preserved LLM-filled blocks: ${preservedFillCount} across ${snapshot.size} doc file${snapshot.size === 1 ? '' : 's'}.`)
+  if (diagramsInvalidated > 0) {
+    console.log(
+      `Invalidated file:diagrams on ${diagramsInvalidated} doc file${diagramsInvalidated === 1 ? '' : 's'} ` +
+        `(exports or imports changed since last run; LLM will redraw).`,
+    )
+  }
 }
 
 run().catch((err) => {

@@ -3,6 +3,8 @@ title: Sidebar
 description: Reference for `src/components/Sidebar.tsx`
 ---
 
+<!-- structure:e2ed0126c373 -->
+
 **File:** `src/components/Sidebar.tsx` · **Lines:** 117
 
 <!-- fill:file:summary -->
