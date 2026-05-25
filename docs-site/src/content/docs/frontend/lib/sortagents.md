@@ -43,8 +43,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The agents to order; left unmodified. |
-| key | `SortKey` | — | yes | Which field/direction to sort by. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| key | `SortKey` | — | yes | <FILL: purpose of key> |
 
 **Returns:** `Agent[]`
 
@@ -137,56 +137,14 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | `'runs'` orders ids as `['b', 'c', 'a']`. |
-| sortAgents | sorts by success rate, descending | `'success'` orders ids as `['c', 'a', 'b']`. |
-| sortAgents | sorts by name, ascending | `'name'` orders ids as `['b', 'c', 'a']` (Alpha, Bravo, Charlie). |
-| sortAgents | sorts by most recent run first | `'recent'` orders ids as `['b', 'a', 'c']`. |
-| sortAgents | does not mutate the input array | Input `agents` order is unchanged after sorting. |
+| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
+| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
+| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
+| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
+| sortAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
 
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/lib/sortAgents.ts` (30 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (30 lines)</summary>
-
-````ts
-import type { Agent } from '../data/agents'
-
-export type SortKey = 'runs' | 'success' | 'name' | 'recent'
-
-/** Display labels for each sort key, in menu order. */
-export const SORT_LABELS: Record<SortKey, string> = {
-  runs: 'Most runs',
-  success: 'Success rate',
-  name: 'Name (A–Z)',
-  recent: 'Recently run',
-}
-
-/**
- * Return a new array of agents sorted by the given key.
- * Pure — does not mutate the input array.
- */
-export function sortAgents(agents: Agent[], key: SortKey): Agent[] {
-  const copy = [...agents]
-  switch (key) {
-    case 'runs':
-      return copy.sort((a, b) => b.runsPerWeek - a.runsPerWeek)
-    case 'success':
-      return copy.sort((a, b) => b.successRate - a.successRate)
-    case 'name':
-      return copy.sort((a, b) => a.name.localeCompare(b.name))
-    case 'recent':
-      return copy.sort((a, b) => a.lastRunMinutes - b.lastRunMinutes)
-  }
-}
-
-````
-
-</details>

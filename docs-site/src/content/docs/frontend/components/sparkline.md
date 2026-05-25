@@ -33,7 +33,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | CSS classes applied to the `<svg>`. When omitted, defaults to `h-7 w-full` so the chart fills its container at a 28px height. |
+| className | `string` | no | <FILL: what does className control?> |
 
 ### Line-by-line walkthrough
 
@@ -171,9 +171,9 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | The `<polyline>` `points` attribute contains exactly as many `x,y` pairs as values passed in. |
-| <Sparkline /> | renders nothing when given fewer than two points | With a single point the component returns null, so no SVG is in the DOM. |
-| <Sparkline /> | uses the error color when not positive | With `positive={false}` the polyline stroke resolves to `var(--color-err)` instead of the ok color. |
+| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
+| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
+| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
 
 ## Diagrams
 
@@ -192,62 +192,3 @@ flowchart TD
   I --> J
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/components/Sparkline.tsx` (47 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (47 lines)</summary>
-
-````tsx
-interface SparklineProps {
-  /** Series values, oldest first. Needs at least two points to render. */
-  points: number[]
-  /** Drives the line color: ok (green) when true, err (red) when false. */
-  positive: boolean
-  className?: string
-}
-
-/** A tiny, axis-free trend line for KPI cards. */
-export default function Sparkline({ points, positive, className }: SparklineProps) {
-  if (points.length < 2) return null
-
-  const width = 100
-  const height = 28
-  const pad = 3
-  const min = Math.min(...points)
-  const max = Math.max(...points)
-  const range = max - min || 1
-
-  const coords = points
-    .map((value, i) => {
-      const x = pad + (i / (points.length - 1)) * (width - pad * 2)
-      const y = height - pad - ((value - min) / range) * (height - pad * 2)
-      return `${x.toFixed(2)},${y.toFixed(2)}`
-    })
-    .join(' ')
-
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      className={className ?? 'h-7 w-full'}
-    >
-      <polyline
-        points={coords}
-        fill="none"
-        stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  )
-}
-
-````
-
-</details>

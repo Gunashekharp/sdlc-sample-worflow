@@ -6,7 +6,7 @@ description: Files under src/data/
 **Folder:** `src/data/`
 
 <!-- fill:folder:summary -->
-`src/data/` holds the static seed datasets that populate the Agent Console dashboard. Today that is `agents.ts` (the catalogue of SDLC agents plus its `AgentStatus`/`AgentCategory` types) and `kpis.ts` (the headline metrics for the KPI strip). Modules here are plain TypeScript data and type definitions with no React, no side effects, and no network access — they stand in for what a real deployment would fetch from the backend. Components, hooks, and pure-logic helpers do not belong here; they live in `components/` and `lib/`.
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -27,8 +27,5 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-- `App.tsx` imports `AGENTS` and `FEATURED_AGENT_ID` from [`agents.ts`](../data/agents), splits the featured agent from the rest, and hands the catalogue down to `FeaturedAgent` and `AgentGrid`.
-- `KpiStrip.tsx` imports `KPIS` from [`kpis.ts`](../data/kpis) and renders one card per metric, drawing each card's sparkline from its `trend` series.
-
-These modules have no internal dependencies on each other — they are independent data sources consumed by separate parts of the UI.
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
 <!-- /fill:folder:flows -->

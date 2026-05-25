@@ -68,17 +68,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier used to look the agent up (e.g. `'pr-reviewer'`). |
-| name | `string` | Human-readable display name shown in the UI (e.g. `'PR Reviewer'`). |
-| category | `AgentCategory` | One of the five fixed categories used to group and filter agents. |
-| description | `string` | Short free-text summary of what the agent does. |
-| status | `AgentStatus` | Current operational state: running, idle, or needing attention. |
-| runsPerWeek | `number` | How many times the agent runs in a typical week; also the default sort key. |
-| successRate | `number` | Fraction or percentage of runs that succeeded. |
-| avgDuration | `string` | Pre-formatted average run duration for display (e.g. `'2m 30s'`). |
-| lastRun | `string` | Pre-formatted timestamp/label of the most recent run for display. |
-| lastRunMinutes | `number` | Minutes elapsed since the last run, for numeric comparisons. |
-| popular | `boolean` | Whether the agent is flagged as popular/featured in the UI. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
+| runsPerWeek | `number` | <FILL: runsPerWeek> |
+| successRate | `number` | <FILL: successRate> |
+| avgDuration | `string` | <FILL: avgDuration> |
+| lastRun | `string` | <FILL: lastRun> |
+| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
+| popular | `boolean` | <FILL: popular> |
 
 ### Used by
 
@@ -102,13 +102,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier for the KPI tile. |
-| label | `string` | Human-readable name of the metric shown on the tile. |
-| value | `string` | Pre-formatted headline value for display (e.g. `'98%'`). |
-| delta | `string` | Pre-formatted change versus the previous period (e.g. `'+4%'`). |
-| positive | `boolean` | Whether the delta is favourable, used to colour the indicator. |
-| hint | `string` | Short explanatory tooltip/subtext for the metric. |
-| trend | `number[]` | Series of data points used to draw the sparkline. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 
@@ -121,48 +121,3 @@ export interface Kpi { ... }
 <!-- fill:file:diagrams -->
 
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/domain.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (33 lines)</summary>
-
-````ts
-/*
- * Domain types for the Snabbit Agent Console API.
- * Mirrors the shapes the frontend expects.
- */
-
-export type AgentStatus = 'running' | 'idle' | 'attention'
-
-export type AgentCategory = 'Review' | 'Deploy' | 'Reliability' | 'Quality' | 'Docs'
-
-export interface Agent {
-  id: string
-  name: string
-  category: AgentCategory
-  description: string
-  status: AgentStatus
-  runsPerWeek: number
-  successRate: number
-  avgDuration: string
-  lastRun: string
-  lastRunMinutes: number
-  popular: boolean
-}
-
-export interface Kpi {
-  id: string
-  label: string
-  value: string
-  delta: string
-  positive: boolean
-  hint: string
-  trend: number[]
-}
-
-````
-
-</details>

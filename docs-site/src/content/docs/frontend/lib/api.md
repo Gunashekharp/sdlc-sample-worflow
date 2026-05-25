@@ -39,7 +39,7 @@ export async function fetchPipelines(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| signal | `AbortSignal` | — | no | Optional signal forwarded to `fetch` so the request can be aborted (e.g. on unmount or reload). |
+| signal | `AbortSignal` | — | no | <FILL: purpose of signal> |
 
 **Returns:** `Promise<PipelinesResponse>`
 
@@ -139,14 +139,14 @@ export interface Pipeline { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier for the pipeline run, used as the React list key. |
-| name | `string` | Human-readable pipeline name shown in the UI. |
-| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run. |
-| branch | `string` | Git branch the run was executed against. |
-| status | `PipelineStatus` | Current run state: passing, failing, or running. |
-| durationSeconds | `number` | Wall-clock duration of the run in seconds. |
-| triggeredBy | `string` | Identity (user or event) that initiated the run. |
-| updatedAt | `string` | ISO timestamp of the last status update. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
+| branch | `string` | <FILL: branch> |
+| status | `PipelineStatus` | <FILL: status> |
+| durationSeconds | `number` | <FILL: durationSeconds> |
+| triggeredBy | `string` | <FILL: triggeredBy> |
+| updatedAt | `string` | <FILL: updatedAt> |
 
 ### Used by
 
@@ -168,11 +168,11 @@ export interface PipelineSummary { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | Total number of pipelines in the response. |
-| passing | `number` | Count of pipelines currently passing. |
-| failing | `number` | Count of pipelines currently failing. |
-| running | `number` | Count of pipelines currently running. |
-| passRate | `number` | Fraction of pipelines passing (0–1). |
+| total | `number` | <FILL: total> |
+| passing | `number` | <FILL: passing> |
+| failing | `number` | <FILL: failing> |
+| running | `number` | <FILL: running> |
+| passRate | `number` | <FILL: passRate> |
 
 ## PipelinesResponse
 
@@ -190,9 +190,9 @@ export interface PipelinesResponse { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| provider | `string` | Name of the CI provider the data was sourced from. |
-| summary | `PipelineSummary` | Aggregate pass/fail/running counts and pass rate. |
-| pipelines | `Pipeline[]` | The individual pipeline runs. |
+| provider | `string` | <FILL: provider> |
+| summary | `PipelineSummary` | <FILL: summary> |
+| pipelines | `Pipeline[]` | <FILL: pipelines> |
 
 ## Diagrams
 
@@ -213,59 +213,3 @@ sequenceDiagram
   end
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/lib/api.ts` (44 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (44 lines)</summary>
-
-````ts
-/*
- * Typed client for the Snabbit Agent Console API.
- * The base URL can be overridden with the VITE_API_URL env var.
- */
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
-
-export type PipelineStatus = 'passing' | 'failing' | 'running'
-
-export interface Pipeline {
-  id: string
-  name: string
-  provider: 'github-actions' | 'jenkins'
-  branch: string
-  status: PipelineStatus
-  durationSeconds: number
-  triggeredBy: string
-  updatedAt: string
-}
-
-export interface PipelineSummary {
-  total: number
-  passing: number
-  failing: number
-  running: number
-  passRate: number
-}
-
-export interface PipelinesResponse {
-  provider: string
-  summary: PipelineSummary
-  pipelines: Pipeline[]
-}
-
-export async function fetchPipelines(
-  signal?: AbortSignal,
-): Promise<PipelinesResponse> {
-  const res = await fetch(`${API_URL}/api/pipelines`, { signal })
-  if (!res.ok) {
-    throw new Error(`API responded ${res.status}`)
-  }
-  return res.json() as Promise<PipelinesResponse>
-}
-
-````
-
-</details>

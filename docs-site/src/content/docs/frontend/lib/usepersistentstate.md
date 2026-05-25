@@ -45,8 +45,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | The localStorage key the value is read from and written to. |
-| initial | `T` | — | yes | Fallback value used when nothing is stored or storage fails. |
+| key | `string` | — | yes | <FILL: purpose of key> |
+| initial | `T` | — | yes | <FILL: purpose of initial> |
 
 **Returns:** `[T, (value: T) => void]`
 
@@ -137,46 +137,3 @@ flowchart TD
   E -->|write fails| Ignore[ignored - best-effort]
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/lib/usePersistentState.ts` (31 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (31 lines)</summary>
-
-````ts
-import { useEffect, useState } from 'react'
-
-/**
- * Like useState, but the value is mirrored to localStorage under `key` and
- * restored on the next mount. Storage failures (disabled storage, quota,
- * malformed JSON) fall back to `initial` rather than throwing.
- */
-export function usePersistentState<T>(
-  key: string,
-  initial: T,
-): [T, (value: T) => void] {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const raw = localStorage.getItem(key)
-      return raw !== null ? (JSON.parse(raw) as T) : initial
-    } catch {
-      return initial
-    }
-  })
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value))
-    } catch {
-      // Ignore write failures — persistence is best-effort.
-    }
-  }, [key, value])
-
-  return [value, setValue]
-}
-
-````
-
-</details>

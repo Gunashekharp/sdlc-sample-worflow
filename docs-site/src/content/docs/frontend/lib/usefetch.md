@@ -45,7 +45,7 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | Async function that performs the request; receives an AbortSignal and must be referentially stable. |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
 
 **Returns:** `FetchState<T>`
 
@@ -183,10 +183,10 @@ export interface FetchState<T> { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | The resolved fetch result, or `null` before the first success. |
-| loading | `boolean` | `true` while a request is in flight. |
-| error | `string` | Failure message, or `null` when there is no error. |
-| reload | `() => void` | Re-runs the fetcher to refresh the data. |
+| data | `T` | <FILL: data> |
+| loading | `boolean` | <FILL: loading> |
+| error | `string` | <FILL: error> |
+| reload | `() => void` | <FILL: reload> |
 
 ## Diagrams
 
@@ -201,62 +201,3 @@ stateDiagram-v2
   Errored --> Loading: reload() bumps nonce
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/lib/useFetch.ts` (47 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (47 lines)</summary>
-
-````ts
-import { useCallback, useEffect, useState } from 'react'
-
-export interface FetchState<T> {
-  data: T | null
-  loading: boolean
-  error: string | null
-  reload: () => void
-}
-
-/**
- * Run an async fetcher on mount and expose loading/error/data state.
- * The `fetcher` must be referentially stable (e.g. a module-level function),
- * otherwise the effect re-runs every render.
- */
-export function useFetch<T>(
-  fetcher: (signal: AbortSignal) => Promise<T>,
-): FetchState<T> {
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [nonce, setNonce] = useState(0)
-
-  const reload = useCallback(() => setNonce((n) => n + 1), [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    setLoading(true)
-    setError(null)
-
-    fetcher(controller.signal)
-      .then((result) => {
-        if (controller.signal.aborted) return
-        setData(result)
-        setLoading(false)
-      })
-      .catch((err: unknown) => {
-        if (controller.signal.aborted) return
-        setError(err instanceof Error ? err.message : 'Request failed')
-        setLoading(false)
-      })
-
-    return () => controller.abort()
-  }, [fetcher, nonce])
-
-  return { data, loading, error, reload }
-}
-
-````
-
-</details>

@@ -48,7 +48,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | Injected collaborators — the `store` for data access and the `cicd` provider — that the routes are wired against. |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `any`
 
@@ -168,8 +168,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | Data-access layer for agents and KPIs (in-memory in tests, Postgres in production). |
-| cicd | `CicdProvider` | Provider that supplies CI/CD pipeline data for the `/api/pipelines` route. |
+| store | `Store` | <FILL: store> |
+| cicd | `CicdProvider` | <FILL: cicd> |
 
 ### Used by
 
@@ -198,48 +198,3 @@ sequenceDiagram
     ErrHandler-->>Client: 500 { error: 'Internal server error' }
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/app.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (33 lines)</summary>
-
-````ts
-import express from 'express'
-import type { NextFunction, Request, Response } from 'express'
-import cors from 'cors'
-import type { Store } from './store'
-import type { CicdProvider } from './integrations/cicd'
-import { registerRoutes } from './routes'
-
-export interface AppDeps {
-  store: Store
-  cicd: CicdProvider
-}
-
-/**
- * Build the Express app from injected dependencies.
- * Tests pass an in-memory store + mock CI/CD provider; the running server
- * passes the Postgres store and the configured provider.
- */
-export function createApp(deps: AppDeps) {
-  const app = express()
-  app.use(cors())
-  app.use(express.json())
-
-  registerRoutes(app, deps)
-
-  // Catch-all error handler so a failed route returns JSON, not a crash.
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled API error:', err)
-    res.status(500).json({ error: 'Internal server error' })
-  })
-
-  return app
-}
-
-````
-
-</details>
