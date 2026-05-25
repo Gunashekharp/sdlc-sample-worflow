@@ -9,9 +9,11 @@
     "extract:diagrams": "tsx extract-diagrams.ts",
     "extract:overviews": "tsx extract-overviews.ts",
     "extract:all": "npm run extract:skeleton && npm run extract:overviews",
-    "check:coverage": "tsx check-coverage.ts"
+    "check:coverage": "tsx check-coverage.ts",
+    "check:mermaid": "tsx check-mermaid.ts"
   },
   "dependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2",
     "ts-morph": "^25.0.1",
     "tsx": "^4.19.2"
   }

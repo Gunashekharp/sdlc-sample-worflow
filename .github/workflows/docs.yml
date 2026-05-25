@@ -174,6 +174,23 @@ jobs:
             - Concrete examples in Examples sections. Pull from tests when
               available so the example reflects real call sites.
 
+            Mermaid syntax — be strict, because a syntax-checking gate runs
+            after this step and the workflow fails if any block doesn't parse:
+            - Inside a `flowchart`, edges are `-->`, `-.->`, `==>`. The
+              sequence-diagram arrow `-->>` is NOT valid in a flowchart.
+            - Wrap EVERY node label in double quotes when it contains any
+              special character — `[`, `]`, `{`, `}`, `(`, `)`, `<`, `>`,
+              `:`, `/`, `\`, `|`, or commas. Example: write
+              `A["points: number[]"]`, NOT `A[points: number[]]`.
+            - In pipe-edge labels `--|"…"|`, also use DOUBLE quotes. Single
+              quotes do not escape the contents. Avoid `{` and `}` inside
+              edge labels — replace `"{ a, b }"` with `"JSON: a, b"` or
+              similar.
+            - For comparisons inside labels, escape `<` as `&lt;` and `>`
+              as `&gt;`. Example: `{"points.length &lt; 2?"}`.
+            - In `sequenceDiagram` blocks, `-->>` and `->>` are valid; the
+              flowchart restriction does not apply there.
+
             What you must NOT do:
             - Do NOT touch anything outside fill anchors and table FILL cells.
             - Do NOT edit headings, signatures, code blocks, tables (except for
@@ -253,6 +270,18 @@ jobs:
         run: |
           cd scripts/docs
           npm run check:coverage
+
+      - name: Mermaid syntax gate
+        # Validates every ```mermaid block by piping it through mmdc.
+        # Catches the class of bug that the Astro build does not — the
+        # Starlight build is happy with malformed mermaid, but the page
+        # renders "Syntax error in text" at runtime in the browser.
+        # Most common offender: Opus writing `[]` inside a `[]` label,
+        # bare `<` in a node label, or `-->>` (sequence-diagram syntax)
+        # inside a flowchart.
+        run: |
+          cd scripts/docs
+          npm run check:mermaid
 
       - name: Commit documentation updates
         env:
