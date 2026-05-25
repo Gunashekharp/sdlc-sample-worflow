@@ -44,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The catalogue to narrow; iterated with `Array.filter`, so it is read but never mutated. |
-| filter | `AgentFilter` | — | yes | The criteria object holding the `category` tab selection and the free-text `query` to match. |
+| agents | `Agent[]` | — | yes | The full source list to filter; returned as-is in original order minus non-matching entries, never mutated. |
+| filter | `AgentFilter` | — | yes | The active criteria — `category` selector and free-text `query` — both of which an agent must satisfy to be kept. |
 
 **Returns:** `Agent[]`
 
@@ -142,16 +142,16 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | Asserts `{ category: 'All', query: '' }` keeps all three fixtures, confirming the no-op filter passes everything. |
-| filterAgents | filters by an exact category | Asserts `category: 'Review'` returns only agent `a`, the lone Review agent. |
-| filterAgents | filters by the Popular pseudo-category | Asserts `category: 'Popular'` returns `['a','b']`, the two agents flagged `popular`. |
-| filterAgents | matches the query against the agent name | Asserts query `'deploy'` returns `['b']` by matching the name "Deploy Bot". |
-| filterAgents | matches the query against the description | Asserts query `'root cause'` returns `['c']` by matching text only in its description. |
-| filterAgents | is case-insensitive | Asserts uppercase query `'REVIEWER'` still matches agent `a`, proving the `toLowerCase` folding. |
-| filterAgents | ignores surrounding whitespace in the query | Asserts `'  bot  '` returns `['b']`, proving `trim()` strips padding before matching. |
-| filterAgents | applies category and query together | Asserts `category: 'Popular'` plus query `'reviewer'` returns only `['a']`, confirming the AND of both criteria. |
-| filterAgents | returns an empty array when nothing matches | Asserts an unmatched query yields `[]` rather than null or the full list. |
-| filterAgents | does not mutate the input array | Asserts the source `agents` array is unchanged after filtering, proving `Array.filter` leaves the input intact. |
+| filterAgents | returns every agent for the All category and empty query | Asserts the result has length 3, i.e. all agents pass when nothing constrains them. |
+| filterAgents | filters by an exact category | Asserts only agent `a` remains when category is `'Review'`. |
+| filterAgents | filters by the Popular pseudo-category | Asserts the `'Popular'` category keeps exactly the two agents with `popular: true` (`['a', 'b']`). |
+| filterAgents | matches the query against the agent name | Asserts query `'deploy'` keeps only agent `b`, matched on its name. |
+| filterAgents | matches the query against the description | Asserts query `'root cause'` keeps only agent `c`, matched on its description. |
+| filterAgents | is case-insensitive | Asserts query `'REVIEWER'` still matches agent `a` despite case differences. |
+| filterAgents | ignores surrounding whitespace in the query | Asserts query `'  bot  '` is trimmed and matches agent `b`. |
+| filterAgents | applies category and query together | Asserts `'Popular'` plus query `'reviewer'` narrows to just agent `a`. |
+| filterAgents | returns an empty array when nothing matches | Asserts query `'nonexistent'` produces `[]`. |
+| filterAgents | does not mutate the input array | Asserts the original `agents` array is unchanged after filtering. |
 
 ## Diagrams
 

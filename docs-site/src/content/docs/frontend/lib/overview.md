@@ -6,7 +6,7 @@ description: Files under src/lib/
 **Folder:** `src/lib/`
 
 <!-- fill:folder:summary -->
-`src/lib/` holds the frontend's reusable, presentation-free logic: the typed API client (`api.ts`), the pure list transforms (`filterAgents.ts`, `sortAgents.ts`), and the generic React hooks (`useFetch.ts`, `usePersistentState.ts`). The dependency subgraph below shows the two transforms depend only on the `Agent` type from `data/agents.ts` and nothing else. Modules here are deliberately UI-agnostic — they take data in and return data or state, leaving rendering to the components in `src/components/`. JSX, styling, and component markup do NOT belong here.
+`src/lib/` holds the frontend's framework-agnostic and reusable building blocks: the typed API client (`api.ts`), pure data transforms over the agent list (`filterAgents.ts`, `sortAgents.ts`), and generic React hooks (`useFetch.ts`, `usePersistentState.ts`). Modules here are deliberately decoupled from any specific screen — the pure functions take data in and return data out, and the hooks expose state without rendering anything. Presentational components, page layout, and the agent/KPI seed data itself live elsewhere (`src/components/` and `src/data/`) and should not be added here.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -14,10 +14,10 @@ description: Files under src/lib/
 | File | Hint |
 | --- | --- |
 | [`api.ts`](../lib/api) | Typed client for the Snabbit Agent Console API. |
-| [`filterAgents.ts`](../lib/filteragents) | Pure helper that narrows an `Agent[]` by category tab and free-text query. |
-| [`sortAgents.ts`](../lib/sortagents) | Pure helper that returns a new `Agent[]` ordered by runs, success, name, or recency. |
-| [`useFetch.ts`](../lib/usefetch) | Generic hook that runs an async fetcher on mount and exposes loading/error/data plus reload. |
-| [`usePersistentState.ts`](../lib/usepersistentstate) | `useState`-like hook that mirrors its value to localStorage and restores it on the next mount. |
+| [`filterAgents.ts`](../lib/filteragents) | Pure helper that narrows an agent list by category and free-text query. |
+| [`sortAgents.ts`](../lib/sortagents) | Pure helper returning a new agent list ordered by runs, success, name, or recency. |
+| [`useFetch.ts`](../lib/usefetch) | Generic React hook that runs an async fetcher and exposes loading/error/data plus reload. |
+| [`usePersistentState.ts`](../lib/usepersistentstate) | `useState`-like hook that mirrors its value to localStorage and restores it on mount. |
 
 ## Dependencies
 
@@ -37,6 +37,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Agent list pipeline:** `AgentGrid` feeds its agents through `filterAgents` then `sortAgents` (composed inside a `useMemo`) to produce the visible list, while `usePersistentState` keeps the chosen category and sort key across reloads.
-- **Pipeline loading:** `PipelinesPanel` passes the module-level `fetchPipelines` from `api.ts` into `useFetch`, which runs it on mount, surfaces loading/error/data, and aborts the request on unmount or reload.
+`PipelinesPanel.tsx` calls `useFetch(fetchPipelines)`: the hook drives `api.ts`'s `fetchPipelines` inside an `AbortController`, surfacing loading/error/data state and a `reload` trigger to the panel. `AgentGrid.tsx` pipes its agent list through `filterAgents` and then `sortAgents` — both pure transforms over the same `Agent[]` from `src/data/agents` (shown in the dependency subgraph above) — to produce the displayed order. `usePersistentState` runs alongside, persisting the grid's chosen sort/filter to localStorage so the selection survives reloads.
 <!-- /fill:folder:flows -->

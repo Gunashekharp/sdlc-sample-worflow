@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-`server/src/db/` holds the database structure and its one-shot provisioning script: `schema.ts` exports the idempotent `CREATE TABLE` SQL for the `agents` and `kpis` tables, and `setup.ts` applies that schema then upserts the seed data. As the subgraph shows, `setup.ts` depends on `config.ts` (for the connection string), `schema.ts`, and `seed.ts`. Add files here for schema definitions or migration/provisioning tooling. Runtime query logic does NOT belong here — that lives in `postgresStore.ts` — and the seed records themselves live in `seed.ts`.
+This folder owns the database's physical layout and one-time provisioning. `schema.ts` exports the idempotent `SCHEMA_SQL` that creates the `agents` and `kpis` tables, and `setup.ts` is the `npm run db:setup` script that runs that SQL and upserts the seed rows from `seed.ts`. DDL and seeding scripts belong here. The runtime query logic that the server uses to read rows lives outside this folder in `postgresStore.ts`, and the seed data itself lives in `seed.ts`.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,5 +36,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Provisioning (`npm run db:setup`):** `setup.ts` opens a `pg` pool using `config.databaseUrl`, runs `SCHEMA_SQL` from `schema.ts` to create the tables if absent, then upserts every `SEED_AGENTS`/`SEED_KPIS` record (`ON CONFLICT … DO UPDATE`), assigning each KPI its array index as `sort_order`, and finally closes the pool.
+As the module dependency subgraph above shows, `setup.ts` is the orchestrator: it reads `config.ts` for the `DATABASE_URL`, runs the `SCHEMA_SQL` it imports from `schema.ts` to create the tables, then upserts the `SEED_AGENTS` and `SEED_KPIS` it imports from `seed.ts`. The upserts use `ON CONFLICT (id) DO UPDATE`, so re-running `db:setup` refreshes existing rows rather than failing. Once the tables exist, the running server reads from them through `postgresStore.ts` — `setup.ts` does no work at request time.
 <!-- /fill:folder:flows -->

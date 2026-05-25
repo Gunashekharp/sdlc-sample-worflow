@@ -6,7 +6,7 @@ description: Files under src/data/
 **Folder:** `src/data/`
 
 <!-- fill:folder:summary -->
-`src/data/` holds the frontend's static seed data and the TypeScript types that shape it: `agents.ts` (the agent catalogue plus the `Agent`, `AgentStatus`, and `AgentCategory` types) and `kpis.ts` (the headline metrics and the `Kpi` type). These modules are plain data with no runtime dependencies — the subgraph above shows no internal imports — so they are imported by components (`AgentGrid`, `KpiStrip`, `FeaturedAgent`) and by the `src/lib/` transforms. In a real deployment this data would come from the backend API instead; logic, hooks, and rendering belong in `src/lib/` and `src/components/`, not here.
+`src/data/` holds the static seed datasets that populate the Agent Console: `agents.ts` (the agent catalogue plus the `Agent` type, `FEATURED_AGENT_ID`, and `AGENT_CATEGORIES`) and `kpis.ts` (the headline `KPIS` metrics). These modules export plain TypeScript constants and the interfaces describing their shape — a real deployment would fetch the same data from the backend instead. Keep purely presentational data and its types here; components, hooks, and data-derivation logic (filtering, sorting, fetching) belong in `components/` and `lib/`, not in this folder.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -27,6 +27,7 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Agent catalogue:** `App.tsx` reads `AGENTS` and `FEATURED_AGENT_ID` to split the featured agent from the rest, then `AgentGrid` runs the remainder through `filterAgents`/`sortAgents`; `AGENT_CATEGORIES` seeds the grid's category tabs.
-- **Metrics:** `KpiStrip` maps over `KPIS`, rendering one card per record and feeding each `trend` array into a `Sparkline`.
+- `App.tsx` reads `AGENTS` and `FEATURED_AGENT_ID` from `agents.ts` to split out the featured agent and pass the remaining records to `AgentGrid`.
+- `KpiStrip.tsx` maps over `KPIS` from `kpis.ts`, rendering each metric's text and feeding its `trend` array to a `Sparkline`.
+- The modules here have no internal dependencies on each other; they are independent leaf data sources consumed by components in `components/` and helpers in `lib/`.
 <!-- /fill:folder:flows -->

@@ -139,8 +139,8 @@ On mount it shows "Loading pipelines…", then either lists the pipelines return
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | Stubs `fetch` to resolve a two-pipeline payload and asserts both run names ("CI · build & test", "E2E suite") appear. |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | Stubs `fetch` to reject and asserts the "could not reach the api" message is rendered. |
+| <PipelinesPanel /> | renders pipelines returned by the API | With `fetch` stubbed to resolve sample data, both "CI · build & test" and "E2E suite" rows appear in the panel. |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | With `fetch` stubbed to reject, the "Could not reach the API" message is rendered. |
 
 ## Diagrams
 

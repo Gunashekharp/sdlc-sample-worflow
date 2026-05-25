@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | The full pool of agents to display; the grid filters and sorts this list internally rather than the caller pre-processing it. |
+| agents | `Agent[]` | yes | The full agent dataset to display; it is filtered and sorted before rendering one `AgentCard` per visible agent. |
 
 ### Line-by-line walkthrough
 
@@ -230,13 +230,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | Asserts each agent's name from the full `AGENTS` list appears in the document after an unfiltered render. |
-| <AgentGrid /> | filters agents by the search query | Types `'deploy'` into the filter and asserts "Deploy Bot" is shown while "PR Reviewer" is gone. |
-| <AgentGrid /> | shows an empty state when nothing matches | Types a nonsense query and asserts the "No agents match" empty-state message appears. |
-| <AgentGrid /> | filters agents by category tab | Clicks the "Deploy" tab and asserts "Deploy Bot" is visible while a Reliability agent ("RCA Analyst") is hidden. |
-| <AgentGrid /> | marks a card as selected when clicked | Clicks a card and asserts its `aria-pressed` flips from `'false'` to `'true'`. |
-| <AgentGrid /> | keeps every agent visible after changing the sort | Selects the `'name'` sort and asserts all agents remain present, confirming sorting reorders rather than drops items. |
-| <AgentGrid /> | remembers the selected category across remounts | Clicks "Deploy", unmounts, remounts, and asserts the "Deploy" tab is still `aria-pressed="true"`, proving persistence. |
+| <AgentGrid /> | renders a card for every agent | Asserts every agent name in `AGENTS` appears in the document after rendering with the full list. |
+| <AgentGrid /> | filters agents by the search query | Typing "deploy" in the filter input shows "Deploy Bot" while "PR Reviewer" is no longer in the document. |
+| <AgentGrid /> | shows an empty state when nothing matches | Typing "zzznotanagent" makes the "No agents match" empty-state message appear. |
+| <AgentGrid /> | filters agents by category tab | Clicking the "Deploy" tab keeps "Deploy Bot" visible but removes "RCA Analyst" from the document. |
+| <AgentGrid /> | marks a card as selected when clicked | The card's button starts with `aria-pressed="false"` and flips to `"true"` after it is clicked. |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the "name" sort option leaves every agent name still present in the document. |
+| <AgentGrid /> | remembers the selected category across remounts | After clicking "Deploy" and remounting, the "Deploy" tab is still `aria-pressed="true"` from persisted state. |
 
 ## Diagrams
 

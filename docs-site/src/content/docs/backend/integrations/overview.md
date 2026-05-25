@@ -6,7 +6,7 @@ description: Files under server/src/integrations/
 **Folder:** `server/src/integrations/`
 
 <!-- fill:folder:summary -->
-`server/src/integrations/` holds adapters to external systems behind small provider interfaces, keeping third-party details out of the routes. Its one module, `cicd.ts`, defines the `CicdProvider` interface and two implementations — a deterministic mock and a live GitHub Actions client — plus the `getCicdProvider` selector and the pure `summarizePipelines` helper. Add a file here when wiring in another outside data source (e.g. another CI system or an alerting tool) behind a similar interface. Database access (`postgresStore.ts`) and HTTP routing (`routes.ts`) do NOT belong here.
+This folder holds adapters that talk to external systems on behalf of the API. Today that is `cicd.ts`, which defines the `CicdProvider` interface and its two implementations — a deterministic mock and a live GitHub Actions client — plus the pure `summarizePipelines` aggregator. Modules that wrap a third-party service behind a small interface (so callers like `routes.ts` stay decoupled from the vendor) belong here. Data access to the app's own database (the Postgres store) and core domain types do not — those live in `db/` and `domain.ts`.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -26,6 +26,5 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Provider selection:** at startup `getCicdProvider` inspects the GitHub credentials from config and returns the live `createGithubActionsProvider` when both token and repo are set, otherwise `createMockCicdProvider`.
-- **Pipeline request:** the `/api/pipelines` route calls the chosen provider's `listPipelines()`, then passes the result through `summarizePipelines` to attach aggregate counts and a pass rate before responding.
+At startup `getCicdProvider` in `cicd.ts` picks the live `createGithubActionsProvider` when `GITHUB_TOKEN` and `GITHUB_REPO` are set, otherwise the credential-free `createMockCicdProvider`; the chosen provider is injected into the app as `deps.cicd`. When a request hits `GET /api/pipelines`, the route calls `deps.cicd.listPipelines()` and passes the result through `summarizePipelines` to attach pass/fail counts and a pass rate before responding.
 <!-- /fill:folder:flows -->

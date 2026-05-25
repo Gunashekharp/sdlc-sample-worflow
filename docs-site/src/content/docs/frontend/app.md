@@ -137,10 +137,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | Asserts the "Featured agent" eyebrow and the "PR Reviewer" name (the `FEATURED_AGENT_ID` agent) are in the document. |
-| <App /> | renders the KPI strip | Asserts the region labelled "Key metrics" (the `KpiStrip` section) is present. |
-| <App /> | renders agents in the grid | Asserts non-featured agents like "Deploy Bot" and "Alert Triage" appear, confirming `rest` flows into the grid. |
-| <App /> | renders the prompt input | Asserts the element labelled "Prompt input" (the `PromptBar` textarea) is present. |
+| <App /> | renders the featured agent | Asserts the `Featured agent` heading and the `PR Reviewer` name (the `FEATURED_AGENT_ID` agent) are both in the document. |
+| <App /> | renders the KPI strip | Asserts a region with the accessible name matching `/key metrics/i` is present. |
+| <App /> | renders agents in the grid | Asserts non-featured agents `Deploy Bot` and `Alert Triage` appear, confirming `AgentGrid` received `rest`. |
+| <App /> | renders the prompt input | Asserts the element labelled `Prompt input` (from `PromptBar`) is present. |
 
 ## Diagrams
 

@@ -44,7 +44,7 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pool | `Pool` | — | yes | The `pg` connection pool captured in a closure; every store method runs its `agents`/`kpis` queries through it. |
+| pool | `Pool` | — | yes | The `pg` connection pool used to run the `SELECT` queries against the `agents` and `kpis` tables. |
 
 **Returns:** `Store`
 

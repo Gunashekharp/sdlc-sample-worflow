@@ -46,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to spotlight; supplies the name, status pill, description, and the four stat values rendered in the banner. |
+| agent | `Agent` | yes | The agent showcased in the hero panel: its name, status label, description, and the runs/success/avg-run/last-run stats. |
 
 ### Line-by-line walkthrough
 

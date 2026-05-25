@@ -45,9 +45,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to render; supplies the status dot, name, category badge, description, and the run/success/last-run footer values. |
-| selected | `boolean` | yes | Whether this card is the active one — toggles the accent border/ring styling and the `aria-pressed` state. |
-| onSelect | `(id: string) => void` | yes | Called with `agent.id` on click so the parent grid can track which card is selected. |
+| agent | `Agent` | yes | The agent record rendered in the card: its status dot, name, category, description, and run/success/last-run stats. |
+| selected | `boolean` | yes | Whether the card is the selected one; toggles the accent border/ring styling and the `aria-pressed` state. |
+| onSelect | `(id: string) => void` | yes | Callback invoked with `agent.id` when the card button is clicked, letting the parent track the selection. |
 
 ### Line-by-line walkthrough
 

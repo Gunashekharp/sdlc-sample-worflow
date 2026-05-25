@@ -6,7 +6,7 @@ description: Files under src/components/
 **Folder:** `src/components/`
 
 <!-- fill:folder:summary -->
-`src/components/` holds every React UI component for the Agent Console, from the page-level sections (`Sidebar`, `TopBar`, `KpiStrip`, `FeaturedAgent`, `PipelinesPanel`, `AgentGrid`, `PromptBar`) down to leaf primitives (`AgentCard`, `StatusDot`, `Sparkline`) and the shared `icons.tsx` set. As the dependency subgraph shows, components consume data from `data/agents.ts` and `data/kpis.ts` and logic from `src/lib/`, but they own only presentation — JSX, Tailwind classes, and local view state. Pure data transforms, the API client, and reusable hooks live in `src/lib/` and do NOT belong here, nor does the seed data itself.
+This folder holds the React UI components of the Agent Console dashboard. It includes the app chrome (`Sidebar`, `TopBar`, `PromptBar`), content panels (`AgentGrid`, `FeaturedAgent`, `KpiStrip`, `PipelinesPanel`), reusable presentational pieces (`AgentCard`, `Sparkline`, `StatusDot`), and the dependency-free `icons` set. Pure data fixtures live in `data/`, and reusable hooks, filtering, sorting, and API helpers live in `lib/` — those do not belong here.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -14,16 +14,16 @@ description: Files under src/components/
 | File | Hint |
 | --- | --- |
 | [`AgentCard.tsx`](../components/agentcard) | Selectable card showing one agent's status, name, category, description, and run stats. |
-| [`AgentGrid.tsx`](../components/agentgrid) | Filterable, sortable grid of agent cards with category tabs, a sort menu, and search. |
-| [`FeaturedAgent.tsx`](../components/featuredagent) | Highlighted banner for the single featured agent with its key stats and a Run action. |
+| [`AgentGrid.tsx`](../components/agentgrid) | Searchable, tabbed, sortable grid of `AgentCard`s with persisted category and sort. |
+| [`FeaturedAgent.tsx`](../components/featuredagent) | Hero panel highlighting one agent with its stats and a Run action. |
 | [`icons.tsx`](../components/icons) | Minimal inline icon set — 16px, stroke-based, currentColor. |
-| [`KpiStrip.tsx`](../components/kpistrip) | Responsive row of KPI cards, each with a value, delta, sparkline, and hint. |
-| [`PipelinesPanel.tsx`](../components/pipelinespanel) | Live CI/CD panel that fetches pipelines and renders loading, error, empty, and list states. |
-| [`PromptBar.tsx`](../components/promptbar) | Bottom prompt input with model picker and keyboard submit (backend wiring pending). |
-| [`Sidebar.tsx`](../components/sidebar) | Left navigation rail with workspace switcher, nav links, recent sessions, and user footer. |
+| [`KpiStrip.tsx`](../components/kpistrip) | Responsive grid of KPI cards rendering value, delta trend, and a `Sparkline`. |
+| [`PipelinesPanel.tsx`](../components/pipelinespanel) | Live CI/CD pipeline list fetched from the backend API via `useFetch`. |
+| [`PromptBar.tsx`](../components/promptbar) | Bottom prompt input with a model picker and Enter-to-send behavior. |
+| [`Sidebar.tsx`](../components/sidebar) | Left navigation rail with workspace switcher, nav items, and recent sessions. |
 | [`Sparkline.tsx`](../components/sparkline) | Tiny axis-free SVG trend line used inside KPI cards. |
-| [`StatusDot.tsx`](../components/statusdot) | Small colored status indicator; the running state pulses in Snabbit pink. |
-| [`TopBar.tsx`](../components/topbar) | Header bar with breadcrumb, command-palette search trigger, and environment switcher. |
+| [`StatusDot.tsx`](../components/statusdot) | Small colored status indicator that pulses for the running state. |
+| [`TopBar.tsx`](../components/topbar) | Top header with breadcrumb, search trigger, and environment switcher. |
 
 ## Dependencies
 
@@ -80,7 +80,7 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Agent browsing:** `AgentGrid` runs its `agents` prop through `filterAgents` and `sortAgents`, persists the tab/sort choice via `usePersistentState`, and renders one `AgentCard` per match; each card shows a `StatusDot` and reports selection back up.
-- **Metrics row:** `KpiStrip` maps over `data/kpis.ts`, rendering a card per KPI with a trend `Sparkline` and a `IconTrend*` arrow chosen by the delta sign.
-- **Live pipelines:** `PipelinesPanel` loads `fetchPipelines` through `useFetch`, then switches between loading, error, empty, and populated row states; the Refresh button calls the hook's `reload`.
+- `AgentGrid` reads from `data/agents`, runs the list through `lib/filterAgents` and `lib/sortAgents`, persists the chosen category and sort with `lib/usePersistentState`, and renders one `AgentCard` per match — each card delegating its indicator to `StatusDot`.
+- `KpiStrip` maps over `data/kpis`, drawing each metric's trend with `Sparkline` and its delta direction with the `IconTrendUp`/`IconTrendDown` glyphs from `icons`.
+- `PipelinesPanel` calls `lib/api.fetchPipelines` through `lib/useFetch`, surfacing loading, empty, and error states and rendering a row per returned pipeline.
 <!-- /fill:folder:flows -->

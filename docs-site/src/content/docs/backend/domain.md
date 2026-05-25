@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique slug (the `agents` table primary key) used to look up a single agent at `/api/agents/:id`. |
-| name | `string` | Human-readable display name returned to the frontend. |
-| category | `AgentCategory` | The agent's classification bucket, one of the five `AgentCategory` literals. |
-| description | `string` | One-sentence summary of what the agent does. |
-| status | `AgentStatus` | Operational state — `running`, `idle`, or `attention`. |
-| runsPerWeek | `number` | Approximate count of runs over the last 7 days; the Postgres store orders the list by this descending. |
-| successRate | `number` | Successful-run percentage, 0–100. |
-| avgDuration | `string` | Pre-formatted average run duration (e.g. "2m 40s"). |
-| lastRun | `string` | Human-readable time since the last run (e.g. "3m ago"). |
-| lastRunMinutes | `number` | Minutes since the last run — the numeric, orderable companion to `lastRun`. |
-| popular | `boolean` | Whether the agent appears under the frontend's "Popular" filter. |
+| id | `string` | Stable unique identifier for the agent (e.g. `'pr-reviewer'`), used as the route param for `/api/agents/:id`. |
+| name | `string` | Human-readable display name shown in the console, such as `'PR Reviewer'`. |
+| category | `AgentCategory` | Bucket the agent belongs to, constrained to the five `AgentCategory` values for grouping and filtering. |
+| description | `string` | One-sentence summary of what the agent does, shown in the agent card and detail view. |
+| status | `AgentStatus` | Current operational state of the agent, one of running, idle, or attention. |
+| runsPerWeek | `number` | Count of executions over the trailing week, used as a usage/activity metric. |
+| successRate | `number` | Percentage of successful runs, expressed as an integer 0–100. |
+| avgDuration | `string` | Pre-formatted average run duration string for display, e.g. `'2m 40s'`. |
+| lastRun | `string` | Human-friendly relative time of the most recent run, e.g. `'3m ago'`. |
+| lastRunMinutes | `number` | The same last-run time expressed as minutes ago, a numeric value for sorting and freshness checks. |
+| popular | `boolean` | Whether the agent is flagged as popular, used to feature or highlight it in the UI. |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique key (the `kpis` table primary key) for the metric tile. |
-| label | `string` | Display name of the metric (e.g. "Mean time to merge"). |
-| value | `string` | Pre-formatted headline figure shown as the large number. |
-| delta | `string` | Pre-formatted period-over-period change (e.g. "+18%", "-22%"). |
-| positive | `boolean` | Whether the change is a good outcome regardless of its sign; drives the frontend's color choice. |
-| hint | `string` | One-line explanation of what the metric measures. |
-| trend | `number[]` | Series of points (oldest first) the frontend renders as a sparkline; stored as JSONB in Postgres. |
+| id | `string` | Stable unique identifier for the KPI tile, used as a React key and to map seed rows. |
+| label | `string` | Short caption describing the metric, displayed above the value on the tile. |
+| value | `string` | Pre-formatted headline figure shown on the tile (formatting done server-side, so the UI renders it verbatim). |
+| delta | `string` | Pre-formatted change indicator versus the prior period, e.g. `'+4%'`. |
+| positive | `boolean` | Whether the `delta` represents a favourable movement, driving the up/down styling of the tile. |
+| hint | `string` | Tooltip/explanatory text giving context for what the metric measures. |
+| trend | `number[]` | Series of data points feeding the tile's sparkline, oldest to newest. |
 
 ### Used by
 

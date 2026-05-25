@@ -8,24 +8,24 @@ description: React + Vite single-page application. Renders the Agent Console das
 > React + Vite single-page application. Renders the Agent Console dashboard.
 
 <!-- fill:overview:summary -->
-The frontend is a React + Vite single-page app that renders the Snabbit Agent Console dashboard. It owns everything in the browser: the layout shell and components (`src/components/`), the UI logic and hooks (`src/lib/`), and the static seed data and types (`src/data/`). As the **Module dependency graph** shows, `main.tsx` boots `App.tsx`, which composes the page-level sections; the **React component tree** shows that tree of parent-renders-child relationships. The only runtime data crossing the network boundary is the CI/CD pipeline list, fetched from the backend via `lib/api.ts`; agents and KPIs are currently sourced from `src/data/` rather than the API.
+The frontend is a React + Vite single-page application that renders the Agent Console dashboard. `main.tsx` mounts the root `App`, which composes the layout — `Sidebar`, `TopBar`, `KpiStrip`, `FeaturedAgent`, `PipelinesPanel`, `AgentGrid`, and `PromptBar`. Most of its content is driven by static seed data in `data/` (`AGENTS` and `KPIS`), so the only live runtime boundary is `PipelinesPanel`, which fetches CI pipeline data from the backend through `lib/api.ts` and `useFetch`. The Module dependency graph below shows how these files import one another, and the React component tree shows the parent-to-child render hierarchy.
 <!-- /fill:overview:summary -->
 
 ## Top-level structure
 
 | Folder | Purpose |
 | --- | --- |
-| [`components/`](./frontend/components/overview/) | React UI components, from page sections to leaf primitives; add a file here when you need new rendered markup. |
-| [`data/`](./frontend/data/overview/) | Static seed data and its TypeScript types; add a file here for fixture/catalogue data, not logic. |
-| [`lib/`](./frontend/lib/overview/) | Presentation-free logic — the API client, pure transforms, and hooks; add a file here for reusable non-UI behavior. |
-| [`test/`](./frontend/test/overview/) | Vitest/RTL test setup (e.g. jest-dom matchers); add a file here for global test configuration, not individual specs. |
+| [`components/`](./frontend/components/overview/) | React presentational components (cards, panels, the grid, icons); add a file here for any new piece of rendered UI. |
+| [`data/`](./frontend/data/overview/) | Static seed datasets and their types (`AGENTS`, `KPIS`); add a file here for new presentational data, not logic. |
+| [`lib/`](./frontend/lib/overview/) | Framework-agnostic helpers and hooks (`filterAgents`, `sortAgents`, `useFetch`, `usePersistentState`, `api`); add reusable non-UI logic here. |
+| [`test/`](./frontend/test/overview/) | Shared Vitest bootstrapping (`setup.ts`); add a file here only for cross-cutting test setup, not individual specs. |
 
 ### Files at the root of this section
 
 | File | Hint |
 | --- | --- |
-| [`App.tsx`](./app) | Root component composing the layout shell; splits the featured agent from the rest and renders all page sections. |
-| [`main.tsx`](./main) | Vite entrypoint that mounts `App` into `#root` inside `StrictMode` and loads the global stylesheet. |
+| [`App.tsx`](./app) | Root component that derives the featured agent from `AGENTS` and composes the dashboard layout. |
+| [`main.tsx`](./main) | Vite entry point: creates the React root and renders `App` inside `StrictMode`. |
 
 ## Architecture
 
@@ -133,13 +133,13 @@ flowchart TD
 ## Key flows
 
 <!-- fill:overview:flows -->
-- **Boot:** [`main.tsx`](./main) creates the React root and renders [`App.tsx`](./app), which derives the featured agent and the remainder from [`data/agents.ts`](./data/agents) and lays out the sidebar, top bar, content sections, and prompt bar.
-- **Browse agents:** [`AgentGrid`](./components/agentgrid) pipes its `agents` through [`filterAgents`](./lib/filteragents) then [`sortAgents`](./lib/sortagents), persists the tab/sort via [`usePersistentState`](./lib/usepersistentstate), and renders an [`AgentCard`](./components/agentcard) per match.
-- **Live pipelines:** [`PipelinesPanel`](./components/pipelinespanel) loads [`fetchPipelines`](./lib/api) through [`useFetch`](./lib/usefetch), rendering loading/error/empty/list states and refetching on Refresh.
+- **Boot:** [`main.tsx`](./main) creates the React root and renders [`App`](./app) in `StrictMode`; `App` looks up `FEATURED_AGENT_ID` in [`AGENTS`](./data/agents) and renders the rest into [`AgentGrid`](./components/agentgrid).
+- **Agent browsing:** [`AgentGrid`](./components/agentgrid) keeps the active category and sort in [`usePersistentState`](./lib/usepersistentstate), then runs [`filterAgents`](./lib/filteragents) and [`sortAgents`](./lib/sortagents) before rendering an [`AgentCard`](./components/agentcard) per result.
+- **Live pipelines:** [`PipelinesPanel`](./components/pipelinespanel) calls [`useFetch`](./lib/usefetch) against [`api.ts`](./lib/api) to load CI pipeline status from the backend — the only network dependency in the frontend.
 <!-- /fill:overview:flows -->
 
 ## When to add code here
 
 <!-- fill:overview:when-to-add -->
-Add code here when it runs in the browser and shapes the dashboard UI. Put rendered markup in `components/`, reusable non-visual logic (transforms, hooks, the typed API client) in `lib/`, and fixture/catalogue data with its types in `data/`. If the work is server-side — REST endpoints, the database, or CI/CD integrations — it belongs in the backend (`server/`) instead, and the docs assistant Worker lives in `chat-worker/`. When you need real server data, extend `lib/api.ts` rather than adding another `fetch` call inside a component.
+Add code here when it concerns what the user sees or interacts with in the browser. Rendered UI goes in `components/`, reusable non-UI logic and hooks go in `lib/`, and presentational seed data with its types goes in `data/`. If the change is about server-side request handling, persistence, or background processing, it belongs in the backend or chat-worker subsystems instead — the frontend should only reach the server through `lib/api.ts`.
 <!-- /fill:overview:when-to-add -->

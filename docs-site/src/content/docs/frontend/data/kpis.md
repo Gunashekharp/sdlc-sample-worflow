@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique key for the metric (e.g. `agent-runs`), used as the React list key in `KpiStrip`. |
-| label | `string` | The metric's display name (e.g. "Agent runs · 7d"), shown uppercased atop the card. |
-| value | `string` | Pre-formatted headline figure (e.g. "1,284" or "4h 12m") rendered as the large number. |
-| delta | `string` | Pre-formatted period-over-period change (e.g. "+18%" or "-22%"); its leading sign picks the trend arrow icon. |
-| positive | `boolean` | Whether the change is a good outcome regardless of sign; colors the delta green/red and the sparkline. |
-| hint | `string` | One-line explanation of what the metric measures, shown muted below the sparkline. |
-| trend | `number[]` | Seven-point series, oldest first, plotted as the card's sparkline. |
+| id | `string` | Stable slug identifying the metric (e.g. `agent-runs`), used as the React list key in `KpiStrip`. |
+| label | `string` | Short human-readable name shown above the value, such as `Agent runs · 7d` or `Mean time to merge`. |
+| value | `string` | Pre-formatted headline figure displayed prominently, e.g. `1,284` or `4h 12m`. |
+| delta | `string` | Period-over-period change as a signed display string, such as `+18%` or `-22%`. |
+| positive | `boolean` | Whether the delta is a good outcome, independent of its sign — so a falling time-to-merge is still `true`. |
+| hint | `string` | One-line tooltip text explaining exactly what the metric measures. |
+| trend | `number[]` | Seven-point series, oldest first, rendered as the row's `Sparkline`. |
 
 ### Used by
 

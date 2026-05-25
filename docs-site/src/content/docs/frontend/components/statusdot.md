@@ -43,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | The agent's state; selects between the pulsing accent dot (`running`) and a static amber (`attention`) or faint (`idle`) dot, and sets the `title` tooltip. |
+| status | `AgentStatus` | yes | Selects the indicator's appearance: a pulsing accent dot for `running`, warn color for `attention`, otherwise a faint idle dot. |
 
 ### Line-by-line walkthrough
 
