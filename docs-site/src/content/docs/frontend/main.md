@@ -21,8 +21,8 @@ This file pulls in the following modules. Relative imports point to other docume
 | `./App.tsx` | `default as App` | internal |
 
 
-:::caution
-No exported symbols detected by the AST. This file is likely a side-effect entrypoint, re-export barrel, or runtime bootstrap. The source appendix below contains the full file.
+:::note
+No exported symbols detected by the AST. This file is a side-effect entrypoint, a re-export barrel, or a runtime bootstrap — open `src/main.tsx` directly to read the source.
 :::
 
 ## Diagrams
@@ -30,26 +30,3 @@ No exported symbols detected by the AST. This file is likely a side-effect entry
 <!-- fill:file:diagrams -->
 
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/main.tsx` (11 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (11 lines)</summary>
-
-````tsx
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-````
-
-</details>

@@ -42,8 +42,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | The Express application instance the routes are mounted on. |
-| deps | `AppDeps` | — | yes | Injected `store` and `cicd` collaborators the handlers read data from. |
+| app | `Express` | — | yes | <FILL: purpose of app> |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `void`
 
@@ -171,52 +171,3 @@ sequenceDiagram
     end
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/routes.ts` (37 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (37 lines)</summary>
-
-````ts
-import type { Express } from 'express'
-import type { AppDeps } from './app'
-import { summarizePipelines } from './integrations/cicd'
-
-/** Register all REST routes on the given Express app. */
-export function registerRoutes(app: Express, deps: AppDeps): void {
-  app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', time: new Date().toISOString() })
-  })
-
-  app.get('/api/agents', async (_req, res) => {
-    res.json(await deps.store.listAgents())
-  })
-
-  app.get('/api/agents/:id', async (req, res) => {
-    const agent = await deps.store.getAgent(req.params.id)
-    if (!agent) {
-      res.status(404).json({ error: 'Agent not found' })
-      return
-    }
-    res.json(agent)
-  })
-
-  app.get('/api/kpis', async (_req, res) => {
-    res.json(await deps.store.listKpis())
-  })
-
-  app.get('/api/pipelines', async (_req, res) => {
-    const pipelines = await deps.cicd.listPipelines()
-    res.json({
-      provider: deps.cicd.name,
-      summary: summarizePipelines(pipelines),
-      pipelines,
-    })
-  })
-}
-
-````
-
-</details>

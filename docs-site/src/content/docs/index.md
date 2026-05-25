@@ -92,22 +92,20 @@ The KPI strip, featured-agent hero card, and agent grid all render without the b
 
 - [Overview](/sdlc-sample-worflow/frontend/overview/) — layout, entry points, build tooling
 - [App.tsx](/sdlc-sample-worflow/frontend/app/) — root component and dashboard assembly
-- [Components](/sdlc-sample-worflow/frontend/components/) — all UI components
-- [Library](/sdlc-sample-worflow/frontend/lib/) — hooks and pure functions
-- [Data & types](/sdlc-sample-worflow/frontend/data/) — agent and KPI seed data
-- [Styling](/sdlc-sample-worflow/frontend/styling/) — Tailwind tokens
-- [vite-env.d.ts](/sdlc-sample-worflow/frontend/vite-env/) — `import.meta.env` type declarations
+- [Components](/sdlc-sample-worflow/frontend/components/overview/) — all UI components
+- [Library](/sdlc-sample-worflow/frontend/lib/overview/) — hooks and pure functions
+- [Data & types](/sdlc-sample-worflow/frontend/data/overview/) — agent and KPI seed data
 
 ### Backend
 
 - [Overview](/sdlc-sample-worflow/backend/overview/) — architecture, dependency-injection pattern
-- [REST API](/sdlc-sample-worflow/backend/api/) — all endpoints
-- [Data model](/sdlc-sample-worflow/backend/data-model/) — types and schema
-- [Stores](/sdlc-sample-worflow/backend/stores/) — in-memory and Postgres implementations
-- [CI/CD integration](/sdlc-sample-worflow/backend/cicd-integration/) — mock and GitHub Actions providers
+- [Routes](/sdlc-sample-worflow/backend/routes/) — every REST endpoint registered on the Express app
+- [Domain model](/sdlc-sample-worflow/backend/domain/) — the `Agent`, `Kpi`, and `Pipeline` types
+- [Stores](/sdlc-sample-worflow/backend/store/) — in-memory and [PostgreSQL](/sdlc-sample-worflow/backend/postgresstore/) implementations
+- [CI/CD integration](/sdlc-sample-worflow/backend/integrations/cicd/) — mock and GitHub Actions providers
+- [Database](/sdlc-sample-worflow/backend/db/overview/) — [schema](/sdlc-sample-worflow/backend/db/schema/) and [setup](/sdlc-sample-worflow/backend/db/setup/)
 
 ### Chat worker
 
-- [Overview](/sdlc-sample-worflow/chat-worker/) — "Ask the docs" chatbot architecture
-- [Worker (src/index.js)](/sdlc-sample-worflow/chat-worker/worker/) — request handler, keyword search, Anthropic API call
-- [build-index.mjs](/sdlc-sample-worflow/chat-worker/build-index/) — docs indexer that produces `docs-index.json`
+- [Overview](/sdlc-sample-worflow/chat-worker/overview/) — "Ask the docs" chatbot architecture
+- [Worker (src/index.js)](/sdlc-sample-worflow/chat-worker/index/) — request handler, keyword search, Anthropic API call

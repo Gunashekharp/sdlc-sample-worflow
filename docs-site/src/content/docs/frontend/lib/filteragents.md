@@ -42,8 +42,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The full list of agents to filter; left unmodified. |
-| filter | `AgentFilter` | — | yes | The category and free-text query to match against. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
 
 **Returns:** `Agent[]`
 
@@ -140,64 +140,19 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | All three agents pass through (length 3). |
-| filterAgents | filters by an exact category | `category: 'Review'` keeps only agent `a`. |
-| filterAgents | filters by the Popular pseudo-category | `category: 'Popular'` keeps `['a', 'b']`. |
-| filterAgents | matches the query against the agent name | Query `'deploy'` matches `b` by name. |
-| filterAgents | matches the query against the description | Query `'root cause'` matches `c` by description. |
-| filterAgents | is case-insensitive | Query `'REVIEWER'` still matches `a`. |
-| filterAgents | ignores surrounding whitespace in the query | Query `'  bot  '` is trimmed and matches `b`. |
-| filterAgents | applies category and query together | `'Popular'` + `'reviewer'` keeps only `a`. |
-| filterAgents | returns an empty array when nothing matches | Query `'nonexistent'` yields `[]`. |
-| filterAgents | does not mutate the input array | Input `agents` array is unchanged after filtering. |
+| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
+| filterAgents | filters by an exact category | <FILL: assertion summary> |
+| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
+| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
+| filterAgents | matches the query against the description | <FILL: assertion summary> |
+| filterAgents | is case-insensitive | <FILL: assertion summary> |
+| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
+| filterAgents | applies category and query together | <FILL: assertion summary> |
+| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
+| filterAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
 
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/lib/filterAgents.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (33 lines)</summary>
-
-````ts
-import type { Agent } from '../data/agents'
-
-export interface AgentFilter {
-  /** Free-text query matched against agent name and description. */
-  query: string
-  /** 'All', 'Popular', or one of the AgentCategory values. */
-  category: string
-}
-
-/**
- * Filter the agent list by category and free-text query.
- * Pure and side-effect free so it can be unit tested directly.
- */
-export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] {
-  const query = filter.query.trim().toLowerCase()
-
-  return agents.filter((agent) => {
-    const matchesCategory =
-      filter.category === 'All' ||
-      (filter.category === 'Popular'
-        ? agent.popular
-        : agent.category === filter.category)
-
-    if (!matchesCategory) return false
-    if (!query) return true
-
-    return (
-      agent.name.toLowerCase().includes(query) ||
-      agent.description.toLowerCase().includes(query)
-    )
-  })
-}
-
-````
-
-</details>

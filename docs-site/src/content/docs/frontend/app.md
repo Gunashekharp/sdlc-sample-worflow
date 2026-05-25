@@ -124,10 +124,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | The featured agent (`pr-reviewer`) appears in the rendered output. |
-| <App /> | renders the KPI strip | The KPI strip and its metrics are present. |
-| <App /> | renders agents in the grid | The non-featured agents are rendered in the grid. |
-| <App /> | renders the prompt input | The `PromptBar`'s input field is present. |
+| <App /> | renders the featured agent | <FILL: assertion summary> |
+| <App /> | renders the KPI strip | <FILL: assertion summary> |
+| <App /> | renders agents in the grid | <FILL: assertion summary> |
+| <App /> | renders the prompt input | <FILL: assertion summary> |
 
 ## Diagrams
 
@@ -168,55 +168,3 @@ flowchart TD
 The Figma designs referenced in PRs #1–#4 for `App.tsx` could not be embedded because the Figma export token has expired (HTTP 403). Re-run the docs agent with a valid Figma token to attach them.
 :::
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `src/App.tsx` (40 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (40 lines)</summary>
-
-````tsx
-import { AGENTS, FEATURED_AGENT_ID } from './data/agents'
-import Sidebar from './components/Sidebar'
-import TopBar from './components/TopBar'
-import KpiStrip from './components/KpiStrip'
-import FeaturedAgent from './components/FeaturedAgent'
-import PipelinesPanel from './components/PipelinesPanel'
-import AgentGrid from './components/AgentGrid'
-import PromptBar from './components/PromptBar'
-
-export default function App() {
-  const featured = AGENTS.find((a) => a.id === FEATURED_AGENT_ID) ?? AGENTS[0]
-  const rest = AGENTS.filter((a) => a.id !== featured.id)
-
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5">
-            <KpiStrip />
-            <FeaturedAgent agent={featured} />
-            <PipelinesPanel />
-            <AgentGrid agents={rest} />
-          </div>
-        </main>
-        <PromptBar />
-      </div>
-    </div>
-  )
-}
-
-// docs-agent test: trigger a docs rebuild
-
-// docs-agent test: figma embed on App.tsx
-
-// docs-agent auto-trigger re-test
-
-// figma-gate test
-
-````
-
-</details>

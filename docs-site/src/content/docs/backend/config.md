@@ -39,29 +39,3 @@ A frozen-style object literal of resolved settings. `port` is `process.env.PORT`
 <!-- fill:file:diagrams -->
 
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/config.ts` (14 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (14 lines)</summary>
-
-````ts
-/*
- * Runtime configuration, read from environment variables.
- * Sensible defaults keep local development zero-config.
- */
-export const config = {
-  port: Number(process.env.PORT ?? 3001),
-  databaseUrl:
-    process.env.DATABASE_URL ?? 'postgres://localhost:5432/snabbit_dash',
-  /** When set together with githubRepo, the CI/CD adapter goes live. */
-  githubToken: process.env.GITHUB_TOKEN ?? '',
-  /** owner/repo, e.g. "snabbit/changelog-automation". */
-  githubRepo: process.env.GITHUB_REPO ?? '',
-}
-
-````
-
-</details>

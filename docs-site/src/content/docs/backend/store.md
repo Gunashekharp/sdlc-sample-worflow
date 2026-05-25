@@ -44,8 +44,8 @@ export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The seed list of agents the returned store reads from and serves. |
-| kpis | `Kpi[]` | — | yes | The seed list of KPIs the returned store reads from and serves. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| kpis | `Kpi[]` | — | yes | <FILL: purpose of kpis> |
 
 **Returns:** `Store`
 
@@ -160,48 +160,3 @@ classDiagram
     Store <|.. PostgresStore : createPostgresStore
 ```
 <!-- /fill:file:diagrams -->
-
-## Source
-
-Full file source for `server/src/store.ts` (33 lines). The line-by-line walkthroughs above reference these line numbers.
-
-<details>
-<summary>View source (33 lines)</summary>
-
-````ts
-import type { Agent, Kpi } from './domain'
-
-/** Read access to the agent catalogue. */
-export interface AgentStore {
-  listAgents(): Promise<Agent[]>
-  getAgent(id: string): Promise<Agent | null>
-}
-
-/** Read access to the KPI list. */
-export interface KpiStore {
-  listKpis(): Promise<Kpi[]>
-}
-
-export type Store = AgentStore & KpiStore
-
-/**
- * In-memory store. Used by the test suite (so `npm test` needs no database)
- * and as a fallback for quick local runs.
- */
-export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store {
-  return {
-    async listAgents() {
-      return [...agents]
-    },
-    async getAgent(id: string) {
-      return agents.find((a) => a.id === id) ?? null
-    },
-    async listKpis() {
-      return [...kpis]
-    },
-  }
-}
-
-````
-
-</details>
