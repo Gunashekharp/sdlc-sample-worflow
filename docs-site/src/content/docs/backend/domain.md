@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
-| runsPerWeek | `number` | <FILL: runsPerWeek> |
-| successRate | `number` | <FILL: successRate> |
-| avgDuration | `string` | <FILL: avgDuration> |
-| lastRun | `string` | <FILL: lastRun> |
-| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
-| popular | `boolean` | <FILL: popular> |
+| id | `string` | Primary key — kebab-case stable identifier mapped from the `agents.id` column. |
+| name | `string` | Display name (`agents.name`) shown in the dashboard. |
+| category | `AgentCategory` | Functional bucket the agent belongs to, narrowed to the five-value union. |
+| description | `string` | One-sentence summary surfaced on cards and the featured banner. |
+| status | `AgentStatus` | Current operational state — narrowed to `running`/`idle`/`attention`. |
+| runsPerWeek | `number` | Approximate runs over the last 7 days (`runs_per_week` column). |
+| successRate | `number` | Successful-run percentage in `[0, 100]` (`success_rate` column). |
+| avgDuration | `string` | Pre-formatted average run duration (e.g. `"2m 40s"`). |
+| lastRun | `string` | Human-readable time since the last run (e.g. `"3m ago"`). |
+| lastRunMinutes | `number` | Minutes since the last run — the orderable companion to `lastRun`. |
+| popular | `boolean` | Whether the agent shows up under the `Popular` filter. |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable kebab-case identifier (e.g. `'agent-runs'`) used as the React list key. |
+| label | `string` | Short caption shown above the headline value (e.g. `'Mean time to merge'`). |
+| value | `string` | Pre-formatted headline string — already includes units, so the frontend renders it verbatim. |
+| delta | `string` | Pre-formatted change indicator such as `'+18%'` or `'-22%'`; the sign flips the trend icon. |
+| positive | `boolean` | Whether the change is a good outcome regardless of sign — drives delta colour and sparkline stroke. |
+| hint | `string` | One-sentence description shown beneath the card. |
+| trend | `number[]` | Seven-point series stored as JSONB, oldest first, fed to the `Sparkline` component. |
 
 ### Used by
 

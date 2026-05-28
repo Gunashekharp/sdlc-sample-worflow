@@ -47,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | `localStorage` key the value is read from on mount and written to on every change — pick a namespaced string like `'snabbit.agentGrid.sort'`. |
+| initial | `T` | — | yes | Fallback value used when nothing is stored at `key`, the stored JSON is malformed, or `localStorage` is inaccessible. |
 
 **Returns:** `[T, (value: T) => void]`
 

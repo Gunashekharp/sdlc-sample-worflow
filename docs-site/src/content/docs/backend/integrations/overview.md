@@ -6,7 +6,7 @@ description: Files under server/src/integrations/
 **Folder:** `server/src/integrations/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+This folder holds adapters for third-party services the API talks to. Today that is `cicd.ts`, which exposes the `CicdProvider` interface and a mock vs. GitHub Actions implementation behind a `getCicdProvider()` selector. Add a new file here when wiring in another external service (e.g. Jira, Sentry); keep each provider behind a small interface so the route handlers can stay agnostic. Persistence belongs in `../store.ts`/`../postgresStore.ts`, not here.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -26,5 +26,6 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+- **Provider selection:** at boot `index.ts` calls `getCicdProvider({ githubToken, githubRepo })`; if both env vars are set it returns the live `createGithubActionsProvider`, otherwise the deterministic `createMockCicdProvider` (also used by tests).
+- **Request path:** `routes.ts`'s `GET /api/pipelines` handler calls `deps.cicd.listPipelines()` and feeds the result through `summarizePipelines()` so the response carries both per-run rows and the aggregate pass-rate summary.
 <!-- /fill:folder:flows -->

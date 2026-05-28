@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | <FILL: what does agents control?> |
+| agents | `Agent[]` | yes | The pool of agents to display — the grid filters, sorts, and selects within this array but never mutates it. |
 
 ### Line-by-line walkthrough
 
@@ -230,13 +230,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
-| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
-| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
-| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
-| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
-| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
+| <AgentGrid /> | renders a card for every agent | Every name in `AGENTS` appears in the document after the grid mounts with the full seed catalogue. |
+| <AgentGrid /> | filters agents by the search query | Typing "deploy" into the `Filter agents` input shows `Deploy Bot` and hides `PR Reviewer`. |
+| <AgentGrid /> | shows an empty state when nothing matches | A query of `zzznotanagent` causes the "No agents match" dashed panel to render. |
+| <AgentGrid /> | filters agents by category tab | Clicking the `Deploy` tab keeps `Deploy Bot` visible and removes `RCA Analyst`. |
+| <AgentGrid /> | marks a card as selected when clicked | A card starts with `aria-pressed="false"` and flips to `"true"` after a click. |
+| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the `Name (A–Z)` sort option leaves all agents still present in the document. |
+| <AgentGrid /> | remembers the selected category across remounts | Clicking `Deploy`, unmounting, and remounting leaves the `Deploy` tab pressed via `usePersistentState`. |
 
 ## Diagrams
 

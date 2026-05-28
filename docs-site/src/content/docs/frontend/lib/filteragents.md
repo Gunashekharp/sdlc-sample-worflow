@@ -44,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
+| agents | `Agent[]` | — | yes | The full agent pool to filter — left untouched; the function returns a fresh array via `Array.filter`. |
+| filter | `AgentFilter` | — | yes | The criteria pair: `category` (`'All'`, `'Popular'`, or a real `AgentCategory`) and a free-text `query` matched against name and description. |
 
 **Returns:** `Agent[]`
 
@@ -142,16 +142,16 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
-| filterAgents | filters by an exact category | <FILL: assertion summary> |
-| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
-| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
-| filterAgents | matches the query against the description | <FILL: assertion summary> |
-| filterAgents | is case-insensitive | <FILL: assertion summary> |
-| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
-| filterAgents | applies category and query together | <FILL: assertion summary> |
-| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
-| filterAgents | does not mutate the input array | <FILL: assertion summary> |
+| filterAgents | returns every agent for the All category and empty query | With `category: 'All'` and an empty query, the result contains all three fixture agents. |
+| filterAgents | filters by an exact category | `category: 'Review'` returns only the agent whose `category` exactly equals `'Review'` (`'a'`). |
+| filterAgents | filters by the Popular pseudo-category | `category: 'Popular'` keeps only the agents flagged `popular: true` (`['a', 'b']`). |
+| filterAgents | matches the query against the agent name | Query `'deploy'` matches `Deploy Bot` via its `name` and returns `['b']`. |
+| filterAgents | matches the query against the description | Query `'root cause'` matches via the `description` field and returns `['c']`. |
+| filterAgents | is case-insensitive | Query `'REVIEWER'` still matches `PR Reviewer` because both sides are lowercased before `includes`. |
+| filterAgents | ignores surrounding whitespace in the query | Query `'  bot  '` is trimmed before matching, so `Deploy Bot` is still returned. |
+| filterAgents | applies category and query together | `category: 'Popular'` + query `'reviewer'` ANDs both, returning only `['a']`. |
+| filterAgents | returns an empty array when nothing matches | Query `'nonexistent'` produces `[]` — no errors, just an empty result. |
+| filterAgents | does not mutate the input array | After filtering, the original `agents` array still has the same element order, proving `filter` returns a new array. |
 
 ## Diagrams
 

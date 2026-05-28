@@ -44,8 +44,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | <FILL: purpose of app> |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| app | `Express` | — | yes | The Express application instance that the route handlers are attached to via `app.get(...)`. |
+| deps | `AppDeps` | — | yes | Injected `store` and `cicd` collaborators — handlers call `deps.store.*` for agents/KPIs and `deps.cicd.*` for pipelines. |
 
 **Returns:** `void`
 

@@ -68,11 +68,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable kebab-case identifier (e.g. `'pr-reviewer'`) used as the React list key and to look up the featured agent. |
+| name | `string` | Display name shown in headers and cards (e.g. `'PR Reviewer'`). |
+| category | `AgentCategory` | Which functional bucket the agent belongs to — drives the category tab filter in `AgentGrid`. |
+| description | `string` | One-sentence pitch shown in the featured banner and clamped to two lines on each card. |
+| status | `AgentStatus` | Current operational state — drives `StatusDot`'s colour (running pulses pink, attention amber, idle grey). |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -144,12 +144,12 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | `AGENTS.length` is greater than zero — the seed array is never empty. |
+| agent catalogue | gives every agent a unique id | The `Set` of all `id`s has the same size as the array, so no two agents collide. |
+| agent catalogue | includes the featured agent | Some `Agent` in `AGENTS` has an `id` equal to `FEATURED_AGENT_ID`, so the spotlight slot can always resolve. |
+| agent catalogue | only uses known categories | Every agent's `category` is one of the values in `AGENT_CATEGORIES`. |
+| agent catalogue | keeps success rates between 0 and 100 | Every `successRate` value sits in the inclusive `[0, 100]` percentage range. |
+| agent catalogue | gives every agent a non-empty name and description | Both `name` and `description` are non-empty after trimming, so cards never render blank text. |
 
 ## Diagrams
 

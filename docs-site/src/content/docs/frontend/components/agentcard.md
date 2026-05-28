@@ -45,9 +45,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
-| selected | `boolean` | yes | <FILL: what does selected control?> |
-| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
+| agent | `Agent` | yes | The agent row to render — supplies status, name, category, description, weekly runs, success rate, and last-run label. |
+| selected | `boolean` | yes | Whether this card is the currently-active one — drives the accent border/ring style and the `aria-pressed` value. |
+| onSelect | `(id: string) => void` | yes | Click callback invoked with `agent.id` so the parent (typically `AgentGrid`) can update its `selectedId` state. |
 
 ### Line-by-line walkthrough
 

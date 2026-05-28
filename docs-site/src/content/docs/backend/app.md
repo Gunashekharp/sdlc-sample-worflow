@@ -50,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| deps | `AppDeps` | — | yes | Injected collaborators — the `Store` for agent/KPI reads and the `CicdProvider` for pipeline reads — handed straight to `registerRoutes`. |
 
 **Returns:** `any`
 
@@ -170,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | <FILL: store> |
-| cicd | `CicdProvider` | <FILL: cicd> |
+| store | `Store` | Read access to agents and KPIs — Postgres-backed in production, in-memory in tests. |
+| cicd | `CicdProvider` | Adapter that lists CI/CD pipelines — `mock` in dev/tests, `github-actions` when credentials are set. |
 
 ### Used by
 

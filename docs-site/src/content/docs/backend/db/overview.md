@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
+This folder holds Postgres-only concerns: the idempotent table schema (`schema.ts`) and the one-shot setup/seed script (`setup.ts`) invoked via `npm run db:setup`. Both are detached from request handling — `setup.ts` is its own `node` entrypoint. Runtime query code belongs in `../postgresStore.ts`, and domain types belong in `../domain.ts`.
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,5 +36,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
+- **`npm run db:setup`** runs `setup.ts`: it opens a `pg` `Pool` using `config.databaseUrl`, executes `SCHEMA_SQL` from `schema.ts` (creates `agents` and `kpis` tables if missing), then iterates `SEED_AGENTS` and `SEED_KPIS` from `../seed.ts` and runs `INSERT … ON CONFLICT (id) DO UPDATE` for each row so the script is safely re-runnable.
 <!-- /fill:folder:flows -->

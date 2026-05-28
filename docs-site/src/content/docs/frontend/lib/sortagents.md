@@ -45,8 +45,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| key | `SortKey` | — | yes | <FILL: purpose of key> |
+| agents | `Agent[]` | — | yes | The agents to order — shallow-copied before sorting, so the caller's array is left untouched. |
+| key | `SortKey` | — | yes | Which field to order by — `'runs'`, `'success'`, `'name'`, or `'recent'`; selects the comparator inside the switch. |
 
 **Returns:** `Agent[]`
 
@@ -139,11 +139,11 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
-| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
-| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
-| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
-| sortAgents | does not mutate the input array | <FILL: assertion summary> |
+| sortAgents | sorts by runs, descending | With `key: 'runs'`, the agent ids come back ordered `['b', 'c', 'a']` (300, 100, 50 runs/wk). |
+| sortAgents | sorts by success rate, descending | With `key: 'success'`, the order is `['c', 'a', 'b']` (99%, 90%, 80%). |
+| sortAgents | sorts by name, ascending | With `key: 'name'`, `localeCompare` puts the agents in `Alpha`, `Bravo`, `Charlie` order (`['b', 'c', 'a']`). |
+| sortAgents | sorts by most recent run first | With `key: 'recent'`, `lastRunMinutes` ascending yields `['b', 'a', 'c']` (5, 30, 120 minutes ago). |
+| sortAgents | does not mutate the input array | After sorting, the original `agents` array preserves its original id order, proving the shallow copy worked. |
 
 ## Diagrams
 

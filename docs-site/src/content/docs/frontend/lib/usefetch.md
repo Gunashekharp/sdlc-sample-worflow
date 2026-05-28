@@ -47,7 +47,7 @@ export function useFetch<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | <FILL: purpose of fetcher> |
+| fetcher | `(signal: AbortSignal) => Promise<T>` | — | yes | The async function the hook runs on mount and on every `reload`; the supplied `AbortSignal` is wired through so the request is cancelled on unmount. Must be referentially stable. |
 
 **Returns:** `FetchState<T>`
 
@@ -185,10 +185,10 @@ export interface FetchState<T> { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| data | `T` | <FILL: data> |
-| loading | `boolean` | <FILL: loading> |
-| error | `string` | <FILL: error> |
-| reload | `() => void` | <FILL: reload> |
+| data | `T` | The resolved fetch result; `null` before the first successful response, and retained across reloads so previous data stays visible while refetching. |
+| loading | `boolean` | `true` whenever a request is in flight, including the initial mount; flips to `false` on both success and error. |
+| error | `string` | Failure message (from `err.message`, or the literal `'Request failed'`) when the request rejects; `null` otherwise. |
+| reload | `() => void` | Stable callback that re-runs the fetcher; aborts any in-flight request first via the cleanup function. |
 
 ## Diagrams
 

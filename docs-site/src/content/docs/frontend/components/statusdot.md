@@ -43,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | <FILL: what does status control?> |
+| status | `AgentStatus` | yes | The agent's runtime state — selects the pulsing accent dot for `running`, amber for `attention`, or muted grey for `idle`, and is used to look up the `title` tooltip. |
 
 ### Line-by-line walkthrough
 

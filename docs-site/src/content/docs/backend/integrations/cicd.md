@@ -40,7 +40,7 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pipelines | `Pipeline[]` | — | yes | <FILL: purpose of pipelines> |
+| pipelines | `Pipeline[]` | — | yes | The list of pipeline runs to roll up; the function counts statuses and computes the pass rate but never mutates the array. |
 
 **Returns:** `PipelineSummary`
 
@@ -201,8 +201,8 @@ Builds a live `CicdProvider` named `'github-actions'` that fetches the 20 most r
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| token | `string` | — | yes | <FILL: purpose of token> |
-| repo | `string` | — | yes | <FILL: purpose of repo> |
+| token | `string` | — | yes | GitHub personal access token (or installation token) sent as `Authorization: Bearer ${token}` on every API call. |
+| repo | `string` | — | yes | `owner/repo` slug (e.g. `"snabbit/changelog-automation"`) interpolated into the workflow-runs URL. |
 
 **Returns:** `CicdProvider`
 
@@ -274,7 +274,7 @@ export function getCicdProvider(env: {
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | <FILL: purpose of env> |
+| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | The credential pair pulled from `config.ts`; both must be non-empty to pick the live GitHub Actions provider, otherwise the mock is used. |
 
 **Returns:** `CicdProvider`
 
@@ -360,14 +360,14 @@ The normalized shape of a single CI/CD run as exposed by the API, independent of
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Stable identifier — the GitHub run id stringified, or a hard-coded `'p-NNNN'` for mock runs. |
+| name | `string` | Workflow/run display name (e.g. `'CI · build & test'`). |
+| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run; the mock data includes a couple of `'jenkins'` rows for variety. |
+| branch | `string` | Git branch the run executed against; falls back to `'unknown'` for GitHub runs missing `head_branch`. |
+| status | `PipelineStatus` | Normalized lifecycle state derived from the raw GitHub `status`/`conclusion` pair. |
+| durationSeconds | `number` | Run duration in seconds; computed from the start and updated timestamps and clamped to `>= 0`. |
+| triggeredBy | `string` | Actor who started the run (GitHub `actor.login`, or `'unknown'` when missing); the mock uses synthetic usernames. |
+| updatedAt | `string` | ISO-8601 timestamp of the last update to the run, carried through from `run.updated_at`. |
 
 ### Used by
 
@@ -389,10 +389,10 @@ The aggregate produced by `summarizePipelines`: a count of total pipelines, per-
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
+| total | `number` | Count of every pipeline in the input — equals `pipelines.length`. |
+| passing | `number` | How many pipelines have `status === 'passing'`. |
+| failing | `number` | How many pipelines have `status === 'failing'`. |
+| running | `number` | How many pipelines are still in flight (`status === 'running'`); excluded from the `passRate` denominator. |
 | passRate | `number` | Pass rate over finished (passing + failing) pipelines, 0–100. |
 
 ## CicdProvider
@@ -411,7 +411,7 @@ The provider contract that decouples the rest of the app from any specific CI sy
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | `string` | <FILL: name> |
+| name | `string` | Identifier of the active provider (e.g. `'mock'` or `'github-actions'`); surfaced in the `/api/pipelines` response. |
 
 ### Used by
 

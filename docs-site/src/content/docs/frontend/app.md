@@ -140,10 +140,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | <FILL: assertion summary> |
-| <App /> | renders the KPI strip | <FILL: assertion summary> |
-| <App /> | renders agents in the grid | <FILL: assertion summary> |
-| <App /> | renders the prompt input | <FILL: assertion summary> |
+| <App /> | renders the featured agent | The "Featured agent" eyebrow and `PR Reviewer` heading both appear, confirming the featured slot resolves to the PR Reviewer agent. |
+| <App /> | renders the KPI strip | The region labelled "Key metrics" (from `KpiStrip`'s `aria-label`) is present in the document. |
+| <App /> | renders agents in the grid | `Deploy Bot` and `Alert Triage` — two of the non-featured agents — appear in the grid. |
+| <App /> | renders the prompt input | The textarea labelled "Prompt input" (from `PromptBar`'s `aria-label`) is rendered at the bottom of the layout. |
 
 ## Diagrams
 

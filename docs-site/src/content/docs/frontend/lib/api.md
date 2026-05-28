@@ -41,7 +41,7 @@ export async function fetchPipelines(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| signal | `AbortSignal` | — | no | <FILL: purpose of signal> |
+| signal | `AbortSignal` | — | no | Optional `AbortSignal` forwarded to `fetch` — when aborted, the underlying request is cancelled and the promise rejects with an `AbortError`. |
 
 **Returns:** `Promise<PipelinesResponse>`
 
@@ -141,14 +141,14 @@ export interface Pipeline { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
-| branch | `string` | <FILL: branch> |
-| status | `PipelineStatus` | <FILL: status> |
-| durationSeconds | `number` | <FILL: durationSeconds> |
-| triggeredBy | `string` | <FILL: triggeredBy> |
-| updatedAt | `string` | <FILL: updatedAt> |
+| id | `string` | Stable identifier for the run — used as the React list key in `PipelinesPanel`. |
+| name | `string` | Human-readable workflow name (e.g. `"CI · build & test"`) displayed as the row label. |
+| provider | `"github-actions" \| "jenkins"` | Which CI system produced this run — narrows to the two providers the dashboard recognises. |
+| branch | `string` | Git branch the run executed against, shown as a small monospace badge. |
+| status | `PipelineStatus` | One of `'passing'`, `'failing'`, `'running'` — drives the row's colored dot via `STATUS_STYLES`. |
+| durationSeconds | `number` | Run duration in seconds; `formatDuration` turns it into `"Xm Ys"` for display. |
+| triggeredBy | `string` | Actor or system that started the run (e.g. a username or `"ci-bot"`), shown right-aligned on wide rows. |
+| updatedAt | `string` | ISO-8601 timestamp of the last update; carried so callers can sort or show "ago" labels. |
 
 ### Used by
 
@@ -170,11 +170,11 @@ export interface PipelineSummary { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | <FILL: total> |
-| passing | `number` | <FILL: passing> |
-| failing | `number` | <FILL: failing> |
-| running | `number` | <FILL: running> |
-| passRate | `number` | <FILL: passRate> |
+| total | `number` | Count of all pipelines included in the response — equals `pipelines.length`. |
+| passing | `number` | Number of pipelines whose `status` is `'passing'`. |
+| failing | `number` | Number of pipelines whose `status` is `'failing'`. |
+| running | `number` | Number of pipelines currently in flight (`status === 'running'`). |
+| passRate | `number` | Server-computed pass rate over finished runs only (`passing / (passing + failing)`, expressed as 0–100). |
 
 ## PipelinesResponse
 
@@ -192,9 +192,9 @@ export interface PipelinesResponse { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| provider | `string` | <FILL: provider> |
-| summary | `PipelineSummary` | <FILL: summary> |
-| pipelines | `Pipeline[]` | <FILL: pipelines> |
+| provider | `string` | Name of the active CI/CD adapter on the backend (e.g. `"github-actions"` or `"mock"`); displayed in the panel header. |
+| summary | `PipelineSummary` | Aggregate counts and pass rate over `pipelines`, used for the header summary line. |
+| pipelines | `Pipeline[]` | The per-run rows the panel renders — empty when the backend has no recent runs. |
 
 ## Diagrams
 

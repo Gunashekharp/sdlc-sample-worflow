@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable kebab-case identifier used as the React list key (e.g. `'agent-runs'`). |
+| label | `string` | Short caption shown above the value (e.g. `'Mean time to merge'`). |
+| value | `string` | Pre-formatted headline string (e.g. `'4h 12m'`) — already includes units, so the component renders it verbatim. |
+| delta | `string` | Pre-formatted change indicator (e.g. `'+18%'` or `'-22%'`); leading `-` flips the trend icon to `IconTrendDown`. |
+| positive | `boolean` | Whether the change is a good outcome regardless of sign — drives both the delta colour and the `Sparkline` stroke. |
+| hint | `string` | One-sentence description shown beneath the card. |
+| trend | `number[]` | Seven-point series (oldest first) fed to `Sparkline` to draw the trend line. |
 
 ### Used by
 
