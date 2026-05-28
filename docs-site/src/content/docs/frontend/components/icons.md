@@ -56,7 +56,7 @@ Renders a dashboard glyph: four small rounded squares arranged in a 2×2 grid (`
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -92,7 +92,7 @@ Renders a speech/chat-bubble glyph (a single `<path>` outlining a rounded rectan
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -128,7 +128,7 @@ Renders a 3D cube/box glyph (an outer hexagonal `<path>` plus an inner path for 
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -164,7 +164,7 @@ Renders a heartbeat/activity-pulse glyph (a single `<path>` baseline with a tall
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -200,7 +200,7 @@ Renders a power-plug glyph (a single `<path>` with two prongs on top, a body, an
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -236,7 +236,7 @@ Renders a sliders/controls glyph: two horizontal track lines (`<path>`) each cro
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -272,7 +272,7 @@ Renders a magnifying-glass glyph (a `<circle>` lens with a short diagonal `<path
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -309,7 +309,7 @@ Renders a plus/add glyph (one `<path>` with a vertical and a horizontal stroke c
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -345,7 +345,7 @@ Renders an upward arrow glyph (a `<path>` with a vertical shaft and a chevron he
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -382,7 +382,7 @@ Renders a four-point sparkle/star glyph. Unlike the other stroke-based icons, it
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -419,7 +419,7 @@ Renders a downward chevron glyph (one `<path>` forming a "v"), the standard disc
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -457,7 +457,7 @@ Renders an upward-trend glyph: a zig-zag line that ends climbing to the upper-ri
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -493,7 +493,7 @@ Renders a downward-trend glyph: the mirror of `IconTrendUp`, with a zig-zag line
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| p | `SVGProps<SVGSVGElement>` | — | yes | SVG attributes spread onto the underlying `<svg>`, letting callers pass `className`, sizing, or event handlers. |
+| p | `SVGProps<SVGSVGElement>` | — | yes | <FILL: purpose of p> |
 
 **Returns:** `any`
 
@@ -516,7 +516,5 @@ A 16×16 `<svg>` React element (the down-trend glyph). Never null.
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-A flat set of stateless presentational SVG components sharing one `Svg` wrapper — no control flow, async work, or state transitions to diagram.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

@@ -50,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | The injected dependency bundle holding the `store` and `cicd` provider that the registered routes use to serve data. |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `any`
 
@@ -170,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | Read access to agents and KPIs; the Postgres store in production (`index.ts`) or the in-memory store in tests. |
-| cicd | `CicdProvider` | Source of CI/CD pipeline data; the live GitHub Actions provider when credentials are set, otherwise the mock provider. |
+| store | `Store` | <FILL: store> |
+| cicd | `CicdProvider` | <FILL: cicd> |
 
 ### Used by
 

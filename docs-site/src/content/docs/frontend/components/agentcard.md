@@ -45,9 +45,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent record rendered in the card: its status dot, name, category, description, and run/success/last-run stats. |
-| selected | `boolean` | yes | Whether the card is the selected one; toggles the accent border/ring styling and the `aria-pressed` state. |
-| onSelect | `(id: string) => void` | yes | Callback invoked with `agent.id` when the card button is clicked, letting the parent track the selection. |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
+| selected | `boolean` | yes | <FILL: what does selected control?> |
+| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
 
 ### Line-by-line walkthrough
 
@@ -91,13 +91,7 @@ The component's single statement returns a `<button type="button">` whose `onCli
 ### Behavior
 
 <!-- fill:sym:AgentCard:behavior -->
-- **Top-level element.** The whole card is a single `<button type="button">`, making the entire surface clickable and keyboard-focusable without extra ARIA wiring. `type="button"` prevents accidental form submission.
-- **Selection event.** `onClick={() => onSelect(agent.id)}` is the only handler — it forwards the agent's id to the parent and holds no local state, so selection is fully controlled from above (`AgentGrid` owns `selectedId`).
-- **Accessibility.** `aria-pressed={selected}` marks the button as a toggle, announcing the active/inactive state to screen readers; the visual `selected` styling and this attribute always move together.
-- **Conditional styling.** The `className` template literal branches on `selected`: the active card gets `border-accent ring-1 ring-accent`, while inactive cards get `border-border hover:border-border-strong hover:bg-surface-2` for a hover affordance.
-- **Header row.** `<StatusDot status={agent.status} />` renders the colored/pulsing indicator, followed by the `truncate`d `agent.name` and a right-aligned (`ml-auto`) `agent.category` badge.
-- **Description.** `<p className="line-clamp-2">{agent.description}</p>` clamps long copy to two lines so cards stay uniform.
-- **Metrics footer.** A `mt-auto` row pins monospaced stats to the bottom: `agent.runsPerWeek.toLocaleString()` adds thousands separators, then `agent.successRate`% and a right-aligned `agent.lastRun`. `mt-auto` plus `h-full` keeps footers aligned across a grid of varying-height cards.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:AgentCard:behavior -->
 
 ### Examples
@@ -121,7 +115,5 @@ This mirrors how `AgentGrid` maps over its `visible` agents: each card receives 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Stateless presentational button — its only behaviour is calling `onSelect(agent.id)` on click. No control flow or state transitions worth diagramming.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

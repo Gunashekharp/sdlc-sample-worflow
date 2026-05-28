@@ -100,12 +100,7 @@ Returns the dashboard layout. The outer `div` is a full-height (`h-screen`), cli
 ### Behavior
 
 <!-- fill:sym:App:behavior -->
-- **Shell layout.** The root `<div className="flex h-screen overflow-hidden">` makes a full-viewport, non-scrolling row; `overflow-hidden` confines scrolling to the inner `main`.
-- **Two columns.** `<Sidebar />` is the fixed left rail; the sibling `<div className="flex min-w-0 flex-1 flex-col">` is the content column. `min-w-0` lets it shrink so child truncation/`line-clamp` works inside flex.
-- **Column stack.** Top to bottom the column holds `<TopBar />`, a scrollable `<main className="flex-1 overflow-y-auto">`, and `<PromptBar />` pinned at the bottom — so only `main` scrolls while the chrome stays put.
-- **Content width.** Inside `main`, `<div className="mx-auto ... max-w-6xl ... gap-5 ...">` centers and caps the content width and spaces the sections.
-- **Data flow.** `<FeaturedAgent agent={featured} />` receives the looked-up featured agent and `<AgentGrid agents={rest} />` receives the filtered remainder; `KpiStrip` and `PipelinesPanel` take no props and fetch/read their own data.
-- **No state or handlers.** `App` holds no state and wires no events — its only logic is the `featured`/`rest` split before composition.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:App:behavior -->
 
 ### Examples
@@ -137,10 +132,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | Asserts the `Featured agent` heading and the `PR Reviewer` name (the `FEATURED_AGENT_ID` agent) are both in the document. |
-| <App /> | renders the KPI strip | Asserts a region with the accessible name matching `/key metrics/i` is present. |
-| <App /> | renders agents in the grid | Asserts non-featured agents `Deploy Bot` and `Alert Triage` appear, confirming `AgentGrid` received `rest`. |
-| <App /> | renders the prompt input | Asserts the element labelled `Prompt input` (from `PromptBar`) is present. |
+| <App /> | renders the featured agent | <FILL: assertion summary> |
+| <App /> | renders the KPI strip | <FILL: assertion summary> |
+| <App /> | renders agents in the grid | <FILL: assertion summary> |
+| <App /> | renders the prompt input | <FILL: assertion summary> |
 
 ## Diagrams
 

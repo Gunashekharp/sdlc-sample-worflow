@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier for the agent (e.g. `'pr-reviewer'`), used as the route param for `/api/agents/:id`. |
-| name | `string` | Human-readable display name shown in the console, such as `'PR Reviewer'`. |
-| category | `AgentCategory` | Bucket the agent belongs to, constrained to the five `AgentCategory` values for grouping and filtering. |
-| description | `string` | One-sentence summary of what the agent does, shown in the agent card and detail view. |
-| status | `AgentStatus` | Current operational state of the agent, one of running, idle, or attention. |
-| runsPerWeek | `number` | Count of executions over the trailing week, used as a usage/activity metric. |
-| successRate | `number` | Percentage of successful runs, expressed as an integer 0–100. |
-| avgDuration | `string` | Pre-formatted average run duration string for display, e.g. `'2m 40s'`. |
-| lastRun | `string` | Human-friendly relative time of the most recent run, e.g. `'3m ago'`. |
-| lastRunMinutes | `number` | The same last-run time expressed as minutes ago, a numeric value for sorting and freshness checks. |
-| popular | `boolean` | Whether the agent is flagged as popular, used to feature or highlight it in the UI. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
+| runsPerWeek | `number` | <FILL: runsPerWeek> |
+| successRate | `number` | <FILL: successRate> |
+| avgDuration | `string` | <FILL: avgDuration> |
+| lastRun | `string` | <FILL: lastRun> |
+| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
+| popular | `boolean` | <FILL: popular> |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable unique identifier for the KPI tile, used as a React key and to map seed rows. |
-| label | `string` | Short caption describing the metric, displayed above the value on the tile. |
-| value | `string` | Pre-formatted headline figure shown on the tile (formatting done server-side, so the UI renders it verbatim). |
-| delta | `string` | Pre-formatted change indicator versus the prior period, e.g. `'+4%'`. |
-| positive | `boolean` | Whether the `delta` represents a favourable movement, driving the up/down styling of the tile. |
-| hint | `string` | Tooltip/explanatory text giving context for what the metric measures. |
-| trend | `number[]` | Series of data points feeding the tile's sparkline, oldest to newest. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 

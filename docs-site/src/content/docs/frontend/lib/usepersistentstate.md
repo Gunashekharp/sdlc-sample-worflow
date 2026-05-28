@@ -47,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | The `localStorage` key the value is read from on mount and written to on change; changing it re-targets storage. |
-| initial | `T` | — | yes | Fallback value used when nothing is stored or a read/parse failure occurs. |
+| key | `string` | — | yes | <FILL: purpose of key> |
+| initial | `T` | — | yes | <FILL: purpose of initial> |
 
 **Returns:** `[T, (value: T) => void]`
 

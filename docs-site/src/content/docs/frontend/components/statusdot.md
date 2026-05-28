@@ -43,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | Selects the indicator's appearance: a pulsing accent dot for `running`, warn color for `attention`, otherwise a faint idle dot. |
+| status | `AgentStatus` | yes | <FILL: what does status control?> |
 
 ### Line-by-line walkthrough
 
@@ -94,12 +94,7 @@ Returns the static dot: a single 2×2 `rounded-full` `<span>` whose color comes 
 ### Behavior
 
 <!-- fill:sym:StatusDot:behavior -->
-- **Two render paths.** An early `if (status === 'running')` splits the animated case from the static case, keeping the more complex markup isolated.
-- **Running dot.** Returns a `relative` wrapper `<span>` holding two children: an absolutely-positioned `bg-accent ... animate-ping opacity-60` circle that produces the expanding pulse, and a solid `bg-accent` dot on top. `title={STATUS_LABEL.running}` supplies the "Running" tooltip.
-- **Static dot.** For `idle`/`attention`, `const color = status === 'attention' ? 'bg-warn' : 'bg-text-faint'` chooses amber vs muted grey, interpolated into `className={\`h-2 w-2 shrink-0 rounded-full ${color}\`}`. `shrink-0` keeps the dot's size inside flex rows.
-- **Tooltip.** The static branch uses `title={STATUS_LABEL[status]}` to show "Idle" or "Needs attention" on hover.
-- **Accessibility.** There is no `aria` role or label — the dot is decorative, and consumers like `FeaturedAgent` render the worded `STATUS_LABEL` alongside it for non-visual users; the `title` is the only textual hint here.
-- **No handlers.** The component is purely presentational with no events or state.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:StatusDot:behavior -->
 
 ### Examples

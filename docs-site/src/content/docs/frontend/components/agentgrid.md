@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | The full agent dataset to display; it is filtered and sorted before rendering one `AgentCard` per visible agent. |
+| agents | `Agent[]` | yes | <FILL: what does agents control?> |
 
 ### Line-by-line walkthrough
 
@@ -198,13 +198,7 @@ Returns the UI. A header shows the title with the live `visible.length` count. T
 ### Behavior
 
 <!-- fill:sym:AgentGrid:behavior -->
-- **Top-level element.** A `<section className="flex flex-col gap-3">` stacks a toolbar header above the results area.
-- **Live count.** The `<h2>` shows `Agents` next to `{visible.length}`, so the count reflects the filtered/sorted result, not the raw `agents` length.
-- **Category tabs.** `TABS.map(...)` renders a button per tab from `['All', 'Popular', ...AGENT_CATEGORIES]`; each `onClick={() => setCategory(tab)}` switches the active tab, and `aria-pressed={category === tab}` plus the conditional `bg-surface-3` class mark the selected one for both screen readers and sighted users.
-- **Sort select.** The `<select>` is controlled by `value={sort}`; `onChange` casts `e.target.value as SortKey` into `setSort`. Its options come from `Object.keys(SORT_LABELS)`, displaying the human label per key, and `aria-label="Sort agents"` names the unlabelled control.
-- **Search input.** A `<label>` wraps `IconSearch` and a controlled `<input value={query} onChange={(e) => setQuery(e.target.value)}>` with `aria-label="Filter agents"`; `focus-within:border-border-strong` highlights the wrapper when the input is focused.
-- **Results vs. empty state.** `{visible.length > 0 ? ... : ...}` renders a responsive `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` of `AgentCard`s (each `selected` when `agent.id === selectedId`, wired to `setSelectedId`) or, when empty, a dashed panel reading `No agents match {query ? "“query”" : 'this filter'}`.
-- **State split.** `category` and `sort` use `usePersistentState` (survive reloads), while `query` and `selectedId` use plain `useState` (reset on mount), and `visible` is memoized so the filter→sort pipeline only reruns when its inputs change.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:AgentGrid:behavior -->
 
 ### Examples
@@ -230,13 +224,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | Asserts every agent name in `AGENTS` appears in the document after rendering with the full list. |
-| <AgentGrid /> | filters agents by the search query | Typing "deploy" in the filter input shows "Deploy Bot" while "PR Reviewer" is no longer in the document. |
-| <AgentGrid /> | shows an empty state when nothing matches | Typing "zzznotanagent" makes the "No agents match" empty-state message appear. |
-| <AgentGrid /> | filters agents by category tab | Clicking the "Deploy" tab keeps "Deploy Bot" visible but removes "RCA Analyst" from the document. |
-| <AgentGrid /> | marks a card as selected when clicked | The card's button starts with `aria-pressed="false"` and flips to `"true"` after it is clicked. |
-| <AgentGrid /> | keeps every agent visible after changing the sort | Selecting the "name" sort option leaves every agent name still present in the document. |
-| <AgentGrid /> | remembers the selected category across remounts | After clicking "Deploy" and remounting, the "Deploy" tab is still `aria-pressed="true"` from persisted state. |
+| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
+| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
+| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
+| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
+| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
 
 ## Diagrams
 

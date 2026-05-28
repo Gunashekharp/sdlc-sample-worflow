@@ -68,11 +68,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable slug uniquely identifying the agent (e.g. `pr-reviewer`), matched against `FEATURED_AGENT_ID` and used as a React key. |
-| name | `string` | Display name shown on the card and featured panel, such as `PR Reviewer` or `Deploy Bot`. |
-| category | `AgentCategory` | One of the five known categories (`Review`, `Deploy`, `Reliability`, `Quality`, `Docs`) that drives the `AgentGrid` category filter. |
-| description | `string` | One-sentence summary of what the agent does, rendered on the card and featured panel. |
-| status | `AgentStatus` | Current lifecycle state — `running`, `idle`, or `attention` — visualized by `StatusDot`. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| category | `AgentCategory` | <FILL: category> |
+| description | `string` | <FILL: description> |
+| status | `AgentStatus` | <FILL: status> |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -144,12 +144,12 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | Asserts `AGENTS.length` is greater than 0. |
-| agent catalogue | gives every agent a unique id | Asserts the `Set` of all `id` values has the same size as the array, so no id repeats. |
-| agent catalogue | includes the featured agent | Asserts some agent's `id` equals `FEATURED_AGENT_ID`. |
-| agent catalogue | only uses known categories | Asserts `AGENT_CATEGORIES` contains every agent's `category`. |
-| agent catalogue | keeps success rates between 0 and 100 | Asserts each agent's `successRate` is `>= 0` and `<= 100`. |
-| agent catalogue | gives every agent a non-empty name and description | Asserts each agent's trimmed `name` and `description` have length greater than 0. |
+| agent catalogue | has at least one agent | <FILL: assertion summary> |
+| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
+| agent catalogue | includes the featured agent | <FILL: assertion summary> |
+| agent catalogue | only uses known categories | <FILL: assertion summary> |
+| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
+| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
 
 ## Diagrams
 

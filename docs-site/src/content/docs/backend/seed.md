@@ -66,7 +66,5 @@ A static `Kpi[]` of four headline dashboard metrics — agent runs over 7 days, 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Pure seed data — two exported constant arrays (`SEED_AGENTS`, `SEED_KPIS`) with no logic or control flow to diagram.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

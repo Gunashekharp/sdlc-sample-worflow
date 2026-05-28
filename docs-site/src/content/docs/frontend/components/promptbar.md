@@ -134,13 +134,7 @@ Returns the composer UI. The bordered container holds a controlled `<textarea>` 
 ### Behavior
 
 <!-- fill:sym:PromptBar:behavior -->
-- **Container.** A `shrink-0 border-t` outer `<div>` pins the bar to the bottom of the flex column; an inner bordered `<div>` with `focus-within:border-border-strong` highlights the whole composer when the textarea is focused.
-- **Controlled textarea.** `value={value}` with `onChange={(e) => setValue(e.target.value)}` makes React the source of truth; `rows={2}`, `resize-none`, and `aria-label="Prompt input"` (used by the App test) set its size and accessibility.
-- **Keyboard submit.** The `onKeyDown` handler checks `if (e.key === 'Enter' && !e.shiftKey)`, calls `e.preventDefault()` to stop a newline, then `submit()` — so Enter sends while Shift+Enter still inserts a line break.
-- **Model picker.** A decorative `<button>` shows `IconSparkle` (accent-colored), the text "Opus 4.7", and `IconChevronDown`; it carries no handler yet.
-- **Hint.** A `hidden ... sm:inline` `<span>` shows "Enter to send · Shift+Enter for newline" only on wider screens.
-- **Send button.** `onClick={submit}`, `disabled={!canSend}`, and `aria-label="Send prompt"`; the `disabled:cursor-not-allowed disabled:opacity-40` classes dim it when `canSend` is false, mirroring the early-return guard inside `submit`.
-- **Placeholder backend.** `submit` currently only `console.log`s the trimmed prompt and clears the field — real agent wiring is tracked in `BACKLOG.md`.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:PromptBar:behavior -->
 
 ### Examples

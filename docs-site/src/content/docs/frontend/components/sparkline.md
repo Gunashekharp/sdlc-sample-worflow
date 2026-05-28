@@ -35,7 +35,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | Tailwind classes applied to the `<svg>`; defaults to `h-7 w-full` when omitted, controlling the rendered size. |
+| className | `string` | no | <FILL: what does className control?> |
 
 ### Line-by-line walkthrough
 
@@ -157,13 +157,7 @@ Returns the SVG. The `viewBox` uses the computed `width`/`height`, `preserveAspe
 ### Behavior
 
 <!-- fill:sym:Sparkline:behavior -->
-- **Early bail.** `if (points.length < 2) return null` renders nothing for empty or single-point series, which also guards the `points.length - 1` divisor below.
-- **Fixed coordinate space.** `width = 100`, `height = 28`, and `pad = 3` define an internal viewBox; because the `<svg>` uses `preserveAspectRatio="none"`, this grid is independent of the on-screen size.
-- **Normalization.** `min`/`max`/`range` (`max - min || 1`) establish the data band; the `|| 1` prevents a divide-by-zero when every value is equal (the line then renders flat).
-- **Coordinate mapping.** `points.map(...)` spaces x evenly (`i / (points.length - 1)`) and inverts y (`height - pad - ((value - min) / range) * (height - pad * 2)`) so larger values sit higher despite SVG's downward y-axis; pairs are `toFixed(2)` and space-joined into the polyline `points` attribute.
-- **Element.** Returns a single `<svg>` containing one `<polyline points={coords} fill="none">`; the SVG is `aria-hidden="true"` because it is decorative.
-- **Color + stroke.** `stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}` picks green vs red from the `positive` prop, and `vectorEffect="non-scaling-stroke"` keeps the 1.5-unit line a constant pixel width under non-uniform scaling.
-- **Sizing.** `className={className ?? 'h-7 w-full'}` lets callers override the size, defaulting to a 28px-tall, full-width line for KPI cards.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:Sparkline:behavior -->
 
 ### Examples
@@ -185,9 +179,9 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | Asserts the rendered `<polyline>` exists and its `points` attribute splits into exactly four coordinate pairs for `[1, 2, 3, 4]`. |
-| <Sparkline /> | renders nothing when given fewer than two points | With a single point the component returns null, so no `<polyline>` is present in the container. |
-| <Sparkline /> | uses the error color when not positive | When `positive={false}`, the polyline's `stroke` attribute references `color-err`. |
+| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
+| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
+| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
 
 ## Diagrams
 

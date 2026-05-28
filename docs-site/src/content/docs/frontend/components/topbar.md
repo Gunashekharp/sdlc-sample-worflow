@@ -83,11 +83,7 @@ The single return renders a flex `<header>` of fixed height (`h-14`) with a bott
 ### Behavior
 
 <!-- fill:sym:TopBar:behavior -->
-- **Container.** A semantic `<header className="flex h-14 shrink-0 items-center gap-4 border-b">` gives a fixed 56px-tall, non-shrinking bar with a bottom divider.
-- **Breadcrumb.** The leading `<div>` renders "Agent Console", a faint "/" separator, and a muted "Overview", establishing the current location.
-- **Search trigger.** A `<button className="ml-auto w-72 ...">` is styled to look like an input; `ml-auto` pushes it (and the env switcher) to the right edge. It holds `IconSearch`, the placeholder text "Search agents, runs, sessions…", and a `<kbd>⌘K</kbd>` advertising the shortcut. It has no `onClick` yet.
-- **Environment switcher.** The final `<button>` shows a green `bg-ok` dot, the "Production" label, and `IconChevronDown` to hint at a dropdown; also unwired.
-- **Statelessness.** No props, state, handlers, or ARIA roles — purely static chrome shared across pages.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:TopBar:behavior -->
 
 ### Examples
@@ -113,7 +109,5 @@ This renders the "Agent Console / Overview" breadcrumb, the `⌘K` search button
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Static, stateless header chrome — a single return with no branching, state, or handlers, so there is no flow to diagram.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

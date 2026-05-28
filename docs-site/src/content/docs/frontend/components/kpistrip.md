@@ -69,11 +69,7 @@ The single return renders a `<section aria-label="Key metrics">` whose grid clas
 ### Behavior
 
 <!-- fill:sym:KpiStrip:behavior -->
-- **Container.** The exported `KpiStrip` returns a single `<section aria-label="Key metrics">`; the label names the region so screen readers and the App test (`getByRole('region', { name: /key metrics/i })`) can find it.
-- **Responsive grid.** The class `grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4` lays cards out one-up on mobile, two-up at the `sm` breakpoint, and four-up at `lg`.
-- **Iteration.** `KPIS.map((kpi) => <KpiCard key={kpi.id} kpi={kpi} />)` renders one card per metric, keyed by the stable `kpi.id`. There is no state or event handler — the data is the module-level `KPIS` constant.
-- **Per-card logic (in `KpiCard`).** `const isDown = kpi.delta.trim().startsWith('-')` picks the arrow component (`IconTrendDown` vs `IconTrendUp`) from the delta's sign, while `const deltaColor = kpi.positive ? 'text-ok' : 'text-err'` colors the delta from the semantic `positive` flag — so a falling-but-good metric (e.g. time-to-merge) still shows green.
-- **Card content.** Each card shows the uppercase `kpi.label`, the large `kpi.value`, the arrow + `kpi.delta`, a `<Sparkline points={kpi.trend} positive={kpi.positive} />`, and the muted `kpi.hint`.
+<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
 <!-- /fill:sym:KpiStrip:behavior -->
 
 ### Examples
@@ -96,16 +92,5 @@ This renders one card per entry in `KPIS`, each with its value, signed delta, tr
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-```mermaid
-flowchart TD
-  K["KPIS array"] --> Strip["KpiStrip: map over KPIS"]
-  Strip --> Card["KpiCard per kpi"]
-  Card --> Sign{"delta starts with '-'?"}
-  Sign -->|"yes"| Down["IconTrendDown"]
-  Sign -->|"no"| Up["IconTrendUp"]
-  Card --> Pos{"kpi.positive?"}
-  Pos -->|"true"| Ok["delta colored text-ok"]
-  Pos -->|"false"| Err["delta colored text-err"]
-  Card --> Spark["Sparkline of kpi.trend"]
-```
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

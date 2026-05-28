@@ -40,7 +40,7 @@ export function summarizePipelines(pipelines: Pipeline[]): PipelineSummary { ...
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pipelines | `Pipeline[]` | — | yes | The list of normalized pipeline runs to aggregate; each contributes to the total and its status count. |
+| pipelines | `Pipeline[]` | — | yes | <FILL: purpose of pipelines> |
 
 **Returns:** `PipelineSummary`
 
@@ -201,8 +201,8 @@ Builds a live `CicdProvider` named `'github-actions'` that fetches the 20 most r
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| token | `string` | — | yes | GitHub access token sent as `Authorization: Bearer` to authenticate the Actions API request. |
-| repo | `string` | — | yes | The `owner/repo` slug whose workflow runs are fetched, interpolated into the API URL path. |
+| token | `string` | — | yes | <FILL: purpose of token> |
+| repo | `string` | — | yes | <FILL: purpose of repo> |
 
 **Returns:** `CicdProvider`
 
@@ -274,7 +274,7 @@ export function getCicdProvider(env: {
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | The credentials (typically from `config.ts`) inspected to decide between the live GitHub and mock providers. |
+| env | `{ githubToken: string; githubRepo?: string; }` | — | yes | <FILL: purpose of env> |
 
 **Returns:** `CicdProvider`
 
@@ -360,14 +360,14 @@ The normalized shape of a single CI/CD run as exposed by the API, independent of
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Unique run identifier; for GitHub runs this is the numeric run id stringified by `githubRunToPipeline`. |
-| name | `string` | Display name of the run/workflow, e.g. `'CI · build & test'`. |
-| provider | `"github-actions" \| "jenkins"` | Which CI system produced the run; the mock data mixes both, live runs are always `'github-actions'`. |
-| branch | `string` | Git branch the run executed against, e.g. `'main'`; falls back to `'unknown'` for live runs without a branch. |
-| status | `PipelineStatus` | Lifecycle state of the run: passing, failing, or running. |
-| durationSeconds | `number` | Elapsed run time in seconds; for live runs computed from the start and update timestamps. |
-| triggeredBy | `string` | Who or what initiated the run (a username or bot), defaulting to `'unknown'` when absent. |
-| updatedAt | `string` | ISO-8601 timestamp of the run's last update, used for ordering and freshness display. |
+| id | `string` | <FILL: id> |
+| name | `string` | <FILL: name> |
+| provider | `"github-actions" \| "jenkins"` | <FILL: provider> |
+| branch | `string` | <FILL: branch> |
+| status | `PipelineStatus` | <FILL: status> |
+| durationSeconds | `number` | <FILL: durationSeconds> |
+| triggeredBy | `string` | <FILL: triggeredBy> |
+| updatedAt | `string` | <FILL: updatedAt> |
 
 ### Used by
 
@@ -389,10 +389,10 @@ The aggregate produced by `summarizePipelines`: a count of total pipelines, per-
 
 | Name | Type | Description |
 | --- | --- | --- |
-| total | `number` | Total number of pipelines in the summarized list, equal to the input array length. |
-| passing | `number` | Count of pipelines whose status is `'passing'`. |
-| failing | `number` | Count of pipelines whose status is `'failing'`. |
-| running | `number` | Count of in-flight pipelines whose status is `'running'`, excluded from the pass-rate denominator. |
+| total | `number` | <FILL: total> |
+| passing | `number` | <FILL: passing> |
+| failing | `number` | <FILL: failing> |
+| running | `number` | <FILL: running> |
 | passRate | `number` | Pass rate over finished (passing + failing) pipelines, 0–100. |
 
 ## CicdProvider
@@ -411,7 +411,7 @@ The provider contract that decouples the rest of the app from any specific CI sy
 
 | Name | Type | Description |
 | --- | --- | --- |
-| name | `string` | Read-only identifier of the active provider (`'mock'` or `'github-actions'`), surfaced in the `/api/pipelines` response. |
+| name | `string` | <FILL: name> |
 
 ### Used by
 

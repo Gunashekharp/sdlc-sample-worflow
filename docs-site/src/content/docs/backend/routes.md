@@ -44,8 +44,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | The Express application to mount the `/api/*` route handlers onto; created and passed in by `createApp` in `app.ts`. |
-| deps | `AppDeps` | — | yes | The dependency bundle whose `store` and `cicd` provider the handlers call to fetch agents, KPIs, and pipeline data. |
+| app | `Express` | — | yes | <FILL: purpose of app> |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `void`
 

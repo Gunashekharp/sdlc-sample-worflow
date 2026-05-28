@@ -39,7 +39,5 @@ A frozen-style object literal of resolved settings. `port` is `process.env.PORT`
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Single object literal reading env vars with defaults — no control flow or state transitions to diagram.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

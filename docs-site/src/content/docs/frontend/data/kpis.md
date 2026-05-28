@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable slug identifying the metric (e.g. `agent-runs`), used as the React list key in `KpiStrip`. |
-| label | `string` | Short human-readable name shown above the value, such as `Agent runs · 7d` or `Mean time to merge`. |
-| value | `string` | Pre-formatted headline figure displayed prominently, e.g. `1,284` or `4h 12m`. |
-| delta | `string` | Period-over-period change as a signed display string, such as `+18%` or `-22%`. |
-| positive | `boolean` | Whether the delta is a good outcome, independent of its sign — so a falling time-to-merge is still `true`. |
-| hint | `string` | One-line tooltip text explaining exactly what the metric measures. |
-| trend | `number[]` | Seven-point series, oldest first, rendered as the row's `Sparkline`. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 
@@ -67,7 +67,5 @@ const KPIS: Kpi[]
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Static seed data — a single interface and a constant array of four records. No control flow or state to diagram.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->

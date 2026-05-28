@@ -30,7 +30,5 @@ No exported symbols detected by the AST. This file is a side-effect entrypoint, 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-:::note
-Trivial bootstrap: import styles, `createRoot(#root)`, render `<StrictMode><App /></StrictMode>`. No control flow worth diagramming.
-:::
+<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
 <!-- /fill:file:diagrams -->
