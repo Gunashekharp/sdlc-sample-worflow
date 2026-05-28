@@ -1,0 +1,9 @@
+---
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import ContextualMenu from './ContextualMenu.astro';
+---
+
+<div class="sn-page-title-row not-content">
+  <Default><slot /></Default>
+  <ContextualMenu />
+</div>

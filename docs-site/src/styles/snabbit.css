@@ -1,31 +1,395 @@
-/* Snabbit Agent Console — Starlight theme */
+/* ---------------------------------------------------------------------
+ * Snabbit Agent Console — Starlight theme
+ *
+ * Mintlify-restrained look: single accent (muted Snabbit pink) used
+ * sparingly, soft 1px borders, generous whitespace, tighter heading
+ * typography, light-mode-default with a proper dark mode. Adds shared
+ * styles for the contextual menu, card grid, and Ask AI modal.
+ * --------------------------------------------------------------------- */
 
-/* Dark theme (default) */
+/* ----- Color tokens ----------------------------------------------------- */
+
 :root {
-  --sl-color-accent-low: #44102a;
-  --sl-color-accent: #f70f79;
-  --sl-color-accent-high: #fbc0da;
-  --sl-color-bg: #0f0f12;
-  --sl-color-bg-nav: #141417;
-  --sl-color-bg-sidebar: #0f0f12;
-}
-
-/* Light theme */
-:root[data-theme='light'] {
-  --sl-color-accent-low: #ffd4e7;
+  --sl-color-accent-low: #ffe4ee;
   --sl-color-accent: #c8005f;
   --sl-color-accent-high: #59002c;
-  --sl-color-bg: #fcfbf8;
+
+  --sl-color-bg: #ffffff;
   --sl-color-bg-nav: #ffffff;
-  --sl-color-bg-sidebar: #fcfbf8;
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-bg-inline-code: #f5f5f7;
+
+  --sl-color-hairline-light: #ececef;
+  --sl-color-hairline: #e4e4e8;
+  --sl-color-hairline-shade: #d8d8de;
+
+  --sn-border: var(--sl-color-hairline);
+  --sn-border-strong: var(--sl-color-hairline-shade);
+  --sn-card-bg: #ffffff;
+  --sn-card-hover-bg: #fafafa;
+  --sn-muted: #6b6b73;
+  --sn-soft-bg: #f7f7f9;
+  --sn-radius: 0.5rem;
+  --sn-shadow-sm: 0 1px 2px rgba(15, 15, 18, 0.04);
+  --sn-shadow-md: 0 8px 24px rgba(15, 15, 18, 0.06);
+  --sn-shadow-lg: 0 10px 40px rgba(15, 15, 18, 0.12);
 }
 
-/* Typography polish */
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #3a0c23;
+  --sl-color-accent: #ec337f;
+  --sl-color-accent-high: #fbc0da;
+
+  --sl-color-bg: #0b0b0e;
+  --sl-color-bg-nav: #0f0f12;
+  --sl-color-bg-sidebar: #0b0b0e;
+  --sl-color-bg-inline-code: #1a1a1f;
+
+  --sl-color-hairline-light: #1f1f25;
+  --sl-color-hairline: #26262d;
+  --sl-color-hairline-shade: #2d2d36;
+
+  --sn-border: var(--sl-color-hairline);
+  --sn-border-strong: var(--sl-color-hairline-shade);
+  --sn-card-bg: #131317;
+  --sn-card-hover-bg: #17171c;
+  --sn-muted: #9a9aa3;
+  --sn-soft-bg: #15151a;
+  --sn-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sn-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --sn-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ----- Typography ------------------------------------------------------- */
+
 :root {
-  --sl-text-h1: 2.1rem;
+  --sl-text-h1: 2.15rem;
+  --sl-text-h2: 1.5rem;
+  --sl-text-h3: 1.2rem;
+  --sl-line-height-headings: 1.25;
 }
 
-.sl-markdown-content h1,
+.sl-markdown-content :is(h1, h2, h3, h4) {
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
 .sl-markdown-content h2 {
-  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--sn-border);
+}
+
+.sl-markdown-content h2:first-child,
+.sl-markdown-content > :first-child h2 {
+  border-top: none;
+  padding-top: 0;
+}
+
+.sl-markdown-content p,
+.sl-markdown-content ul,
+.sl-markdown-content ol {
+  line-height: 1.65;
+}
+
+.sl-markdown-content :not(pre) > code {
+  background: var(--sl-color-bg-inline-code);
+  border: 1px solid var(--sn-border);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.875em;
+}
+
+/* ----- Cards ------------------------------------------------------------ */
+
+.card, starlight-card-grid .card {
+  background: var(--sn-card-bg) !important;
+  border: 1px solid var(--sn-border) !important;
+  border-radius: var(--sn-radius) !important;
+  box-shadow: var(--sn-shadow-sm) !important;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.card:hover, starlight-card-grid .card:hover {
+  background: var(--sn-card-hover-bg) !important;
+  border-color: var(--sn-border-strong) !important;
+  box-shadow: var(--sn-shadow-md) !important;
+}
+.card .title { font-weight: 600 !important; letter-spacing: -0.01em; }
+
+/* ----- Sidebar polish --------------------------------------------------- */
+
+.sidebar-pane { border-right: 1px solid var(--sn-border); }
+.sidebar-content summary, .sidebar-content > ul > li > .large {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: var(--sn-muted);
+  font-weight: 600;
+}
+
+/* ----- Tables ----------------------------------------------------------- */
+
+.sl-markdown-content table {
+  border: 1px solid var(--sn-border);
+  border-radius: var(--sn-radius);
+  overflow: hidden;
+}
+.sl-markdown-content table th {
+  background: var(--sn-soft-bg);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.sl-markdown-content table th, .sl-markdown-content table td {
+  border-color: var(--sn-border);
+  padding: 0.55rem 0.8rem;
+}
+
+/* ----- Page title row (ContextualMenu) ---------------------------------- */
+
+.sn-page-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.sn-page-title-row > h1 { flex: 1; min-width: 0; }
+
+/* ----- Contextual menu -------------------------------------------------- */
+
+.sn-cmenu { position: relative; flex-shrink: 0; }
+.sn-cmenu-toggle {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--sn-border);
+  border-radius: 0.4rem;
+  background: var(--sn-card-bg);
+  color: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  box-shadow: var(--sn-shadow-sm);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.sn-cmenu-toggle:hover { border-color: var(--sn-border-strong); background: var(--sn-card-hover-bg); }
+.sn-cmenu-toggle svg { width: 0.85rem; height: 0.85rem; }
+.sn-cmenu-panel {
+  position: absolute; top: calc(100% + 0.4rem); right: 0;
+  min-width: 14rem;
+  background: var(--sn-card-bg);
+  border: 1px solid var(--sn-border);
+  border-radius: 0.55rem;
+  box-shadow: var(--sn-shadow-lg);
+  padding: 0.3rem;
+  z-index: 50;
+}
+.sn-cmenu-panel[hidden] { display: none; }
+.sn-cmenu-item {
+  display: flex; align-items: center; gap: 0.55rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 0.35rem;
+  text-decoration: none;
+}
+.sn-cmenu-item:hover { background: var(--sn-soft-bg); }
+.sn-cmenu-item .sn-cmenu-icon { width: 1rem; height: 1rem; flex-shrink: 0; opacity: 0.7; }
+.sn-cmenu-divider { height: 1px; background: var(--sn-border); margin: 0.3rem 0; }
+.sn-cmenu-section-label {
+  padding: 0.5rem 0.55rem 0.2rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sn-muted);
+  font-weight: 600;
+}
+
+/* ----- Asides ----------------------------------------------------------- */
+
+.starlight-aside { border-radius: var(--sn-radius); border-left-width: 3px; }
+
+/* ----- Ask AI header button + modal ------------------------------------ */
+
+.sn-askai-wrap {
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+.sn-askai-trigger {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--sn-border);
+  border-radius: 0.45rem;
+  background: var(--sn-card-bg);
+  color: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.sn-askai-trigger:hover {
+  background: var(--sn-card-hover-bg);
+  border-color: var(--sn-border-strong);
+}
+.sn-askai-trigger svg { width: 0.9rem; height: 0.9rem; }
+.sn-askai-trigger kbd {
+  background: var(--sn-soft-bg);
+  border: 1px solid var(--sn-border);
+  border-radius: 0.25rem;
+  padding: 0 0.3rem;
+  font-size: 0.72rem;
+  font-family: inherit;
+  margin-left: 0.2rem;
+  color: var(--sn-muted);
+}
+
+/* Hide the Ask AI label on small screens, keep just the icon. */
+@media (max-width: 50rem) {
+  .sn-askai-label, .sn-askai-trigger kbd { display: none; }
+  .sn-askai-trigger { padding: 0.4rem; }
+}
+
+/* Modal overlay */
+.sn-askai-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15, 15, 18, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 9998;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 5rem 1rem 1rem;
+}
+.sn-askai-backdrop[hidden] { display: none; }
+
+.sn-askai-modal {
+  width: min(38rem, 100%);
+  max-height: min(70vh, 42rem);
+  background: var(--sn-card-bg);
+  color: inherit;
+  border: 1px solid var(--sn-border);
+  border-radius: 0.75rem;
+  box-shadow: var(--sn-shadow-lg);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.sn-askai-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--sn-border);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.sn-askai-head-actions { display: flex; align-items: center; gap: 0.4rem; }
+.sn-askai-head-actions button {
+  border: 1px solid var(--sn-border);
+  border-radius: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  background: var(--sn-card-bg);
+  color: inherit;
+  cursor: pointer;
+}
+.sn-askai-head-actions button:hover { background: var(--sn-soft-bg); }
+.sn-askai-close { padding: 0.15rem 0.45rem !important; font-size: 1rem !important; }
+
+.sn-askai-msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.sn-askai-msg {
+  max-width: 90%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.65rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.sn-askai-user {
+  align-self: flex-end;
+  background: var(--sl-color-accent);
+  color: #fff;
+  border-bottom-right-radius: 0.15rem;
+}
+.sn-askai-bot {
+  align-self: flex-start;
+  background: var(--sn-soft-bg);
+  border: 1px solid var(--sn-border);
+  border-bottom-left-radius: 0.15rem;
+}
+.sn-askai-loading { opacity: 0.7; font-style: italic; }
+.sn-askai-sources {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin-top: -0.3rem;
+}
+.sn-askai-sources a { color: var(--sl-color-accent); }
+
+.sn-askai-suggestions {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  padding: 0 1rem 0.6rem;
+}
+.sn-askai-suggestion {
+  border: 1px solid var(--sn-border);
+  background: var(--sn-card-bg);
+  color: inherit;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  line-height: 1.3;
+}
+.sn-askai-suggestion:hover {
+  background: var(--sn-soft-bg);
+  border-color: var(--sn-border-strong);
+}
+
+.sn-askai-form {
+  display: flex; gap: 0.5rem;
+  padding: 0.8rem;
+  border-top: 1px solid var(--sn-border);
+  background: var(--sn-card-bg);
+}
+.sn-askai-input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--sn-border);
+  border-radius: 0.45rem;
+  background: var(--sn-card-bg);
+  color: inherit;
+  font-size: 0.92rem;
+  font-family: inherit;
+}
+.sn-askai-input:focus {
+  outline: 2px solid var(--sl-color-accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.sn-askai-send {
+  background: var(--sl-color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 0.45rem;
+  padding: 0 1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.sn-askai-send:disabled { opacity: 0.55; cursor: default; }
+.sn-askai-note {
+  margin: 0;
+  padding: 0 1rem 0.7rem;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  text-align: center;
 }

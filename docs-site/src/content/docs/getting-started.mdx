@@ -1,0 +1,146 @@
+---
+title: Getting started
+description: Run the Snabbit Agent Console locally — frontend, backend, and chat worker.
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The project has three packages that run independently: the frontend at the repository root, the backend in `server/`, and the chat worker in `chat-worker/`. The dashboard runs on its own; the CI/CD pipelines panel shows an error state until the backend is up.
+
+## Frontend
+
+<Steps>
+
+1. **Install dependencies** from the repository root.
+
+   ```bash
+   npm install
+   ```
+
+2. **Start the dev server.** The dashboard runs on [http://localhost:5173](http://localhost:5173).
+
+   ```bash
+   npm run dev
+   ```
+
+3. **(Optional) point at a different API.** By default the frontend calls `http://localhost:3001`. Override at build time:
+
+   ```bash
+   VITE_API_URL="https://api.example.com" npm run build
+   ```
+
+</Steps>
+
+### Frontend npm scripts
+
+| Script | Command | Does |
+|--------|---------|------|
+| `npm run dev` | `vite` | Start the Vite dev server on port 5173 |
+| `npm run build` | `tsc -b && vite build` | Type-check then produce a production bundle |
+| `npm run preview` | `vite preview` | Serve the production build locally |
+| `npm run lint` | `eslint .` | Run ESLint across all source files |
+| `npm test` | `vitest run` | Run the Vitest suite once and exit |
+| `npm run test:watch` | `vitest` | Run Vitest in interactive watch mode |
+| `npm run typecheck` | `tsc -b` | Type-check without emitting output |
+
+:::tip
+`npm test` runs in jsdom with `globals: true` and the setup file `src/test/setup.ts` — no browser, no database, no network required.
+:::
+
+## Backend
+
+Requires a running PostgreSQL instance.
+
+<Steps>
+
+1. **Move into the server package and install dependencies.**
+
+   ```bash
+   cd server
+   npm install
+   ```
+
+2. **Point at your PostgreSQL database.**
+
+   ```bash
+   export DATABASE_URL="postgres://localhost:5432/snabbit_dash"
+   ```
+
+3. **Create tables and load seed data.**
+
+   ```bash
+   npm run db:setup
+   ```
+
+4. **Start the API.** It listens on [http://localhost:3001](http://localhost:3001).
+
+   ```bash
+   npm run dev
+   ```
+
+</Steps>
+
+### Going live with the CI/CD integration
+
+By default the CI/CD adapter returns deterministic mock data. To pull real GitHub Actions runs, set **both** variables before starting the server:
+
+```bash
+export GITHUB_TOKEN="<a token with repo + actions:read scope>"
+export GITHUB_REPO="owner/repo"
+npm run dev
+```
+
+When both are present the adapter switches from the mock to the live GitHub Actions provider. See [CI/CD integration](/sdlc-sample-worflow/backend/integrations/cicd/) for details.
+
+## Chat worker
+
+The "Ask the docs" chatbot is a Cloudflare Worker that calls the Anthropic API (Claude Haiku 4.5).
+
+<Steps>
+
+1. **Install dependencies.**
+
+   ```bash
+   cd chat-worker
+   npm install
+   ```
+
+2. **Build the search index** from the current docs. Re-run whenever the docs change.
+
+   ```bash
+   npm run index
+   ```
+
+3. **Set the Anthropic API key** as a Wrangler secret.
+
+   ```bash
+   npx wrangler secret put ANTHROPIC_API_KEY
+   ```
+
+4. **Deploy** or run locally for development.
+
+   <Tabs>
+     <TabItem label="Deploy">
+       ```bash
+       npm run deploy
+       ```
+     </TabItem>
+     <TabItem label="Local dev">
+       ```bash
+       npm run dev
+       ```
+     </TabItem>
+   </Tabs>
+
+5. **Paste the Worker URL** into `WORKER_URL` in `docs-site/src/components/AskAI.astro`, commit, and let the docs site rebuild.
+
+</Steps>
+
+## Running the tests
+
+| Package | Command | Environment |
+|---------|---------|-------------|
+| Frontend | `npm test` (repo root) | jsdom, no network, no database |
+| Backend | `cd server && npm test` | Node, in-memory store, mock CI/CD |
+
+Both test suites are completely self-contained. See [Testing](/sdlc-sample-worflow/testing/) for the per-suite breakdown.
