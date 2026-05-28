@@ -35,7 +35,7 @@ export default function Sparkline({ points, positive, className }: SparklineProp
 | --- | --- | --- | --- |
 | points | `number[]` | yes | Series values, oldest first. Needs at least two points to render. |
 | positive | `boolean` | yes | Drives the line color: ok (green) when true, err (red) when false. |
-| className | `string` | no | <FILL: what does className control?> |
+| className | `string` | no | Tailwind classes applied to the outer `<svg>`; controls size and spacing. Defaults to `'h-7 w-full'` (28px tall, full width of the parent). |
 
 ### Line-by-line walkthrough
 
@@ -157,7 +157,12 @@ Returns the SVG. The `viewBox` uses the computed `width`/`height`, `preserveAspe
 ### Behavior
 
 <!-- fill:sym:Sparkline:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The component is a pure function — no `useState`, no `useEffect`, no event handlers. Every render recomputes the geometry from `points`.
+- The single guard `if (points.length < 2) return null` keeps it safe to call with any series; the test "renders nothing when given fewer than two points" pins this contract.
+- Coordinates are normalized into a fixed 100×28 viewBox with a 3-unit inset. The `range = max - min || 1` substitution prevents a flat series from triggering a divide-by-zero.
+- The `<svg>` uses `viewBox={"0 0 100 28"}` together with `preserveAspectRatio="none"`, so the rendered chart fills whatever CSS box `className` defines. `vectorEffect="non-scaling-stroke"` on the polyline keeps the 1.5-unit line at a constant pixel width despite the non-uniform scaling.
+- Accessibility: `aria-hidden="true"` excludes the decorative chart from screen readers. The numeric value, delta, and hint live in the surrounding `KpiCard` and are what assistive tech actually reads.
+- Colour is theme-driven: `stroke={positive ? 'var(--color-ok)' : 'var(--color-err)'}` reads CSS variables defined in `index.css`, so light/dark mode tweaks happen there rather than here.
 <!-- /fill:sym:Sparkline:behavior -->
 
 ### Examples
@@ -179,9 +184,9 @@ This renders a green `<polyline>` with six coordinates spread across the 100×28
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <Sparkline /> | renders a polyline with one coordinate per value | <FILL: assertion summary> |
-| <Sparkline /> | renders nothing when given fewer than two points | <FILL: assertion summary> |
-| <Sparkline /> | uses the error color when not positive | <FILL: assertion summary> |
+| <Sparkline /> | renders a polyline with one coordinate per value | Renders `points={[1,2,3,4]}` and asserts the resulting `<polyline>` has a `points` attribute that splits into four whitespace-separated coordinates. |
+| <Sparkline /> | renders nothing when given fewer than two points | Renders `points={[1]}` and asserts no `<polyline>` is present in the DOM, confirming the early `return null` guard. |
+| <Sparkline /> | uses the error color when not positive | Renders `positive={false}` and asserts the polyline's `stroke` attribute contains `'color-err'`, proving the variable substitution. |
 
 ## Diagrams
 

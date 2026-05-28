@@ -46,8 +46,8 @@ export function createMemoryStore(agents: Agent[], kpis: Kpi[]): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
-| kpis | `Kpi[]` | — | yes | <FILL: purpose of kpis> |
+| agents | `Agent[]` | — | yes | Seed agent records — typically `SEED_AGENTS` — held in closure and copied per read so callers can't mutate the backing array. |
+| kpis | `Kpi[]` | — | yes | Seed KPI records — typically `SEED_KPIS` — held in closure and returned as a shallow copy from `listKpis`. |
 
 **Returns:** `Store`
 

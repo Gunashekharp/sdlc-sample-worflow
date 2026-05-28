@@ -47,8 +47,8 @@ export function usePersistentState<T>(
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| key | `string` | — | yes | <FILL: purpose of key> |
-| initial | `T` | — | yes | <FILL: purpose of initial> |
+| key | `string` | — | yes | The `localStorage` key used for both the initial read and subsequent writes; pick a stable, app-scoped string (e.g. `'snabbit.agentGrid.sort'`). |
+| initial | `T` | — | yes | Value returned when no stored value exists or when reading/parsing fails; effectively the default for first-time visitors. |
 
 **Returns:** `[T, (value: T) => void]`
 

@@ -136,7 +136,13 @@ The single return builds the `<aside>` rail (fixed `w-60`, non-shrinking, right 
 ### Behavior
 
 <!-- fill:sym:Sidebar:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The root `<aside className="flex w-60 shrink-0 flex-col border-r border-border bg-bg">` fixes the rail at 240px and prevents it from shrinking under flex pressure when the viewport narrows.
+- The workspace switcher (top), Recent-sessions buttons, and footer have no `onClick` handlers — they are visual placeholders waiting for routing/state to be wired in.
+- The "New session" button is styled with `border-border-strong` and a `⌘N` `<kbd>` hint; the keyboard shortcut itself is not implemented yet.
+- The `<nav>` block iterates `NAV`, destructuring `const Icon = item.icon` so the icon component reference can be rendered as `<Icon>`. The active item (currently "Dashboard") gets `aria-current="page"`, the `bg-surface-2` active background, and the accent-coloured icon — all three signals are flipped together by the `item.active` flag.
+- The recent-sessions list uses a fixed `RECENT_SESSIONS` string array. Each button has `truncate` so long session titles ellipsize rather than wrap, keeping rows uniform-height.
+- The middle scroll region uses `min-h-0 flex-1 overflow-y-auto`, with `min-h-0` being the standard fix that lets a flex child actually shrink and scroll instead of being forced to its content height.
+- The footer renders the hard-coded "guna" user — a stand-in until auth is hooked up.
 <!-- /fill:sym:Sidebar:behavior -->
 
 ### Examples
@@ -162,5 +168,7 @@ This renders the six `NAV` links (with "Dashboard" highlighted as active) and th
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Static rail rendered from two module constants (`NAV` and `RECENT_SESSIONS`). The only conditional is the active-item styling — no control flow worth diagramming.
+:::
 <!-- /fill:file:diagrams -->

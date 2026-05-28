@@ -46,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | <FILL: what does agent control?> |
+| agent | `Agent` | yes | The agent to feature — supplies the name, status pill, description, and the four headline stats (`runsPerWeek`, `successRate`, `avgDuration`, `lastRun`). |
 
 ### Line-by-line walkthrough
 
@@ -106,7 +106,14 @@ The single return builds the banner. A relatively-positioned `<section>` holds a
 ### Behavior
 
 <!-- fill:sym:FeaturedAgent:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The root `<section>` uses `relative overflow-hidden`, so the gradient overlay positioned with `absolute inset-0` is visually clipped to the rounded card.
+- The overlay `<div>` is marked `pointer-events-none` so clicks fall through to the underlying content; its `style.background` paints a 135-deg `var(--color-accent-subtle)` → transparent gradient via a CSS variable, keeping the colour theme-controlled.
+- The eyebrow row uses `text-accent uppercase tracking-wide` with a 14×14 `IconSparkle`, providing the visual cue that this card is featured.
+- The status pill wraps `<StatusDot status={agent.status} />` next to the readable `STATUS_LABEL[agent.status]`. The pill itself uses `bg-bg/60` (a 60%-opacity background) so the gradient shows through.
+- The four `Stat` components share a `<dl>` flex-wrap layout; each renders a `<dt>` label and `<dd>` value, with the values forced to a `font-mono font-medium` so numbers line up across stats.
+- `agent.runsPerWeek.toLocaleString()` is used (not raw `runsPerWeek`) so large counts render with thousands separators (e.g. "1,284").
+- The "Run agent" button is currently style-only — it has no `onClick`. Wiring it up to a real runner is tracked in `BACKLOG.md`; the button keeps the visual contract in place.
+- No ARIA roles are added on the section beyond what the native elements provide. The status pill conveys live state visually and textually, and the heading uses a real `<h2>`, so screen readers and Tab navigation work without further attributes.
 <!-- /fill:sym:FeaturedAgent:behavior -->
 
 ### Examples

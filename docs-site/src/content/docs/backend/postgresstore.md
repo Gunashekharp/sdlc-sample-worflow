@@ -44,7 +44,7 @@ export function createPostgresStore(pool: Pool): Store { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| pool | `Pool` | — | yes | <FILL: purpose of pool> |
+| pool | `Pool` | — | yes | The `pg` connection pool the store will query against; captured in closure and reused by all three store methods. |
 
 **Returns:** `Store`
 

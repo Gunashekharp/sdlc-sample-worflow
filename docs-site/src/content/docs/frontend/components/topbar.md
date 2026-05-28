@@ -83,7 +83,12 @@ The single return renders a flex `<header>` of fixed height (`h-14`) with a bott
 ### Behavior
 
 <!-- fill:sym:TopBar:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The root `<header>` is a 56px-tall (`h-14`) flex row with a bottom border. `shrink-0` keeps it the same height when the column's `<main>` grows.
+- The breadcrumb is plain spans: a semibold "Agent Console", a faint `/`, and a muted "Overview". There is no router yet — the second crumb is hard-coded.
+- The search trigger is an `ml-auto` `<button>`, which both right-aligns it and pushes the env switcher further right. It is styled to look like a search input but does nothing on click; the `⌘K` `<kbd>` is just a hint that the global palette is planned.
+- The environment switcher uses a small `bg-ok` dot (the same colour as the `passing` status) followed by "Production" and a chevron — visually indicating it is a dropdown, but again with no handler.
+- No `aria-label` or `role` is added; the elements are native `<button>`/`<kbd>`/`<header>` and screen readers already announce them correctly. The chevron and search icons are decorative (`aria-hidden="true"` is set inside the icon `Svg` wrapper).
+- The component is intentionally trivial because the planned interactions (real search, env switching) belong in features that don't exist yet.
 <!-- /fill:sym:TopBar:behavior -->
 
 ### Examples
@@ -109,5 +114,7 @@ This renders the "Agent Console / Overview" breadcrumb, the `⌘K` search button
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Three static elements — breadcrumb, search button, env switcher — with no state, no handlers, no branches. Nothing worth diagramming.
+:::
 <!-- /fill:file:diagrams -->

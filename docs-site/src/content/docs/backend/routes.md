@@ -44,8 +44,8 @@ export function registerRoutes(app: Express, deps: AppDeps): void { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| app | `Express` | — | yes | <FILL: purpose of app> |
-| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
+| app | `Express` | — | yes | The Express app to attach the five `GET /api/*` handlers to; mutated in place. |
+| deps | `AppDeps` | — | yes | Injected `store` and `cicd` collaborators that each handler reads through, so the same route table works against memory or Postgres and mock or live CI/CD. |
 
 **Returns:** `void`
 

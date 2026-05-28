@@ -68,11 +68,11 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
+| id | `string` | Stable slug-style identifier (e.g. `'pr-reviewer'`); used as the React `key`, the `FEATURED_AGENT_ID` lookup target, and the `selectedId` value in `AgentGrid`. |
+| name | `string` | Display name shown on the card and in the hero (e.g. "PR Reviewer"); matched case-insensitively by the search query. |
+| category | `AgentCategory` | One of the five categories; renders as a badge on each card and drives the category-tab filter. |
+| description | `string` | One-sentence summary of what the agent does; rendered under the name and matched case-insensitively by the search query. |
+| status | `AgentStatus` | Current operational state; rendered by `StatusDot` (pulsing for `'running'`, static dot otherwise). |
 | runsPerWeek | `number` | Approximate runs over the last 7 days. |
 | successRate | `number` | Successful-run percentage, 0–100. |
 | avgDuration | `string` | Human-readable average run duration. |
@@ -144,12 +144,12 @@ const AGENT_CATEGORIES: AgentCategory[]
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| agent catalogue | has at least one agent | <FILL: assertion summary> |
-| agent catalogue | gives every agent a unique id | <FILL: assertion summary> |
-| agent catalogue | includes the featured agent | <FILL: assertion summary> |
-| agent catalogue | only uses known categories | <FILL: assertion summary> |
-| agent catalogue | keeps success rates between 0 and 100 | <FILL: assertion summary> |
-| agent catalogue | gives every agent a non-empty name and description | <FILL: assertion summary> |
+| agent catalogue | has at least one agent | Asserts `AGENTS.length > 0` so the dashboard always has something to render. |
+| agent catalogue | gives every agent a unique id | Builds a `Set` from the ids and asserts its size equals the array length — guarding against accidental duplicates that would break React keys. |
+| agent catalogue | includes the featured agent | Asserts that some agent's `id` matches `FEATURED_AGENT_ID` so `App.tsx`'s lookup never has to fall back to `AGENTS[0]`. |
+| agent catalogue | only uses known categories | Iterates `AGENTS` and asserts each `category` is contained in `AGENT_CATEGORIES`, catching typos and stale category strings. |
+| agent catalogue | keeps success rates between 0 and 100 | Iterates `AGENTS` and asserts `0 <= successRate <= 100` for every entry. |
+| agent catalogue | gives every agent a non-empty name and description | Iterates `AGENTS` and asserts both `name.trim()` and `description.trim()` are non-empty. |
 
 ## Diagrams
 

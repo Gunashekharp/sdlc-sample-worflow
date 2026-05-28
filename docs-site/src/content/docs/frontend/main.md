@@ -30,5 +30,7 @@ No exported symbols detected by the AST. This file is a side-effect entrypoint, 
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Trivial bootstrap — three statements with no branching. The control flow is "import CSS, find `#root`, mount `<App />`" and is better understood by reading the source than by drawing it.
+:::
 <!-- /fill:file:diagrams -->

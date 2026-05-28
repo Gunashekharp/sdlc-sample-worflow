@@ -134,7 +134,14 @@ Returns the composer UI. The bordered container holds a controlled `<textarea>` 
 ### Behavior
 
 <!-- fill:sym:PromptBar:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The outermost `<div className="shrink-0 border-t border-border bg-bg px-4 py-3">` pins the bar at the bottom of `App`'s flex column; `shrink-0` prevents the column's scrollable `<main>` from squashing it.
+- The inner container is a `rounded-lg border` with `focus-within:border-border-strong`, so the whole composer (not just the textarea) gets a focus ring when the user is typing.
+- The `<textarea>` is fully controlled: `value={value}` and `onChange={(e) => setValue(e.target.value)}`. It has `rows={2}`, `resize-none`, and a placeholder; the test "renders the prompt input" in `App.test.tsx` finds it via its `aria-label="Prompt input"`.
+- The `onKeyDown` handler checks `e.key === 'Enter' && !e.shiftKey`, calls `e.preventDefault()` to suppress the default newline, then invokes `submit()`. Shift+Enter falls through and inserts a newline normally.
+- `submit()` is the single send path used by both Enter and the button. It bails on `!canSend` (so whitespace-only input is a no-op), logs the trimmed value, and clears the field.
+- The model-picker button is currently style-only — clicking it does nothing. The "Opus 4.7" label is a static placeholder; wiring a real model selector is part of the broader backend work in `BACKLOG.md`.
+- The send button uses `disabled={!canSend}` and applies `disabled:cursor-not-allowed disabled:opacity-40` so the disabled state is visually obvious. `aria-label="Send prompt"` gives assistive tech a name for the icon-only button.
+- The "Enter to send · Shift+Enter for newline" hint is wrapped in `hidden sm:inline` so it only appears on viewports wide enough to fit it.
 <!-- /fill:sym:PromptBar:behavior -->
 
 ### Examples

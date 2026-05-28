@@ -109,7 +109,16 @@ Returns the panel. The header shows the "CI/CD pipelines" title; when `data` is 
 ### Behavior
 
 <!-- fill:sym:PipelinesPanel:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The component delegates its async lifecycle to `useFetch(fetchPipelines)`. Passing the module-level `fetchPipelines` (a stable reference) is required — passing an inline arrow would re-fire the effect every render.
+- The header has three slots in a `flex-wrap` row: the `<h2>`, a conditional summary (`data && …`) interpolating `passRate`, `running`, and `provider`, and an `ml-auto` Refresh button that calls `reload()` on click.
+- The body is a four-way conditional, written as a chain of mutually exclusive `{…}` JSX expressions so React only renders one branch at a time:
+  - `loading` → `<PanelMessage>Loading pipelines…</PanelMessage>`
+  - `error && !loading` → an unreachable-API message that interpolates the `error` string and prompts to check port 3001.
+  - `data && !loading && !error && data.pipelines.length === 0` → `<PanelMessage>No recent pipeline runs.</PanelMessage>`
+  - `data && !loading && !error && data.pipelines.length > 0` → a `<ul className="divide-y divide-border">` mapping each `pipeline` to a `<PipelineRow>`.
+- Each `PipelineRow` looks up its styling in `STATUS_STYLES` (`passing` → `bg-ok`, `failing` → `bg-err`, `running` → `bg-accent`) and formats `durationSeconds` via the local `formatDuration` helper.
+- The test "renders pipelines returned by the API" stubs `fetch` and asserts both pipeline names appear; "shows an error state when the API is unreachable" rejects the fetch and asserts the `/could not reach the api/i` message renders.
+- No ARIA roles are added — the `<ul>`/`<li>`/`<button>` semantics are enough; the `title` attribute on the status dot provides a hover tooltip for screen readers.
 <!-- /fill:sym:PipelinesPanel:behavior -->
 
 ### Examples
@@ -134,8 +143,8 @@ On mount it shows "Loading pipelines…", then either lists the pipelines return
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
+| <PipelinesPanel /> | renders pipelines returned by the API | Stubs `fetch` to resolve with a two-pipeline payload and asserts both "CI · build & test" and "E2E suite" rows appear in the rendered list. |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | Stubs `fetch` to reject with `'network down'` and asserts the `/could not reach the api/i` `PanelMessage` renders, confirming the error branch. |
 
 ## Diagrams
 

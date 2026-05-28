@@ -70,17 +70,17 @@ export interface Agent { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| name | `string` | <FILL: name> |
-| category | `AgentCategory` | <FILL: category> |
-| description | `string` | <FILL: description> |
-| status | `AgentStatus` | <FILL: status> |
-| runsPerWeek | `number` | <FILL: runsPerWeek> |
-| successRate | `number` | <FILL: successRate> |
-| avgDuration | `string` | <FILL: avgDuration> |
-| lastRun | `string` | <FILL: lastRun> |
-| lastRunMinutes | `number` | <FILL: lastRunMinutes> |
-| popular | `boolean` | <FILL: popular> |
+| id | `string` | Slug-style primary key (e.g. `'pr-reviewer'`); matches `agents.id` in Postgres and is echoed straight to the UI. |
+| name | `string` | Display name returned to the frontend (e.g. "PR Reviewer"). |
+| category | `AgentCategory` | One of the five categories the dashboard tabs over. |
+| description | `string` | One-sentence summary of what the agent does. |
+| status | `AgentStatus` | Current operational state served from the catalogue. |
+| runsPerWeek | `number` | Approximate runs over the last seven days; also the column the Postgres store sorts `listAgents` by, descending. |
+| successRate | `number` | Whole-number success percentage in `[0, 100]`. |
+| avgDuration | `string` | Pre-formatted average run duration (e.g. "2m 40s"). |
+| lastRun | `string` | Pre-formatted relative time since the last run (e.g. "3m ago", "just now"). |
+| lastRunMinutes | `number` | Sortable companion to `lastRun` — minutes elapsed since the last run, used by the frontend's "recent" sort. |
+| popular | `boolean` | Whether the agent shows up under the "Popular" filter on the frontend. |
 
 ### Used by
 
@@ -104,13 +104,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | <FILL: id> |
-| label | `string` | <FILL: label> |
-| value | `string` | <FILL: value> |
-| delta | `string` | <FILL: delta> |
-| positive | `boolean` | <FILL: positive> |
-| hint | `string` | <FILL: hint> |
-| trend | `number[]` | <FILL: trend> |
+| id | `string` | Stable identifier; matches `kpis.id` in Postgres and is the React `key` on the frontend. |
+| label | `string` | Display title for the card (e.g. "Agent runs · 7d"). |
+| value | `string` | Pre-formatted headline value to show in the big numeral slot (e.g. "1,284", "4h 12m"). |
+| delta | `string` | Period-over-period change as a signed percentage string (e.g. "+18%", "-22%"). |
+| positive | `boolean` | Whether the delta represents a good outcome; decoupled from the sign so falling values can still be marked positive. |
+| hint | `string` | One-sentence subtitle clarifying what the metric measures. |
+| trend | `number[]` | Seven-point series (oldest first) for the sparkline; stored as JSONB in Postgres and round-tripped as a plain array. |
 
 ### Used by
 

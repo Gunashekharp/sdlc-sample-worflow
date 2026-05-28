@@ -69,7 +69,12 @@ The single return renders a `<section aria-label="Key metrics">` whose grid clas
 ### Behavior
 
 <!-- fill:sym:KpiStrip:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+- The outer `<section aria-label="Key metrics">` is what `App.test.tsx`'s "renders the KPI strip" assertion grabs via `getByRole('region', { name: /key metrics/i })`. Keep the aria-label spelled this way — the test is case-insensitive but relies on the literal label.
+- The grid is responsive: `grid-cols-1` on mobile, `sm:grid-cols-2` on small screens, `lg:grid-cols-4` once there is room for all four cards in a row, with a uniform `gap-3` gutter.
+- Each card is rendered by the private `KpiCard` helper. The card decides which trend icon to show by inspecting the sign of `kpi.delta`: `const isDown = kpi.delta.trim().startsWith('-')` selects `IconTrendDown`, otherwise `IconTrendUp`.
+- The delta colour is independent: `const deltaColor = kpi.positive ? 'text-ok' : 'text-err'`. This decoupling is why "Mean time to merge" can show a `-22%` delta in green — the value is falling, but `positive: true` flags it as a good outcome.
+- `Sparkline` receives `points={kpi.trend}` and `positive={kpi.positive}` so its colour matches the delta colour above it.
+- No event handlers, no state — `KpiStrip` is a pure read of the module-level `KPIS` constant. Adding a new metric is as simple as appending to that array.
 <!-- /fill:sym:KpiStrip:behavior -->
 
 ### Examples
@@ -92,5 +97,7 @@ This renders one card per entry in `KPIS`, each with its value, signed delta, tr
 ## Diagrams
 
 <!-- fill:file:diagrams -->
-<FILL: if this file has non-trivial control flow, async sequences, or state transitions, include a Mermaid diagram here. Use `flowchart`, `sequenceDiagram`, or `stateDiagram-v2`. Skip this section entirely — do not write "no diagram" — if the file is trivial.>
+:::note
+Static map over `KPIS` rendered into a responsive grid. The interesting decision logic lives in `KpiCard` (sign of `delta` picks the trend icon) but is two lines; no control flow worth diagramming.
+:::
 <!-- /fill:file:diagrams -->

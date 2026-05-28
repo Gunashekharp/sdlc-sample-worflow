@@ -100,7 +100,15 @@ Returns the dashboard layout. The outer `div` is a full-height (`h-screen`), cli
 ### Behavior
 
 <!-- fill:sym:App:behavior -->
-<FILL: walk the rendered JSX, the event handlers, the accessibility attributes (aria-*, role), and the styling decisions in a few short paragraphs or a bulleted list. Quote real lines from the source. Cover: top-level element + key children, where each prop ends up in the DOM, what each event handler does, and any conditional/computed class logic. Aim for 6-15 sentences — small files get richer prose because the walkthrough alone is too compact.>
+`App` is a pure layout component — it has no `useState`, no effects, no event handlers, and no conditional rendering. Its job is to wire static data into the right slots and let each child component own its own behavior.
+
+- The outer `<div className="flex h-screen overflow-hidden">` makes the dashboard fill the viewport and clips overflow so the page never scrolls as a whole.
+- `<Sidebar />` is a fixed-width column (`w-60` inside the component) docked on the left; `App` does not pass any props because the sidebar's nav and recent-sessions list are hardcoded in `components/Sidebar.tsx`.
+- The right-hand column uses `flex min-w-0 flex-1 flex-col` — `min-w-0` is the standard fix that lets long content (such as agent names) truncate instead of pushing the layout wider than the viewport.
+- `<TopBar />` and `<PromptBar />` sit at the top and bottom of that column and never scroll, because only the middle `<main className="flex-1 overflow-y-auto">` element owns the scrollbar.
+- Inside `main`, the `mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5` wrapper centres the content at `max-w-6xl` and stacks the dashboard sections with a uniform 20px gap.
+- `<FeaturedAgent agent={featured} />` receives the `featured` agent picked in Line 11; `<AgentGrid agents={rest} />` receives the remaining agents from Line 12, so the featured agent is never rendered twice.
+- No `aria-*` attributes or `role`s are added at this level — accessibility lives inside the children (e.g. `KpiStrip` sets `aria-label="Key metrics"`, `PromptBar` labels its textarea as `"Prompt input"`).
 <!-- /fill:sym:App:behavior -->
 
 ### Examples
@@ -132,10 +140,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | <FILL: assertion summary> |
-| <App /> | renders the KPI strip | <FILL: assertion summary> |
-| <App /> | renders agents in the grid | <FILL: assertion summary> |
-| <App /> | renders the prompt input | <FILL: assertion summary> |
+| <App /> | renders the featured agent | Asserts the "Featured agent" label and "PR Reviewer" name both appear after `fetch` is stubbed to return an empty pipeline list. |
+| <App /> | renders the KPI strip | Asserts the region with accessible name `/key metrics/i` is present, proving `KpiStrip` mounted with its `aria-label`. |
+| <App /> | renders agents in the grid | Asserts both "Deploy Bot" and "Alert Triage" cards appear, confirming `rest` flowed into `AgentGrid`. |
+| <App /> | renders the prompt input | Asserts the textarea labelled "Prompt input" exists, confirming `PromptBar` is mounted at the bottom of the layout. |
 
 ## Diagrams
 
