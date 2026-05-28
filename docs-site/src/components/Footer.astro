@@ -1,0 +1,12 @@
+---
+/**
+ * Footer.astro — overrides Starlight's footer so the AskAIBar (bottom-
+ * sticky chat input + right-docked conversation panel) renders on every
+ * documentation page.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro';
+import AskAIBar from './AskAIBar.astro';
+---
+
+<Default><slot /></Default>
+<AskAIBar />

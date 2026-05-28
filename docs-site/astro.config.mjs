@@ -24,11 +24,11 @@ export default defineConfig({
       // Component overrides:
       //   PageTitle — wraps the default <h1> with the Mintlify-style
       //               ContextualMenu (Copy page / Open in ChatGPT / …).
-      //   Search    — wraps the default search button and adds an
-      //               "Ask AI" header button + modal (AskAI.astro).
+      //   Footer    — mounts the bottom-sticky AskAIBar + right-docked
+      //               conversation panel on every page.
       components: {
         PageTitle: './src/components/PageTitle.astro',
-        Search: './src/components/Search.astro',
+        Footer: './src/components/Footer.astro',
       },
       customCss: ['./src/styles/snabbit.css'],
       social: [

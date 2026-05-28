@@ -1,0 +1,217 @@
+---
+/**
+ * AskAIBar.astro — Mintlify-style "Ask AI" experience.
+ *
+ *   Bottom bar : a pill input fixed at the bottom-center of every page.
+ *                Always visible. Type, hit Enter.
+ *   Side panel : on Enter, a panel slides in from the right edge of the
+ *                page (~420px wide, full height) showing the conversation.
+ *                The bottom bar stays — keep typing to continue the chat.
+ *
+ * Conversation lives in sessionStorage (per-tab). The bottom bar's input
+ * is the single source of truth — there is no second input inside the
+ * panel.
+ *
+ * SETUP: paste your Cloudflare Worker URL into WORKER_URL below.
+ */
+---
+
+<div class="sn-aibar" data-sn-aibar>
+  <form class="sn-aibar-form" data-sn-aibar-form>
+    <svg class="sn-aibar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 1.5 9.4 6.6 14.5 8 9.4 9.4 8 14.5 6.6 9.4 1.5 8 6.6 6.6 8 1.5Z"/>
+    </svg>
+    <input
+      class="sn-aibar-input"
+      type="text"
+      placeholder="Ask AI about the docs…"
+      autocomplete="off"
+      aria-label="Ask AI about the documentation"
+      data-sn-aibar-input
+    />
+    <kbd class="sn-aibar-kbd">⌘I</kbd>
+    <button class="sn-aibar-send" type="submit" data-sn-aibar-send aria-label="Send">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M2.5 8h11M9 3.5 13.5 8 9 12.5"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<aside class="sn-aipanel" hidden data-sn-aipanel aria-label="AI assistant conversation">
+  <header class="sn-aipanel-head">
+    <span class="sn-aipanel-title">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 1.5 9.4 6.6 14.5 8 9.4 9.4 8 14.5 6.6 9.4 1.5 8 6.6 6.6 8 1.5Z"/>
+      </svg>
+      Ask the docs
+    </span>
+    <span class="sn-aipanel-actions">
+      <button type="button" data-sn-aipanel-clear>Clear</button>
+      <button type="button" class="sn-aipanel-close" aria-label="Close" data-sn-aipanel-close>&#215;</button>
+    </span>
+  </header>
+
+  <div class="sn-aipanel-msgs" aria-live="polite" data-sn-aipanel-msgs></div>
+
+  <div class="sn-aipanel-suggestions" hidden data-sn-aipanel-suggestions>
+    <p class="sn-aipanel-suggestion-label">Try asking:</p>
+    <button class="sn-aipanel-suggestion" type="button" data-sn-prompt="How do I run the backend locally?">How do I run the backend locally?</button>
+    <button class="sn-aipanel-suggestion" type="button" data-sn-prompt="What does the CI/CD adapter do?">What does the CI/CD adapter do?</button>
+    <button class="sn-aipanel-suggestion" type="button" data-sn-prompt="How does the chat worker answer questions?">How does the chat worker answer questions?</button>
+  </div>
+
+  <p class="sn-aipanel-note">AI-generated answers — check the linked sources.</p>
+</aside>
+
+<script is:inline>
+  (() => {
+    const WORKER_URL = 'https://snabbit-docs-chatbot.snabbit-docs-chatbot.workers.dev';
+    const STORAGE_KEY = 'docs-chat-history';
+
+    const bar = document.querySelector('[data-sn-aibar]');
+    const panel = document.querySelector('[data-sn-aipanel]');
+    if (!bar || !panel) return;
+
+    const form = bar.querySelector('[data-sn-aibar-form]');
+    const input = bar.querySelector('[data-sn-aibar-input]');
+    const send = bar.querySelector('[data-sn-aibar-send]');
+
+    const msgs = panel.querySelector('[data-sn-aipanel-msgs]');
+    const suggestions = panel.querySelector('[data-sn-aipanel-suggestions]');
+    const closeBtn = panel.querySelector('[data-sn-aipanel-close]');
+    const clearBtn = panel.querySelector('[data-sn-aipanel-clear]');
+
+    if (bar.parentElement !== document.body) document.body.appendChild(bar);
+    if (panel.parentElement !== document.body) document.body.appendChild(panel);
+
+    let history = [];
+    try { history = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]'); } catch { history = []; }
+    let busy = false;
+
+    const save = () => { try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch {} };
+
+    const openPanel = () => {
+      panel.removeAttribute('hidden');
+      requestAnimationFrame(() => panel.classList.add('is-open'));
+      document.body.classList.add('sn-aipanel-open');
+    };
+    const closePanel = () => {
+      panel.classList.remove('is-open');
+      document.body.classList.remove('sn-aipanel-open');
+      setTimeout(() => panel.setAttribute('hidden', ''), 220);
+    };
+    const isPanelOpen = () => !panel.hasAttribute('hidden');
+
+    function bubble(role, text) {
+      const el = document.createElement('div');
+      el.className = 'sn-aipanel-msg ' + (role === 'user' ? 'sn-aipanel-user' : 'sn-aipanel-bot');
+      el.textContent = text;
+      msgs.appendChild(el);
+      return el;
+    }
+    function sourcesRow(sources) {
+      const row = document.createElement('div');
+      row.className = 'sn-aipanel-sources';
+      row.appendChild(document.createTextNode('Sources: '));
+      sources.forEach((s, i) => {
+        if (i > 0) row.appendChild(document.createTextNode(', '));
+        const a = document.createElement('a');
+        a.href = s.url; a.textContent = s.title || s.url;
+        row.appendChild(a);
+      });
+      msgs.appendChild(row);
+    }
+    function render() {
+      msgs.innerHTML = '';
+      if (!history.length) {
+        bubble('assistant', 'Hi! Ask me anything about the documentation.');
+        if (suggestions) suggestions.removeAttribute('hidden');
+      } else {
+        if (suggestions) suggestions.setAttribute('hidden', '');
+      }
+      for (const m of history) {
+        bubble(m.role, m.content);
+        if (m.sources && m.sources.length) sourcesRow(m.sources);
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async function ask(question) {
+      if (busy) return;
+      busy = true;
+      send.disabled = true;
+      input.disabled = true;
+
+      if (!isPanelOpen()) openPanel();
+
+      const prior = history
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .slice(-6)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      history.push({ role: 'user', content: question });
+      render(); save();
+
+      const loading = bubble('assistant', 'Thinking…');
+      loading.classList.add('sn-aipanel-loading');
+      msgs.scrollTop = msgs.scrollHeight;
+
+      if (WORKER_URL.indexOf('REPLACE') !== -1) {
+        loading.remove();
+        history.push({ role: 'assistant', content: 'The chatbot is not configured yet. Deploy the Worker (see chat-worker/README.md) and set WORKER_URL in AskAIBar.astro.' });
+      } else {
+        try {
+          const res = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, history: prior }),
+          });
+          const data = await res.json();
+          loading.remove();
+          if (!res.ok || data.error) {
+            history.push({ role: 'assistant', content: 'Sorry — something went wrong answering that. Please try again.' });
+          } else {
+            history.push({ role: 'assistant', content: data.answer || 'No answer was returned.', sources: Array.isArray(data.sources) ? data.sources : [] });
+          }
+        } catch {
+          loading.remove();
+          history.push({ role: 'assistant', content: 'Could not reach the chatbot. Please try again later.' });
+        }
+      }
+
+      render(); save();
+      busy = false;
+      send.disabled = false;
+      input.disabled = false;
+      input.focus();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) {
+        if (!isPanelOpen()) openPanel();
+        return;
+      }
+      input.value = '';
+      ask(q);
+    });
+    closeBtn.addEventListener('click', closePanel);
+    clearBtn.addEventListener('click', () => { history = []; save(); render(); });
+    suggestions.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      const prompt = t.getAttribute('data-sn-prompt');
+      if (prompt) ask(prompt);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const isCmdI = (e.metaKey || e.ctrlKey) && (e.key === 'i' || e.key === 'I');
+      if (isCmdI) { e.preventDefault(); input.focus(); }
+      if (e.key === 'Escape' && isPanelOpen()) closePanel();
+    });
+
+    render();
+  })();
+</script>
