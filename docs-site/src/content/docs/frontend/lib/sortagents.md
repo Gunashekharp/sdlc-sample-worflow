@@ -45,8 +45,8 @@ export function sortAgents(agents: Agent[], key: SortKey): Agent[] { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The list to sort; the function shallow-copies it before sorting, so the caller's array is left untouched. |
-| key | `SortKey` | — | yes | Which dimension to sort by — picks the comparator for `runsPerWeek` desc, `successRate` desc, `name` asc, or `lastRunMinutes` asc. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| key | `SortKey` | — | yes | <FILL: purpose of key> |
 
 **Returns:** `Agent[]`
 
@@ -139,11 +139,11 @@ const SORT_LABELS: Record<SortKey, string>
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| sortAgents | sorts by runs, descending | Asserts ids order to `['b', 'c', 'a']` — highest `runsPerWeek` (300) first, lowest (50) last. |
-| sortAgents | sorts by success rate, descending | Asserts ids order to `['c', 'a', 'b']` — highest `successRate` (99) first. |
-| sortAgents | sorts by name, ascending | Asserts ids order to `['b', 'c', 'a']` — Alpha, Bravo, Charlie alphabetically. |
-| sortAgents | sorts by most recent run first | Asserts ids order to `['b', 'a', 'c']` — smallest `lastRunMinutes` (5) first. |
-| sortAgents | does not mutate the input array | Snapshots the input ids before sorting and asserts the original array order is unchanged afterwards. |
+| sortAgents | sorts by runs, descending | <FILL: assertion summary> |
+| sortAgents | sorts by success rate, descending | <FILL: assertion summary> |
+| sortAgents | sorts by name, ascending | <FILL: assertion summary> |
+| sortAgents | sorts by most recent run first | <FILL: assertion summary> |
+| sortAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 

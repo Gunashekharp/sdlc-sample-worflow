@@ -44,8 +44,8 @@ export function filterAgents(agents: Agent[], filter: AgentFilter): Agent[] { ..
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| agents | `Agent[]` | — | yes | The list to filter; the function does not mutate it and returns a fresh array. |
-| filter | `AgentFilter` | — | yes | The filter criteria — `query` is normalized once and matched against name/description, `category` is matched literally with `'All'`/`'Popular'` as pseudo-categories. |
+| agents | `Agent[]` | — | yes | <FILL: purpose of agents> |
+| filter | `AgentFilter` | — | yes | <FILL: purpose of filter> |
 
 **Returns:** `Agent[]`
 
@@ -142,16 +142,16 @@ export interface AgentFilter { ... }
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| filterAgents | returns every agent for the All category and empty query | Asserts the result length equals the input length when `category: 'All'` and `query: ''`. |
-| filterAgents | filters by an exact category | Asserts only the `'Review'` agent (`id: 'a'`) is returned when `category: 'Review'`. |
-| filterAgents | filters by the Popular pseudo-category | Asserts only the two `popular: true` agents (`ids: 'a', 'b'`) are returned when `category: 'Popular'`. |
-| filterAgents | matches the query against the agent name | Asserts `query: 'deploy'` returns only the `'Deploy Bot'` agent. |
-| filterAgents | matches the query against the description | Asserts `query: 'root cause'` returns the RCA Analyst, matched on its description. |
-| filterAgents | is case-insensitive | Asserts `query: 'REVIEWER'` still matches the PR Reviewer agent. |
-| filterAgents | ignores surrounding whitespace in the query | Asserts `query: '  bot  '` (with leading/trailing spaces) matches the Deploy Bot agent. |
-| filterAgents | applies category and query together | Asserts `category: 'Popular', query: 'reviewer'` AND-composes to just the PR Reviewer. |
-| filterAgents | returns an empty array when nothing matches | Asserts `query: 'nonexistent'` resolves to `[]`. |
-| filterAgents | does not mutate the input array | Asserts the original `agents` array is identical (deep-equal to a pre-call copy) after filtering. |
+| filterAgents | returns every agent for the All category and empty query | <FILL: assertion summary> |
+| filterAgents | filters by an exact category | <FILL: assertion summary> |
+| filterAgents | filters by the Popular pseudo-category | <FILL: assertion summary> |
+| filterAgents | matches the query against the agent name | <FILL: assertion summary> |
+| filterAgents | matches the query against the description | <FILL: assertion summary> |
+| filterAgents | is case-insensitive | <FILL: assertion summary> |
+| filterAgents | ignores surrounding whitespace in the query | <FILL: assertion summary> |
+| filterAgents | applies category and query together | <FILL: assertion summary> |
+| filterAgents | returns an empty array when nothing matches | <FILL: assertion summary> |
+| filterAgents | does not mutate the input array | <FILL: assertion summary> |
 
 ## Diagrams
 

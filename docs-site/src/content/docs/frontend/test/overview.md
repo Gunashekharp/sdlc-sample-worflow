@@ -6,14 +6,14 @@ description: Files under src/test/
 **Folder:** `src/test/`
 
 <!-- fill:folder:summary -->
-Test scaffolding for the Vitest + jsdom suite. The only file is `setup.ts`, wired in by `vite.config.ts` so it runs once before every test file: it loads `@testing-library/jest-dom` matchers and clears `localStorage` after each test to keep `usePersistentState`-backed UI from leaking between cases. Actual test files live next to the source they cover (`*.test.ts(x)`) — they do not belong in this folder.
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
 <!-- /fill:folder:summary -->
 
 ## Files
 
 | File | Hint |
 | --- | --- |
-| [`setup.ts`](../test/setup) | Vitest global setup — registers `@testing-library/jest-dom` matchers and clears `localStorage` after each test. |
+| [`setup.ts`](../test/setup) | <FILL: one-line purpose for setup.ts> |
 
 ## Dependencies
 
@@ -26,6 +26,5 @@ No internal dependencies detected for this folder.
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Vitest boot.** `vite.config.ts` lists this file under `test.setupFiles`, so Vitest imports it once before any spec runs.
-- **Per-test cleanup.** The `afterEach` callback clears `localStorage` so tests that exercise `usePersistentState` (e.g. `AgentGrid` remembering its category) start from a clean slate.
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
 <!-- /fill:folder:flows -->

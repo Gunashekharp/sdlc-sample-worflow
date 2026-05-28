@@ -6,7 +6,7 @@ description: Files under server/src/db/
 **Folder:** `server/src/db/`
 
 <!-- fill:folder:summary -->
-One-shot Postgres scaffolding for the API. `schema.ts` exports the idempotent DDL (`CREATE TABLE IF NOT EXISTS …`) for the `agents` and `kpis` tables; `setup.ts` is the CLI script (`npm run db:setup`) that opens a pool, applies the schema, then upserts every row from `seed.ts`. Live query logic lives in `postgresStore.ts`, not here — this folder is purely for setup/migration.
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -36,6 +36,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **One-shot setup.** `npm run db:setup` invokes `db/setup.ts`, which builds a `pg` `Pool` from `config.databaseUrl`, runs `SCHEMA_SQL` from `schema.ts`, then iterates `SEED_AGENTS`/`SEED_KPIS` from `seed.ts` and upserts each row via `INSERT … ON CONFLICT (id) DO UPDATE`. Re-running is safe because both DDL and DML are idempotent.
-- **KPI ordering.** Inside `setup.ts`, each `SEED_KPI`'s array index `i` is written to the `sort_order` column, which is the same column `postgresStore.ts`'s `listKpis` orders by — so the display order in the dashboard matches the order in `seed.ts`.
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
 <!-- /fill:folder:flows -->

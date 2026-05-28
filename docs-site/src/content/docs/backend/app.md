@@ -50,7 +50,7 @@ export function createApp(deps: AppDeps) { ... }
 
 | Name | Type | Default | Required | Purpose |
 | --- | --- | --- | --- | --- |
-| deps | `AppDeps` | — | yes | Concrete `store` and `cicd` implementations to inject. `index.ts` passes the Postgres store + chosen provider; tests pass an in-memory store + the mock provider. |
+| deps | `AppDeps` | — | yes | <FILL: purpose of deps> |
 
 **Returns:** `any`
 
@@ -170,8 +170,8 @@ export interface AppDeps { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| store | `Store` | Backend for `/api/agents`, `/api/agents/:id`, and `/api/kpis` — either the Postgres-backed implementation in production or the in-memory one in tests. |
-| cicd | `CicdProvider` | Backend for `/api/pipelines` — either `createGithubActionsProvider` (when credentials are set) or `createMockCicdProvider` (the default). |
+| store | `Store` | <FILL: store> |
+| cicd | `CicdProvider` | <FILL: cicd> |
 
 ### Used by
 

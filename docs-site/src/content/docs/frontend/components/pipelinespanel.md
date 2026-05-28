@@ -143,8 +143,8 @@ On mount it shows "Loading pipelines…", then either lists the pipelines return
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <PipelinesPanel /> | renders pipelines returned by the API | Stubs `fetch` to resolve with a two-pipeline payload and asserts both "CI · build & test" and "E2E suite" rows appear in the rendered list. |
-| <PipelinesPanel /> | shows an error state when the API is unreachable | Stubs `fetch` to reject with `'network down'` and asserts the `/could not reach the api/i` `PanelMessage` renders, confirming the error branch. |
+| <PipelinesPanel /> | renders pipelines returned by the API | <FILL: assertion summary> |
+| <PipelinesPanel /> | shows an error state when the API is unreachable | <FILL: assertion summary> |
 
 ## Diagrams
 

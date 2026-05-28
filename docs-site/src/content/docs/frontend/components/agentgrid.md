@@ -52,7 +52,7 @@ export default function AgentGrid({ agents }: { agents: Agent[] }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agents | `Agent[]` | yes | The pool to display; the grid never mutates it. `filterAgents` narrows it by `query`/`category` and `sortAgents` reorders the result. |
+| agents | `Agent[]` | yes | <FILL: what does agents control?> |
 
 ### Line-by-line walkthrough
 
@@ -230,13 +230,13 @@ With this input the grid renders one `AgentCard` per agent (the test "renders a 
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <AgentGrid /> | renders a card for every agent | Iterates `AGENTS` and asserts each agent's name appears in the document on initial render. |
-| <AgentGrid /> | filters agents by the search query | Types `'deploy'` into the "Filter agents" input and asserts "Deploy Bot" is visible while "PR Reviewer" is gone. |
-| <AgentGrid /> | shows an empty state when nothing matches | Types a junk query and asserts the `/no agents match/i` text appears, exercising the `visible.length === 0` branch. |
-| <AgentGrid /> | filters agents by category tab | Clicks the `'Deploy'` tab and asserts "Deploy Bot" remains while "RCA Analyst" (a Reliability agent) disappears. |
-| <AgentGrid /> | marks a card as selected when clicked | Finds the "Deploy Bot" card, asserts `aria-pressed="false"`, clicks it, then asserts `aria-pressed="true"`. |
-| <AgentGrid /> | keeps every agent visible after changing the sort | Selects sort key `'name'` and asserts every agent name still appears — sorting reorders but never drops items. |
-| <AgentGrid /> | remembers the selected category across remounts | Clicks `'Deploy'`, unmounts, remounts a fresh `AgentGrid`, and asserts the Deploy tab is still `aria-pressed="true"` — covering the `usePersistentState` round-trip. |
+| <AgentGrid /> | renders a card for every agent | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by the search query | <FILL: assertion summary> |
+| <AgentGrid /> | shows an empty state when nothing matches | <FILL: assertion summary> |
+| <AgentGrid /> | filters agents by category tab | <FILL: assertion summary> |
+| <AgentGrid /> | marks a card as selected when clicked | <FILL: assertion summary> |
+| <AgentGrid /> | keeps every agent visible after changing the sort | <FILL: assertion summary> |
+| <AgentGrid /> | remembers the selected category across remounts | <FILL: assertion summary> |
 
 ## Diagrams
 

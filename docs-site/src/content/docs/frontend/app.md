@@ -140,10 +140,10 @@ With the current catalogue, `featured` resolves to the `'pr-reviewer'` agent and
 
 | Suite | Test | Asserts |
 | --- | --- | --- |
-| <App /> | renders the featured agent | Asserts the "Featured agent" label and "PR Reviewer" name both appear after `fetch` is stubbed to return an empty pipeline list. |
-| <App /> | renders the KPI strip | Asserts the region with accessible name `/key metrics/i` is present, proving `KpiStrip` mounted with its `aria-label`. |
-| <App /> | renders agents in the grid | Asserts both "Deploy Bot" and "Alert Triage" cards appear, confirming `rest` flowed into `AgentGrid`. |
-| <App /> | renders the prompt input | Asserts the textarea labelled "Prompt input" exists, confirming `PromptBar` is mounted at the bottom of the layout. |
+| <App /> | renders the featured agent | <FILL: assertion summary> |
+| <App /> | renders the KPI strip | <FILL: assertion summary> |
+| <App /> | renders agents in the grid | <FILL: assertion summary> |
+| <App /> | renders the prompt input | <FILL: assertion summary> |
 
 ## Diagrams
 

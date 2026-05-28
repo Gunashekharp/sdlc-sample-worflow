@@ -43,7 +43,7 @@ export default function StatusDot({ status }: { status: AgentStatus }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| status | `AgentStatus` | yes | Picks the rendered variant — `'running'` renders the pulsing accent dot, `'attention'` the amber dot, `'idle'` the faint grey dot — and supplies the `title` tooltip via `STATUS_LABEL[status]`. |
+| status | `AgentStatus` | yes | <FILL: what does status control?> |
 
 ### Line-by-line walkthrough
 

@@ -46,7 +46,7 @@ export default function FeaturedAgent({ agent }: { agent: Agent }) { ... }
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to feature — supplies the name, status pill, description, and the four headline stats (`runsPerWeek`, `successRate`, `avgDuration`, `lastRun`). |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
 
 ### Line-by-line walkthrough
 

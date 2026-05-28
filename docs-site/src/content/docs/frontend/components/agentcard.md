@@ -45,9 +45,9 @@ export default function AgentCard({ agent, selected, onSelect }: AgentCardProps)
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| agent | `Agent` | yes | The agent to render — supplies the status dot, name, category badge, description, and the three footer stats. |
-| selected | `boolean` | yes | When `true`, swaps the card border to `border-accent ring-1 ring-accent` and sets `aria-pressed="true"`; otherwise renders the default muted hover style. |
-| onSelect | `(id: string) => void` | yes | Click handler invoked with `agent.id`; lets the parent (`AgentGrid`) own the selection state without `AgentCard` keeping any of its own. |
+| agent | `Agent` | yes | <FILL: what does agent control?> |
+| selected | `boolean` | yes | <FILL: what does selected control?> |
+| onSelect | `(id: string) => void` | yes | <FILL: what does onSelect control?> |
 
 ### Line-by-line walkthrough
 

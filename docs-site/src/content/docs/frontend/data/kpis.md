@@ -36,13 +36,13 @@ export interface Kpi { ... }
 
 | Name | Type | Description |
 | --- | --- | --- |
-| id | `string` | Stable identifier (e.g. `'agent-runs'`); used as the React `key` when mapping over `KPIS`. |
-| label | `string` | Card title shown in small uppercase at the top (e.g. "Agent runs · 7d"). |
-| value | `string` | Pre-formatted headline value rendered in the large numeral slot (e.g. "1,284", "4h 12m"). |
-| delta | `string` | Period-over-period change as a signed percentage string (e.g. "+18%", "-22%"); leading `-` picks the down-trending icon. |
-| positive | `boolean` | Whether the delta represents a good outcome; decoupled from the sign so falling metrics like time-to-merge can still be marked positive. Drives the sparkline and delta colour. |
-| hint | `string` | One-sentence subtitle clarifying what the metric measures, shown at the bottom of the card. |
-| trend | `number[]` | Seven-point series (oldest first) plotted as the inline sparkline; needs at least two points to render. |
+| id | `string` | <FILL: id> |
+| label | `string` | <FILL: label> |
+| value | `string` | <FILL: value> |
+| delta | `string` | <FILL: delta> |
+| positive | `boolean` | <FILL: positive> |
+| hint | `string` | <FILL: hint> |
+| trend | `number[]` | <FILL: trend> |
 
 ### Used by
 

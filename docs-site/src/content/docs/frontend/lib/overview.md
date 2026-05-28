@@ -6,7 +6,7 @@ description: Files under src/lib/
 **Folder:** `src/lib/`
 
 <!-- fill:folder:summary -->
-Reusable logic shared across components — the typed HTTP client, two custom React hooks, and the pure filter/sort helpers used by `AgentGrid`. Code here must not render JSX or depend on a specific component; if it does, it belongs in `components/`. Static data and types live in `data/`, not here.
+<FILL: 2-4 sentences on what this folder is for, what kinds of modules belong here, and what does NOT belong here.>
 <!-- /fill:folder:summary -->
 
 ## Files
@@ -14,10 +14,10 @@ Reusable logic shared across components — the typed HTTP client, two custom Re
 | File | Hint |
 | --- | --- |
 | [`api.ts`](../lib/api) | Typed client for the Snabbit Agent Console API. |
-| [`filterAgents.ts`](../lib/filteragents) | Pure filter — keeps agents that match the category (with the `Popular` pseudo-category) and a case-insensitive query against name and description. |
-| [`sortAgents.ts`](../lib/sortagents) | Pure sort — returns a new agent array ordered by `runs`, `success`, `name`, or `recent`; also exports `SORT_LABELS` for the menu. |
-| [`useFetch.ts`](../lib/usefetch) | Generic `useState`-backed data hook that runs a fetcher on mount, manages `AbortController` cleanup, and exposes `loading`, `error`, `data`, and `reload`. |
-| [`usePersistentState.ts`](../lib/usepersistentstate) | Tiny `useState` wrapper that reads the initial value from `localStorage[key]` and mirrors writes back, swallowing storage errors. |
+| [`filterAgents.ts`](../lib/filteragents) | <FILL: one-line purpose for filterAgents.ts> |
+| [`sortAgents.ts`](../lib/sortagents) | <FILL: one-line purpose for sortAgents.ts> |
+| [`useFetch.ts`](../lib/usefetch) | <FILL: one-line purpose for useFetch.ts> |
+| [`usePersistentState.ts`](../lib/usepersistentstate) | <FILL: one-line purpose for usePersistentState.ts> |
 
 ## Dependencies
 
@@ -37,7 +37,5 @@ flowchart LR
 ## Key flows
 
 <!-- fill:folder:flows -->
-- **Agent grid pipeline.** `AgentGrid` composes the helpers as `sortAgents(filterAgents(agents, { query, category }), sort)` inside a `useMemo` so the visible list only recomputes when one of those inputs changes.
-- **Persistent filters.** The same component reads/writes `category` and `sort` through `usePersistentState`, so refreshing the page or remounting the grid restores the previous selections.
-- **Live pipelines.** `PipelinesPanel` passes the module-level `fetchPipelines` from `api.ts` into `useFetch` — referential stability of the fetcher is what keeps the effect from re-firing on every render.
+<FILL: 1-3 short descriptions of how modules in this folder cooperate at runtime.>
 <!-- /fill:folder:flows -->
